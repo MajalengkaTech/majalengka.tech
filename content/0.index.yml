@@ -1,0 +1,114 @@
+title: Membangun Ekosistem [Teknologi & Open Source]{class="text-primary"} dari Majalengka
+description: Hub komunitas teknologi, riset tepat guna, dan proyek open-source untuk kemajuan Kabupaten Majalengka. Dari lereng Gunung Ciremai untuk inovasi daerah dan dampak global.
+seo:
+  title: Majalengka Tech · Komunitas Open Source & Teknologi Daerah
+  description: Portal resmi komunitas Majalengka Tech. Inisiatif smart farming IoT, pariwisata terbuka, digitalisasi UMKM, edukasi AI/coding, dan Majalengka Design System.
+navigation: false
+hero:
+  links:
+    - label: Jelajahi Inisiatif
+      icon: i-lucide-arrow-right
+      trailing: true
+      to: /docs/inisiatif
+      size: xl
+    - label: GitHub Majalengka Tech
+      icon: i-simple-icons-github
+      size: xl
+      color: neutral
+      variant: subtle
+      to: https://github.com/majalengka-tech
+      target: _blank
+sections:
+  - title: Inisiatif Nyata untuk Solusi Daerah
+    description: Kami tidak hanya memakai teknologi, tetapi merancang dan membagikan solusi tepat guna yang menyelesaikan persoalan riil di Majalengka.
+    id: inisiatif
+    orientation: horizontal
+    features:
+      - title: AgriTech & Smart Farming IoT
+        description: Sensor telemetri tanah, iklim mikro lereng Ciremai, dan otomasi irigasi hemat biaya berbasis ESP32.
+        icon: i-lucide-sprout
+      - title: Majalengka Tourism Open Guide
+        description: Platform peta terbuka untuk pariwisata alam (Panyaweuyan, Situ Cipanten) dan direktori UMKM lokal.
+        icon: i-lucide-map-pin
+      - title: Digitalisasi & Tools UMKM
+        description: Aplikasi kasir ringan (POS), generator katalog produk online, dan template QRIS tanpa biaya lisensi.
+        icon: i-lucide-store
+  - title: Standar Desain & Knowledge Terbuka
+    description: Menghubungkan manusia dan agen AI dengan arsitektur pengetahuan dan desain yang kredibel serta aksesibel.
+    id: standards
+    orientation: horizontal
+    reverse: true
+    features:
+      - title: Majalengka Design System (MDS)
+        description: Desain sistem resmi terinspirasi IDDS & standar aksesibilitas WCAG 2.1 AA untuk website instansi daerah.
+        icon: i-lucide-palette
+      - title: Open Knowledge Format (OKF)
+        description: Penerapan standar Google Cloud OKF v0.2 untuk representasi metadata, kurasi wawasan, dan interoperabilitas AI.
+        icon: i-lucide-brain
+      - title: Open Data & Visualisasi Publik
+        description: Portal visualisasi data produksi komoditas, cuaca mikro, dan statistik daerah yang transparan.
+        icon: i-lucide-bar-chart-3
+features:
+  title: Prinsip & Nilai Komunitas
+  description: Fondasi utama dalam setiap inisiatif dan baris kode yang kami kembangkan bersama masyarakat Majalengka.
+  items:
+    - title: 100% Terbuka & Open Source
+      description: Seluruh source code, skema perangkat keras IoT, dan dataset dirilis dengan lisensi terbuka (MIT/Apache).
+      icon: i-lucide-unlock
+    - title: Inklusif & Aksesibel
+      description: Memastikan setiap layanan digital ramah bagi seluruh lapisan masyarakat dan penyandang disabilitas (WCAG 2.1 AA).
+      icon: i-lucide-accessibility
+    - title: Pemberdayaan Talenta Lokal
+      description: Membuka akses modul coding dan AI gratis bagi pelajar SMK/SMA dan mahasiswa UNMA/kampus daerah.
+      icon: i-lucide-graduation-cap
+    - title: Agent-Ready & Modern Architecture
+      description: Mendukung agen AI otonom melalui integrasi Google Cloud OKF dan format dokumen berbasis markdown terstruktur.
+      icon: i-lucide-cpu
+    - title: Budaya & Kearifan Lokal
+      description: Mengintegrasikan bahasa daerah (Basa Sunda) dan kearifan lokal dalam aplikasi pariwisata dan edukasi.
+      icon: i-lucide-heart
+    - title: Kolaborasi Lintas Sektor
+      description: Bermitra dengan kelompok tani, kampus lokal, dinas daerah, dan pengembang software open-source global.
+      icon: i-lucide-users
+testimonials:
+  headline: Suara Komunitas
+  title: Bersama Membangun Masa Depan Digital Majalengka
+  description: Dukungan dari pengembang, pegiat agritech, akademisi, dan pelaku usaha lokal.
+  items:
+    - quote: Adanya Majalengka Tech membuka ruang kolaborasi nyata antara mahasiswa teknik dengan petani lokal untuk riset IoT irigasi cerdas di lereng Ciremai.
+      user:
+        name: Rian Kurniawan
+        description: Penggiat IoT & Alumni Universitas Majalengka
+        to: /docs/inisiatif
+        target: _self
+        avatar:
+          src: https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&h=120&q=80
+    - quote: Template katalog dan tools UMKM open-source sangat membantu pedagang olahan mangga gedong gincu dan kopi lokal untuk jualan online tanpa biaya mahal.
+      user:
+        name: Siti Nurhaliza
+        description: Pelaku UMKM Kuliner Majalengka
+        to: /docs/inisiatif
+        target: _self
+        avatar:
+          src: https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=120&h=120&q=80
+    - quote: Standar Majalengka Design System (MDS) menjadi solusi agar website dinas dan portal publik di daerah kita punya tampilan rapi, cepat, dan aksesibel.
+      user:
+        name: Asep Hidayat
+        description: Frontend Engineer & Kontributor Komunitas
+        to: /docs/design-system
+        target: _self
+        avatar:
+          src: https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=120&h=120&q=80
+cta:
+  title: Tertarik Berkontribusi atau Memulai Kolaborasi?
+  description: Mari bergabung bersama komunitas pengembang, desainer, dan pegiat teknologi di Majalengka. Setiap kontribusi sangat berarti!
+  links:
+    - label: Kunjungi GitHub Majalengka Tech
+      to: https://github.com/majalengka-tech
+      target: _blank
+      trailing: true
+      icon: i-simple-icons-github
+    - label: Jelajahi Dokumentasi
+      to: /docs
+      variant: subtle
+      icon: i-lucide-book-open
