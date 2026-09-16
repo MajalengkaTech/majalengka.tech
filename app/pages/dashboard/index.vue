@@ -189,10 +189,10 @@ async function handleDeleteProject(id: number) {
 				<div class="flex items-center justify-between">
 					<div>
 						<h2 class="text-lg font-bold text-highlighted">
-							Projek Terbaru Saya
+							Proyek Terbaru Saya
 						</h2>
 						<p class="text-xs text-muted">
-							Daftar karya dan portofolio teknologi yang telah Anda publikasikan
+							Karya dan aplikasi yang sudah kamu bagikan ke komunitas
 						</p>
 					</div>
 
@@ -218,13 +218,13 @@ async function handleDeleteProject(id: number) {
 						/>
 					</div>
 					<h3 class="font-semibold text-highlighted">
-						Belum Ada Projek
+						Belum Ada Proyek
 					</h3>
 					<p class="text-sm text-muted max-w-md">
-						Anda belum mengunggah projek apapun ke ekosistem Majalengka Tech. Bagikan aplikasi atau tool buatan Anda kepada komunitas!
+						Kamu belum menambahkan proyek apa pun. Yuk pajang aplikasi, tools, atau eksperimen buatanmu di sini!
 					</p>
 					<UButton
-						label="Unggah Projek Pertama"
+						label="Tambah Proyek Pertama"
 						icon="i-lucide-plus"
 						color="primary"
 						class="mt-2"

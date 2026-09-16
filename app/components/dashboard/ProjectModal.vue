@@ -18,9 +18,9 @@ const isOpen = computed({
 	set: (val: boolean) => emit('update:open', val)
 })
 
-const modalTitle = computed(() => props.project ? 'Edit Projek' : 'Tambah Projek Baru')
-const modalDescription = computed(() => props.project ? 'Perbarui informasi, foto thumbnail, tautan, dan deskripsi karya projek Anda.' : 'Unggah karya, aplikasi, atau tools teknologi Anda untuk dipamerkan ke ekosistem Majalengka Tech.')
-const submitButtonLabel = computed(() => props.project ? 'Perbarui Projek' : 'Simpan Projek')
+const modalTitle = computed(() => props.project ? 'Edit Proyek' : 'Tambah Proyek Baru')
+const modalDescription = computed(() => props.project ? 'Perbarui info, foto thumbnail, tautan, atau deskripsi proyekmu.' : 'Pajang karya, aplikasi, atau perkakas buatanmu biar bisa dicoba dan dipelajari teman-teman di Majalengka.')
+const submitButtonLabel = computed(() => props.project ? 'Simpan Perubahan' : 'Terbitkan Proyek')
 
 const toast = useToast()
 const loading = ref(false)
@@ -458,10 +458,10 @@ async function onSubmit(event: FormSubmitEvent<ProjectSchema>) {
 				<div class="pt-2 border-t border-default flex items-center justify-between">
 					<div>
 						<p class="text-sm font-medium text-highlighted">
-							Publikasikan Projek
+							Tampilkan di Showcase Publik
 						</p>
 						<p class="text-xs text-muted">
-							Jika aktif, projek akan langsung muncul di halaman Showcase publik.
+							Proyekmu akan langsung bisa dilihat dan dicoba pengunjung di halaman Showcase.
 						</p>
 					</div>
 					<USwitch

@@ -1,19 +1,19 @@
 ---
-title: Inisiatif & Roadmap Majalengka Tech
-description: Rangkuman 5 pilar program teknologi terbuka untuk memajukan potensi daerah.
+title: Inisiatif Komunitas Majalengka Tech
+description: Rangkuman 5 fokus program teknologi terbuka untuk memajukan potensi daerah.
 navigation:
   title: Ikhtisar Inisiatif
   icon: i-lucide-rocket
 ---
 
-# Inisiatif & Roadmap Majalengka Tech
+# Inisiatif Komunitas Majalengka Tech
 
-Majalengka Tech memfokuskan tenaga komunitas pada 5 inisiatif strategis yang menjawab kebutuhan nyata di Kabupaten Majalengka:
+Kami memusatkan tenaga komunitas pada 5 fokus utama yang paling dekat dengan kebutuhan sehari-hari warga di Majalengka:
 
-## 5 Inisiatif Unggulan
+## 5 Fokus Utama
 
-1. [🌾 AgriTech & Smart Farming IoT](/docs/inisiatif/agritech) - Pemantauan telemetri sensor tanah, suhu, kelembaban udara, dan otomasi katup irigasi untuk petani muda dan kelompok tani lereng Ciremai.
-2. [📍 Tourism & Local Guide Platform](/docs/inisiatif/tourism) - Aplikasi direktori pariwisata mandiri berbasis OpenStreetMap dengan dukungan tri-bahasa (Indonesia, Basa Sunda, Inggris).
-3. [🏪 Digitalisasi & Tools UMKM](/docs/inisiatif/umkm) - Aplikasi kasir (POS) ringan dan generator katalog produk tanpa biaya langganan software bulanan.
-4. [🎓 Open Educational Resources](/docs/inisiatif/education) - Modul dan starter kit belajar pemrograman, embedded system, dan AI praktis untuk pelajar SMK dan mahasiswa lokal.
-5. [📊 Open Data Majalengka](/docs/inisiatif/open-data) - Portal keterbukaan data komoditas pertanian, cuaca mikro, dan statistik daerah.
+1. [🌾 AgriTech & Sensor Pertanian](/docs/inisiatif/agritech) — Pasang sensor tanah, pantau cuaca mikro lereng Ciremai, dan bantu petani muda menghemat air dengan otomasi katup irigasi.
+2. [📍 Panduan Wisata Terbuka](/docs/inisiatif/tourism) — Peta digital dan direktori tempat wisata alam serta kuliner lokal berbasis OpenStreetMap dengan dukungan Basa Sunda.
+3. [🏪 Perkakas Digital UMKM](/docs/inisiatif/umkm) — Aplikasi kasir ringan di HP dan generator katalog produk online siap pakai tanpa biaya sewa aplikasi.
+4. [🎓 Belajar Pemrograman & AI](/docs/inisiatif/education) — Modul dan panduan praktis pemrograman web, IoT, dan AI gratis untuk pelajar SMK dan mahasiswa kampus lokal.
+5. [📊 Data Terbuka Majalengka](/docs/inisiatif/open-data) — Portal visualisasi grafik produksi pertanian, cuaca lokal, dan informasi daerah yang bisa dicek publik kapan saja.

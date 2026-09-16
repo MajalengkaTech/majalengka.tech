@@ -2,8 +2,8 @@
 import type { ProjectItem } from '~/types/project'
 
 useSeoMeta({
-	title: 'Showcase Projek Komunitas · Majalengka Tech',
-	description: 'Jelajahi karya teknologi, pustaka open-source, dan inovasi aplikasi yang dibangun oleh komunitas developer Majalengka.'
+	title: 'Showcase Proyek Komunitas · Majalengka Tech',
+	description: 'Kumpulan proyek open source, aplikasi lokal, dan eksperimen teknologi buatan teman-teman developer di Majalengka.'
 })
 
 const search = ref('')
@@ -54,20 +54,20 @@ const filteredProjects = computed(() => {
 					variant="subtle"
 					class="mb-3"
 				>
-					Karya & Inovasi Lokal
+					Karya Komunitas
 				</UBadge>
 
 				<h1 class="text-3xl sm:text-5xl font-extrabold tracking-tight text-highlighted mb-4">
-					Showcase Projek Komunitas
+					Showcase Proyek Komunitas
 				</h1>
 
 				<p class="text-base sm:text-lg text-muted max-w-2xl leading-relaxed mb-6">
-					Kumpulan aplikasi, tools, dan inisiatif open-source karya para developer Majalengka. Dibuat dengan passion untuk memajukan talenta teknologi lokal.
+					Aplikasi, perkakas open source, sampai eksperimen IoT buatan developer asal Majalengka. Semuanya bebas kamu telusuri, pelajari, dan pakai bareng.
 				</p>
 
 				<div class="flex flex-wrap items-center justify-center gap-3">
 					<UButton
-						label="Unggah Projek Anda"
+						label="Pajang Proyek Kamu"
 						icon="i-lucide-plus-circle"
 						color="primary"
 						to="/dashboard/projects/new"
@@ -141,13 +141,13 @@ const filteredProjects = computed(() => {
 					/>
 				</div>
 				<h3 class="text-lg font-bold text-highlighted">
-					{{ search || selectedTag ? 'Tidak Ada Projek yang Sesuai' : 'Belum Ada Projek Terdaftar' }}
+					{{ search || selectedTag ? 'Tidak Ada Proyek yang Cocok' : 'Belum Ada Proyek yang Dipajang' }}
 				</h3>
 				<p class="text-sm text-muted">
-					{{ search || selectedTag ? 'Coba gunakan kata kunci atau tag lain.' : 'Jadilah yang pertama mengunggah karya Anda dan menginspirasi developer lainnya di Majalengka!' }}
+					{{ search || selectedTag ? 'Coba cari pakai kata kunci atau tag lain.' : 'Yuk jadi yang pertama majang karyamu di sini dan berbagi inspirasi bareng developer lainnya!' }}
 				</p>
 				<UButton
-					label="Unggah Sekarang"
+					label="Tambah Proyek Sekarang"
 					icon="i-lucide-plus"
 					color="primary"
 					to="/dashboard/projects/new"

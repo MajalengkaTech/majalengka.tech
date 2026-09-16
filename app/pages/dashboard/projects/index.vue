@@ -7,8 +7,8 @@ definePageMeta({
 })
 
 useSeoMeta({
-	title: 'Projek Saya · Majalengka Tech',
-	description: 'Kelola portofolio dan karya teknologi Anda di Majalengka Tech'
+	title: 'Proyek Saya · Majalengka Tech',
+	description: 'Kelola portofolio dan karya teknologi di Majalengka Tech'
 })
 
 const toast = useToast()
@@ -58,8 +58,8 @@ async function executeDelete() {
 			method: 'DELETE'
 		})
 		toast.add({
-			title: 'Projek Dihapus',
-			description: 'Projek telah berhasil dihapus dari portofolio Anda.',
+			title: 'Proyek Dihapus',
+			description: 'Proyek berhasil dihapus dari daftar karyamu.',
 			color: 'success'
 		})
 		deleteModalOpen.value = false
@@ -69,7 +69,7 @@ async function executeDelete() {
 		const errorResponse = err as { data?: { statusMessage?: string } }
 		toast.add({
 			title: 'Gagal Menghapus',
-			description: errorResponse?.data?.statusMessage || 'Terjadi kesalahan saat menghapus projek.',
+			description: errorResponse?.data?.statusMessage || 'Terjadi kendala saat menghapus proyek.',
 			color: 'error'
 		})
 	} finally {
@@ -81,7 +81,7 @@ async function executeDelete() {
 <template>
 	<div class="flex flex-col flex-1">
 		<UDashboardNavbar
-			title="Projek Saya"
+			title="Proyek Saya"
 			:ui="{ root: 'border-b border-default' }"
 		>
 			<template #leading>
@@ -90,7 +90,7 @@ async function executeDelete() {
 
 			<template #right>
 				<UButton
-					label="Tambah Projek Baru"
+					label="Tambah Proyek Baru"
 					icon="i-lucide-plus"
 					color="primary"
 					size="sm"
@@ -103,10 +103,10 @@ async function executeDelete() {
 			<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
 				<div>
 					<h1 class="text-xl font-bold text-highlighted">
-						Koleksi Projek & Portofolio
+						Koleksi Proyek Saya
 					</h1>
 					<p class="text-xs text-muted">
-						Kelola seluruh karya aplikasi, pustaka open-source, atau tools yang Anda bangun.
+						Kelola aplikasi, perkakas open source, atau eksperimen yang sudah kamu buat.
 					</p>
 				</div>
 
@@ -120,38 +120,38 @@ async function executeDelete() {
 				</div>
 			</div>
 
-			<!-- Loading state -->
+			<!-- Loading Skeleton -->
 			<div
 				v-if="status === 'pending'"
-				class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"
+				class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
 			>
 				<div
 					v-for="n in 3"
 					:key="n"
-					class="h-64 rounded-xl bg-neutral-100 dark:bg-neutral-800 animate-pulse"
+					class="h-72 rounded-xl bg-neutral-100 dark:bg-neutral-800 animate-pulse"
 				/>
 			</div>
 
 			<!-- Empty State -->
 			<div
 				v-else-if="filteredProjects.length === 0"
-				class="rounded-2xl border border-dashed border-default p-12 text-center flex flex-col items-center justify-center gap-3 bg-neutral-50/50 dark:bg-neutral-900/20 my-auto"
+				class="rounded-2xl border border-dashed border-default p-12 text-center flex flex-col items-center justify-center gap-3 bg-neutral-50/50 dark:bg-neutral-900/30 my-6"
 			>
 				<div class="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center text-primary">
 					<UIcon
-						name="i-lucide-folder-git-2"
+						name="i-lucide-folder-open"
 						class="w-7 h-7"
 					/>
 				</div>
-				<h3 class="text-lg font-bold text-highlighted">
-					{{ search ? 'Tidak Ada Projek yang Cocok' : 'Belum Ada Projek Terdaftar' }}
+				<h3 class="text-base font-semibold text-highlighted">
+					{{ search ? 'Tidak Ada Proyek yang Cocok' : 'Belum Ada Proyek' }}
 				</h3>
 				<p class="text-sm text-muted max-w-md">
-					{{ search ? 'Coba ubah kata kunci pencarian Anda.' : 'Mulailah dengan menambahkan projek pertama Anda agar bisa dilihat oleh komunitas teknologi Majalengka.' }}
+					{{ search ? 'Coba cari dengan kata kunci lain.' : 'Yuk tambahkan proyek pertamamu biar bisa dicoba dan dilihat teman-teman komunitas!' }}
 				</p>
 				<UButton
 					v-if="!search"
-					label="Tambah Projek Baru"
+					label="Tambah Proyek Baru"
 					icon="i-lucide-plus"
 					color="primary"
 					class="mt-3"
@@ -178,8 +178,8 @@ async function executeDelete() {
 		<!-- Delete Confirmation Modal -->
 		<UModal
 			v-model:open="deleteModalOpen"
-			title="Konfirmasi Hapus Projek"
-			description="Apakah Anda yakin ingin menghapus projek ini? Tindakan ini tidak dapat dibatalkan."
+			title="Hapus Proyek Ini?"
+			description="Proyek yang dihapus tidak bisa dikembalikan lagi. Kamu yakin mau menghapusnya?"
 		>
 			<template #footer>
 				<div class="flex items-center justify-end gap-3">

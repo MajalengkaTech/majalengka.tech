@@ -24,20 +24,20 @@ watchEffect(() => {
 const fields = [{
 	name: 'name',
 	type: 'text' as const,
-	label: 'Nama Lengkap / Username',
-	placeholder: 'Masukkan nama Anda',
+	label: 'Nama Lengkap / Panggilan',
+	placeholder: 'Nama lengkap kamu',
 	required: true
 }, {
 	name: 'email',
 	type: 'text' as const,
 	label: 'Email',
-	placeholder: 'Masukkan email aktif',
+	placeholder: 'nama@domain.com',
 	required: true
 }, {
 	name: 'password',
 	label: 'Kata Sandi',
 	type: 'password' as const,
-	placeholder: 'Buat kata sandi aman'
+	placeholder: 'Minimal 8 karakter'
 }]
 
 const providers = [{
@@ -58,7 +58,7 @@ const providers = [{
 
 const schema = z.object({
 	name: z.string().min(2, 'Nama minimal 2 karakter'),
-	email: z.string().email('Format email tidak valid'),
+	email: z.string().email('Format email belum benar'),
 	password: z.string().min(8, 'Kata sandi minimal 8 karakter')
 })
 
@@ -86,7 +86,7 @@ async function onSubmit(payload: FormSubmitEvent<Schema>) {
 		const errorResponse = err as { data?: { statusMessage?: string } }
 		toast.add({
 			title: 'Gagal Mendaftar',
-			description: errorResponse?.data?.statusMessage || 'Terjadi kesalahan saat mendaftar.',
+			description: errorResponse?.data?.statusMessage || 'Terjadi kendala saat mendaftar. Silakan coba sesaat lagi.',
 			color: 'error'
 		})
 	} finally {
@@ -113,7 +113,7 @@ async function onSubmit(payload: FormSubmitEvent<Schema>) {
 		</template>
 
 		<template #footer>
-			Dengan mendaftar, Anda menyetujui <ULink
+			Dengan mendaftar, kamu menyetujui <ULink
 				to="/docs"
 				class="text-primary font-medium"
 			>Ketentuan & Pedoman Komunitas</ULink>.

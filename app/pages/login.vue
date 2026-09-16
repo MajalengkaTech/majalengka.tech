@@ -44,13 +44,13 @@ const fields = [{
 	name: 'email',
 	type: 'text' as const,
 	label: 'Email',
-	placeholder: 'Masukkan email Anda',
+	placeholder: 'nama@domain.com',
 	required: true
 }, {
 	name: 'password',
 	label: 'Kata Sandi',
 	type: 'password' as const,
-	placeholder: 'Masukkan kata sandi'
+	placeholder: 'Ketik kata sandi'
 }, {
 	name: 'remember',
 	label: 'Ingat saya',
@@ -74,7 +74,7 @@ const providers = [{
 }]
 
 const schema = z.object({
-	email: z.string().email('Format email tidak valid'),
+	email: z.string().email('Format email belum benar'),
 	password: z.string().min(1, 'Kata sandi wajib diisi')
 })
 
@@ -93,7 +93,7 @@ async function onSubmit(payload: FormSubmitEvent<Schema>) {
 		await refreshSession()
 		toast.add({
 			title: 'Berhasil Masuk',
-			description: 'Selamat datang kembali di Majalengka Tech!',
+			description: 'Senang melihatmu kembali di Majalengka Tech!',
 			color: 'success'
 		})
 		navigateTo('/')
@@ -101,7 +101,7 @@ async function onSubmit(payload: FormSubmitEvent<Schema>) {
 		const errorResponse = err as { data?: { statusMessage?: string } }
 		toast.add({
 			title: 'Gagal Masuk',
-			description: errorResponse?.data?.statusMessage || 'Email atau kata sandi tidak valid.',
+			description: errorResponse?.data?.statusMessage || 'Email atau kata sandi tidak cocok. Coba periksa lagi.',
 			color: 'error'
 		})
 	} finally {
@@ -125,7 +125,7 @@ async function onSubmit(payload: FormSubmitEvent<Schema>) {
 			Belum punya akun? <ULink
 				to="/signup"
 				class="text-primary font-medium"
-			>Daftar sekarang</ULink>.
+			>Daftar di sini</ULink>.
 		</template>
 
 		<template #password-hint>
@@ -137,7 +137,7 @@ async function onSubmit(payload: FormSubmitEvent<Schema>) {
 		</template>
 
 		<template #footer>
-			Dengan masuk, Anda menyetujui <ULink
+			Dengan masuk, kamu menyetujui <ULink
 				to="/docs"
 				class="text-primary font-medium"
 			>Kode Etik Komunitas</ULink> Majalengka Tech.

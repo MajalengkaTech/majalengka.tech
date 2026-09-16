@@ -63,9 +63,12 @@ function onSubmit() {
 	loading.value = true
 
 	toast.add({
-		title: 'Subscribed!',
-		description: 'You\'ve been subscribed to our newsletter.'
+		title: 'Berhasil Langganan!',
+		description: 'Terima kasih! Kamu bakal dapat kabar dan pembaruan berkala dari kami.',
+		color: 'success'
 	})
+	email.value = ''
+	loading.value = false
 }
 </script>
 
@@ -83,21 +86,21 @@ function onSubmit() {
 						<form @submit.prevent="onSubmit">
 							<UFormField
 								name="email"
-								label="Subscribe to our newsletter"
+								label="Ikuti kabar terbaru komunitas"
 								size="lg"
 							>
 								<UInput
 									v-model="email"
 									type="email"
 									class="w-full"
-									placeholder="Enter your email"
+									placeholder="Ketik email kamu..."
 								>
 									<template #trailing>
 										<UButton
 											type="submit"
 											size="xs"
 											color="neutral"
-											label="Subscribe"
+											label="Langganan"
 										/>
 									</template>
 								</UInput>
