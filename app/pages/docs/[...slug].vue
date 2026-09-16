@@ -54,7 +54,11 @@ defineOgImage('Saas', { title, description, headline: 'Docs' })
 			v-if="page?.body?.toc?.links?.length"
 			#right
 		>
-			<UContentToc :links="page.body.toc.links" />
+			<UContentToc
+				highlight
+				highlight-variant="circuit"
+				:links="page.body.toc.links"
+			/>
 		</template>
 	</UPage>
 </template>
