@@ -74,6 +74,20 @@ export default defineNuxtConfig({
 		}
 	},
 
+	image: {
+		provider: process.env.NODE_ENV === 'production' ? 'cloudflare' : 'ipx',
+		cloudflare: {
+			baseURL: 'https://majalengka.tech'
+		},
+		quality: 80,
+		format: ['webp', 'avif'],
+		domains: [
+			'images.unsplash.com',
+			'avatars.githubusercontent.com',
+			'lh3.googleusercontent.com'
+		]
+	},
+
 	ogImage: {
 		zeroRuntime: true
 	}

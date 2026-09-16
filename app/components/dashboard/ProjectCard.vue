@@ -50,13 +50,15 @@ const actionItems = computed(() => [
 	>
 		<template #header>
 			<div class="relative w-full aspect-video overflow-hidden bg-neutral-100 dark:bg-neutral-800/80 border-b border-default">
-				<img
+				<NuxtImg
 					v-if="project.thumbnailUrl"
 					:src="project.thumbnailUrl"
 					:alt="project.title"
 					class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
 					loading="lazy"
-				>
+					format="webp"
+					sizes="sm:100vw md:50vw lg:400px"
+				/>
 				<div
 					v-else
 					class="w-full h-full flex flex-col items-center justify-center text-muted gap-2"
