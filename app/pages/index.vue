@@ -21,6 +21,9 @@ useSeoMeta({
 			:description="page.description"
 			:links="page.hero.links"
 			orientation="horizontal"
+			:ui="{
+				container: 'pt-4 pb-12 sm:pt-6 sm:pb-16 lg:pt-8 lg:pb-16 gap-8 lg:gap-12'
+			}"
 		>
 			<template #top>
 				<HeroBackground />
