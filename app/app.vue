@@ -29,6 +29,70 @@ const { data: files } = useLazyAsyncData('search', () => queryCollectionSearchSe
 	server: false
 })
 
+const { data: blogPosts } = useLazyAsyncData('search-posts', () => queryCollection('posts').all(), {
+	server: false
+})
+const { data: projectsData } = useLazyFetch('/api/projects')
+
+interface SearchGroupItem {
+	id: string
+	label: string
+	description?: string
+	icon?: string
+	to?: string
+	suffix?: string
+}
+
+interface SearchGroup {
+	id: string
+	label: string
+	items: SearchGroupItem[]
+}
+
+const searchGroups = computed<SearchGroup[]>(() => {
+	const groups: SearchGroup[] = []
+
+	if (blogPosts.value && blogPosts.value.length > 0) {
+		groups.push({
+			id: 'blog',
+			label: 'Blog & Artikel Komunitas',
+			items: blogPosts.value.map(post => ({
+				id: `blog-${post.path}`,
+				label: post.title,
+				description: post.description || 'Artikel dan wawasan komunitas Majalengka Tech',
+				icon: 'i-lucide-newspaper',
+				to: post.path,
+				suffix: post.badge?.label || 'Blog'
+			}))
+		})
+	}
+
+	const projects = (projectsData.value?.projects as Array<{
+		id: number
+		title: string
+		description: string
+		tags?: string | null
+		author?: { name?: string | null }
+	}>) || []
+
+	if (projects.length > 0) {
+		groups.push({
+			id: 'projects',
+			label: 'Showcase Projek Developer',
+			items: projects.map(p => ({
+				id: `project-${p.id}`,
+				label: p.title,
+				description: p.description,
+				icon: 'i-lucide-folder-git-2',
+				to: `/projek#project-${p.id}`,
+				suffix: p.tags?.split(',')[0]?.trim() || p.author?.name || 'Showcase'
+			}))
+		})
+	}
+
+	return groups
+})
+
 provide('navigation', navigation)
 </script>
 
@@ -44,8 +108,10 @@ provide('navigation', navigation)
 			<LazyUContentSearch
 				:files="files"
 				:navigation="navigation"
+				:groups="searchGroups"
 				:links="navLinks"
 				:fuse="{ resultLimit: 42 }"
+				placeholder="Cari dokumentasi, artikel blog, dan showcase projek..."
 			/>
 		</ClientOnly>
 	</UApp>
