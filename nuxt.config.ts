@@ -8,7 +8,8 @@ export default defineNuxtConfig({
 		'@nuxt/content',
 		'@vueuse/nuxt',
 		'@nuxthub/core',
-		'@nuxtjs/better-auth'
+		'@nuxtjs/better-auth',
+		'nuxt-llms'
 	],
 
 	devtools: {
@@ -137,6 +138,24 @@ export default defineNuxtConfig({
 			'images.unsplash.com',
 			'avatars.githubusercontent.com',
 			'lh3.googleusercontent.com'
+		]
+	},
+
+	llms: {
+		domain: 'https://majalengka.tech',
+		title: 'Majalengka Tech',
+		description: 'Komunitas Open Source, Riset Teknologi Lokal & Talenta Digital Majalengka',
+		sections: [
+			{
+				title: 'Dokumentasi',
+				description: 'Panduan teknis, dokumentasi, dan getting started Majalengka Tech',
+				contentCollection: 'docs'
+			},
+			{
+				title: 'Blog',
+				description: 'Artikel, riset, dan tutorial seputar Nuxt, Cloudflare, dan rekayasa perangkat lunak modern',
+				contentCollection: 'posts'
+			}
 		]
 	},
 
