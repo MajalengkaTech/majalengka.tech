@@ -84,7 +84,11 @@ if (post.value.image?.src) {
 				v-if="post?.body?.toc?.links?.length"
 				#right
 			>
-				<UContentToc :links="post.body.toc.links" />
+				<UContentToc
+					highlight
+					highlight-variant="circuit"
+					:links="post.body.toc.links"
+				/>
 			</template>
 		</UPage>
 	</UContainer>

@@ -3,6 +3,10 @@ const colorMode = useColorMode()
 
 const color = computed(() => colorMode.value === 'dark' ? '#020618' : 'white')
 
+const isDark = computed(() => colorMode.value === 'dark')
+const faviconSvg = computed(() => isDark.value ? '/favicon-dark.svg' : '/favicon-light.svg')
+const faviconApple = computed(() => isDark.value ? '/darklogo.png' : '/lightlogo.png')
+
 useHead({
 	meta: [
 		{ charset: 'utf-8' },
@@ -10,7 +14,37 @@ useHead({
 		{ key: 'theme-color', name: 'theme-color', content: color }
 	],
 	link: [
-		{ rel: 'icon', href: '/favicon.ico' }
+		{
+			key: 'favicon-light',
+			rel: 'icon',
+			type: 'image/svg+xml',
+			href: '/favicon-light.svg',
+			media: '(prefers-color-scheme: light)'
+		},
+		{
+			key: 'favicon-dark',
+			rel: 'icon',
+			type: 'image/svg+xml',
+			href: '/favicon-dark.svg',
+			media: '(prefers-color-scheme: dark)'
+		},
+		{
+			key: 'favicon-dynamic',
+			rel: 'icon',
+			type: 'image/svg+xml',
+			href: faviconSvg
+		},
+		{
+			key: 'favicon-ico',
+			rel: 'alternate icon',
+			type: 'image/x-icon',
+			href: '/favicon.ico'
+		},
+		{
+			key: 'apple-touch-icon',
+			rel: 'apple-touch-icon',
+			href: faviconApple
+		}
 	],
 	htmlAttrs: {
 		lang: 'id'
