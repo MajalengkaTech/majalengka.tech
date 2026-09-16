@@ -1,7 +1,7 @@
 import { defineServerAuth } from '@nuxtjs/better-auth/config'
 import { admin } from 'better-auth/plugins'
 
-export default defineServerAuth({
+export default defineServerAuth(({ runtimeConfig }) => ({
 	trustedOrigins: ['http://localhost:3000', 'https://majalengka.tech'],
 	user: {
 		additionalFields: {
@@ -24,12 +24,12 @@ export default defineServerAuth({
 	},
 	socialProviders: {
 		github: {
-			clientId: process.env.NUXT_OAUTH_GITHUB_CLIENT_ID || process.env.GITHUB_CLIENT_ID || '',
-			clientSecret: process.env.NUXT_OAUTH_GITHUB_CLIENT_SECRET || process.env.GITHUB_CLIENT_SECRET || ''
+			clientId: runtimeConfig?.oauth?.githubClientId || process.env.NUXT_OAUTH_GITHUB_CLIENT_ID || process.env.GITHUB_CLIENT_ID || '',
+			clientSecret: runtimeConfig?.oauth?.githubClientSecret || process.env.NUXT_OAUTH_GITHUB_CLIENT_SECRET || process.env.GITHUB_CLIENT_SECRET || ''
 		},
 		google: {
-			clientId: process.env.NUXT_OAUTH_GOOGLE_CLIENT_ID || process.env.GOOGLE_CLIENT_ID || '',
-			clientSecret: process.env.NUXT_OAUTH_GOOGLE_CLIENT_SECRET || process.env.GOOGLE_CLIENT_SECRET || ''
+			clientId: runtimeConfig?.oauth?.googleClientId || process.env.NUXT_OAUTH_GOOGLE_CLIENT_ID || process.env.GOOGLE_CLIENT_ID || '',
+			clientSecret: runtimeConfig?.oauth?.googleClientSecret || process.env.NUXT_OAUTH_GOOGLE_CLIENT_SECRET || process.env.GOOGLE_CLIENT_SECRET || ''
 		}
 	},
 	plugins: [
@@ -53,4 +53,4 @@ export default defineServerAuth({
 			}
 		}
 	}
-})
+}))

@@ -31,6 +31,19 @@ export default defineNuxtConfig({
 		}
 	},
 
+	runtimeConfig: {
+		betterAuthSecret: process.env.NUXT_BETTER_AUTH_SECRET || process.env.BETTER_AUTH_SECRET || '',
+		oauth: {
+			githubClientId: process.env.NUXT_OAUTH_GITHUB_CLIENT_ID || process.env.GITHUB_CLIENT_ID || '',
+			githubClientSecret: process.env.NUXT_OAUTH_GITHUB_CLIENT_SECRET || process.env.GITHUB_CLIENT_SECRET || '',
+			googleClientId: process.env.NUXT_OAUTH_GOOGLE_CLIENT_ID || process.env.GOOGLE_CLIENT_ID || '',
+			googleClientSecret: process.env.NUXT_OAUTH_GOOGLE_CLIENT_SECRET || process.env.GOOGLE_CLIENT_SECRET || ''
+		},
+		public: {
+			siteUrl: process.env.NUXT_PUBLIC_SITE_URL || 'https://majalengka.tech'
+		}
+	},
+
 	routeRules: {
 		'/docs': { redirect: '/docs/getting-started', prerender: false },
 		'/projek': { prerender: false },
