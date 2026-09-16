@@ -20,6 +20,7 @@ useSeoMeta({
 			:title="page.title"
 			:description="page.description"
 			:links="page.hero.links"
+			orientation="horizontal"
 		>
 			<template #top>
 				<HeroBackground />
@@ -32,7 +33,19 @@ useSeoMeta({
 				/>
 			</template>
 
-			<PromotionalVideo />
+			<div class="relative flex items-center justify-center lg:justify-end">
+				<!-- Subtle Ambient Glow -->
+				<div
+					class="absolute -inset-4 bg-gradient-to-tr from-primary/20 to-blue-500/10 rounded-3xl blur-2xl -z-10 opacity-70 dark:opacity-40 pointer-events-none"
+					aria-hidden="true"
+				/>
+				<img
+					src="/hero.svg"
+					alt="Ilustrasi Inovasi Majalengka Tech"
+					class="w-full max-w-md lg:max-w-xl h-auto object-contain select-none drop-shadow-md dark:brightness-110"
+					loading="eager"
+				>
+			</div>
 		</UPageHero>
 
 		<UPageSection
