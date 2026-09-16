@@ -5,7 +5,10 @@ import { db, schema } from 'hub:db'
 const createProjectSchema = z.object({
 	title: z.string().min(3, 'Judul minimal 3 karakter').max(120, 'Judul maksimal 120 karakter'),
 	description: z.string().min(10, 'Deskripsi minimal 10 karakter').max(2000, 'Deskripsi maksimal 2000 karakter'),
-	thumbnailUrl: z.string().url('URL thumbnail tidak valid').or(z.literal('')).optional().nullable(),
+	thumbnailUrl: z.string().refine(
+		val => !val || val.startsWith('/') || /^https?:\/\//i.test(val),
+		{ message: 'URL thumbnail tidak valid' }
+	).optional().nullable(),
 	repoUrl: z.string().url('URL repositori tidak valid').or(z.literal('')).optional().nullable(),
 	demoUrl: z.string().url('URL demo tidak valid').or(z.literal('')).optional().nullable(),
 	tags: z.string().max(200, 'Tag maksimal 200 karakter').optional().nullable(),
