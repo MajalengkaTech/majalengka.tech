@@ -19,35 +19,41 @@ hero:
       to: https://github.com/majalengka-tech
       target: _blank
 sections:
-  - headline: Roadmap Inisiatif (Coming Soon)
+  - headline: Roadmap Inisiatif
     title: Rencana Proyek untuk Kebutuhan Warga
     description: Peta jalan (*roadmap*) inisiatif teknologi yang sedang dan akan kami rancang secara terbuka. Belum semua rilis, dan kami membuka pintu selebar-lebarnya buat kamu yang mau ikut urun ide atau ngoding bareng.
     id: inisiatif
     orientation: horizontal
     features:
-      - title: AgriTech & Sensor Pertanian (Coming Soon)
+      - title: AgriTech & Sensor Pertanian
+        badge: Coming Soon
         description: Rencana eksperimen sensor tanah dan pemantauan iklim mikro lereng Ciremai untuk membantu efisiensi irigasi petani lokal.
         icon: i-lucide-sprout
-      - title: Panduan Wisata Terbuka (Coming Soon)
+      - title: Panduan Wisata Terbuka
+        badge: Coming Soon
         description: Rencana direktori peta digital berbasis data terbuka untuk jelajah wisata alam (Panyaweuyan, Situ Cipanten) dan direktori kuliner lokal.
         icon: i-lucide-map-pin
-      - title: Perkakas Digital UMKM (Coming Soon)
+      - title: Perkakas Digital UMKM
+        badge: Coming Soon
         description: Rencana pembuatan aplikasi kasir ringan (POS) dan generator katalog produk online gratis tanpa biaya sewa aplikasi.
         icon: i-lucide-store
-  - headline: Riset Standar Terbuka (Coming Soon)
+  - headline: Riset Standar Terbuka
     title: Standar Desain & Pengetahuan Terbuka
     description: Eksplorasi awal untuk merapikan cara kita mengelola dokumentasi dan antarmuka publik daerah agar mudah dipelajari manusia maupun sistem AI cerdas.
     id: standards
     orientation: horizontal
     reverse: true
     features:
-      - title: Majalengka Design System (Tahap Konsep)
+      - title: Majalengka Design System
+        badge: Tahap Konsep
         description: Rintisan panduan desain antarmuka bersih dan ramah pembaca layar (WCAG 2.1 AA) yang terinspirasi IDDS untuk website layanan daerah.
         icon: i-lucide-palette
-      - title: Open Knowledge Format (Eksplorasi)
+      - title: Open Knowledge Format
+        badge: Eksplorasi
         description: Eksplorasi format pencatatan dokumen terstruktur (mengadopsi Google Cloud OKF) agar dokumentasi komunitas siap dibaca agen AI.
         icon: i-lucide-brain
-      - title: Data Terbuka & Visualisasi Publik (Rencana)
+      - title: Data Terbuka & Visualisasi Publik
+        badge: Rencana
         description: Rencana pengumpulan dan visualisasi grafik data komoditas pertanian dan cuaca mikro yang bisa dicek publik secara transparan.
         icon: i-lucide-bar-chart-3
 features:

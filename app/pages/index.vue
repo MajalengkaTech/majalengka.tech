@@ -42,8 +42,44 @@ useSeoMeta({
 			:description="section.description"
 			:orientation="section.orientation"
 			:reverse="section.reverse"
-			:features="section.features"
 		>
+			<template
+				v-if="section.headline"
+				#headline
+			>
+				<UBadge
+					:label="section.headline"
+					color="primary"
+					variant="subtle"
+					size="sm"
+					class="mb-2"
+				/>
+			</template>
+
+			<template #features>
+				<UPageFeature
+					v-for="(feature, fIndex) in section.features"
+					:key="fIndex"
+					as="li"
+					:icon="feature.icon"
+					:description="feature.description"
+				>
+					<template #title>
+						<div class="inline-flex items-center gap-2">
+							<span>{{ feature.title }}</span>
+							<UBadge
+								v-if="feature.badge || feature.status"
+								:label="feature.badge || feature.status"
+								color="neutral"
+								variant="subtle"
+								size="xs"
+								class="rounded font-medium text-xs"
+							/>
+						</div>
+					</template>
+				</UPageFeature>
+			</template>
+
 			<ImagePlaceholder />
 		</UPageSection>
 
