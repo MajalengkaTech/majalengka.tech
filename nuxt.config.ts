@@ -59,6 +59,10 @@ export default defineNuxtConfig({
 			},
 			wrangler: {
 				name: 'majalengka-tech',
+				vars: {
+					BETTER_AUTH_URL: 'https://majalengka.tech',
+					NUXT_PUBLIC_SITE_URL: 'https://majalengka.tech'
+				},
 				routes: [
 					{
 						pattern: 'majalengka.tech',
