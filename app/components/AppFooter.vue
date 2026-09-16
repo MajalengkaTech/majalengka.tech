@@ -45,6 +45,9 @@ const columns = [{
 		label: 'Blog & Update',
 		to: '/blog'
 	}, {
+		label: 'Changelog',
+		to: '/changelog'
+	}, {
 		label: 'GitHub Organization',
 		to: 'https://github.com/majalengka-tech',
 		target: '_blank'

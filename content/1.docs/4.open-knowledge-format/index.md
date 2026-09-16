@@ -13,6 +13,6 @@ Penerapan Open Knowledge Format (OKF v0.2) di proyek ini merupakan tahap riset t
 ::
 
 ## Pembahasan
-- [💡 Pengenalan Google Cloud OKF](/docs/open-knowledge-format/pengenalan) — Mengapa format terstruktur ini penting di era asisten dan agen AI.
-- [📋 Spesifikasi Teknis v0.2](/docs/open-knowledge-format/spesifikasi) — Anatomi berkas YAML frontmatter, sinyal kepercayaan, dan provenance.
-- [📂 Bundle OKF Majalengka Tech](/docs/open-knowledge-format/bundle-majalengka) — Struktur folder direktori `okf/` yang tersedia di repositori ini.
+- [💡 Pengenalan Google Cloud OKF](/docs/open-knowledge-format/pengenalan): Mengapa format terstruktur ini penting di era asisten dan agen AI.
+- [📋 Spesifikasi Teknis v0.2](/docs/open-knowledge-format/spesifikasi): Anatomi berkas YAML frontmatter, sinyal kepercayaan, dan provenance.
+- [📂 Bundle OKF Majalengka Tech](/docs/open-knowledge-format/bundle-majalengka): Struktur folder direktori `okf/` yang tersedia di repositori ini.

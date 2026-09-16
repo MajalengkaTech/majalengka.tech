@@ -25,6 +25,7 @@ export default withNuxt(
 			}
 		},
 		rules: {
+			'vue/multi-word-component-names': 'off',
 			'better-tailwindcss/no-unknown-classes': ['error', { ignore: ['^stars$', '^star-layer$', '^star$'] }],
 			'vue/html-indent': [
 				'error',

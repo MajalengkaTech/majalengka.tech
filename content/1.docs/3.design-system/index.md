@@ -13,6 +13,6 @@ Panduan desain ini merupakan inisiatif eksplorasi dari komunitas Majalengka Tech
 ::
 
 ## Bagian Utama
-- [🏛️ Prinsip Desain & IDDS](/docs/design-system/prinsip) — Nilai dasar kredibilitas dan keselarasan dengan INA Digital Design System.
-- [🎨 Design Tokens](/docs/design-system/tokens) — Palet warna daerah, tipografi yang nyaman dibaca, dan skala spasi modular.
-- [♿ Aksesibilitas WCAG 2.1 AA](/docs/design-system/aksesibilitas) — Standar aksesibilitas internasional agar nyaman dipakai seluruh kalangan warga.
+- [🏛️ Prinsip Desain & IDDS](/docs/design-system/prinsip): Nilai dasar kredibilitas dan keselarasan dengan INA Digital Design System.
+- [🎨 Design Tokens](/docs/design-system/tokens): Palet warna daerah, tipografi yang nyaman dibaca, dan skala spasi modular.
+- [♿ Aksesibilitas WCAG 2.1 AA](/docs/design-system/aksesibilitas): Standar aksesibilitas internasional agar nyaman dipakai seluruh kalangan warga.
