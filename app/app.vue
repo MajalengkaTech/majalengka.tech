@@ -34,6 +34,15 @@ const { data: blogPosts } = useLazyAsyncData('search-posts', () => queryCollecti
 })
 const { data: projectsData } = useLazyFetch('/api/projects')
 
+const searchTerm = ref('')
+
+// Limit docs navigation when search term is empty to keep initial view under 10 items
+const filteredNavigation = computed(() => {
+	if (!navigation.value) return []
+	if (searchTerm.value.trim()) return navigation.value
+	return navigation.value.slice(0, 3)
+})
+
 interface SearchGroupItem {
 	id: string
 	label: string
@@ -51,12 +60,14 @@ interface SearchGroup {
 
 const searchGroups = computed<SearchGroup[]>(() => {
 	const groups: SearchGroup[] = []
+	const q = searchTerm.value.trim()
 
 	if (blogPosts.value && blogPosts.value.length > 0) {
+		const posts = q ? blogPosts.value : blogPosts.value.slice(0, 2)
 		groups.push({
 			id: 'blog',
 			label: 'Blog & Artikel Komunitas',
-			items: blogPosts.value.map(post => ({
+			items: posts.map(post => ({
 				id: `blog-${post.path}`,
 				label: post.title,
 				description: post.description || 'Artikel dan wawasan komunitas Majalengka Tech',
@@ -67,7 +78,7 @@ const searchGroups = computed<SearchGroup[]>(() => {
 		})
 	}
 
-	const projects = (projectsData.value?.projects as Array<{
+	const allProjects = (projectsData.value?.projects as Array<{
 		id: number
 		title: string
 		description: string
@@ -75,7 +86,8 @@ const searchGroups = computed<SearchGroup[]>(() => {
 		author?: { name?: string | null }
 	}>) || []
 
-	if (projects.length > 0) {
+	if (allProjects.length > 0) {
+		const projects = q ? allProjects : allProjects.slice(0, 2)
 		groups.push({
 			id: 'projects',
 			label: 'Showcase Projek Developer',
@@ -106,11 +118,13 @@ provide('navigation', navigation)
 
 		<ClientOnly>
 			<LazyUContentSearch
+				v-model:search-term="searchTerm"
 				:files="files"
-				:navigation="navigation"
+				:navigation="filteredNavigation"
 				:groups="searchGroups"
 				:links="navLinks"
-				:fuse="{ resultLimit: 42 }"
+				:color-mode="false"
+				:fuse="{ resultLimit: 10 }"
 				placeholder="Cari dokumentasi, artikel blog, dan showcase projek..."
 			/>
 		</ClientOnly>

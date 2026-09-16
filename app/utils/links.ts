@@ -12,8 +12,4 @@ export const navLinks: NavigationMenuItem[] = [{
 	label: 'Showcase Projek',
 	icon: 'i-lucide-sparkles',
 	to: '/projek'
-}, {
-	label: 'Dashboard Developer',
-	icon: 'i-lucide-layout-dashboard',
-	to: '/dashboard'
 }]
