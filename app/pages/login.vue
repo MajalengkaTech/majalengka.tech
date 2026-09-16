@@ -11,32 +11,17 @@ useSeoMeta({
 	description: 'Masuk ke portal komunitas developer Majalengka Tech'
 })
 
-const { loggedIn, fetch: refreshSession } = useUserSession()
+const { loggedIn } = useUserSession()
+const authClient = useAuthClient()
 const toast = useToast()
 const loading = ref(false)
-
 const route = useRoute()
 
 // Redirect jika sudah login
 watchEffect(() => {
 	if (loggedIn.value) {
-		navigateTo('/')
-	}
-})
-
-onMounted(() => {
-	if (route.query.error === 'google') {
-		toast.add({
-			title: 'Gagal Masuk dengan Google',
-			description: 'Koneksi ke Google gagal atau ditolak. Pastikan koneksi internet stabil dan coba lagi.',
-			color: 'error'
-		})
-	} else if (route.query.error === 'github') {
-		toast.add({
-			title: 'Gagal Masuk dengan GitHub',
-			description: 'Koneksi ke GitHub gagal atau ditolak. Silakan coba lagi.',
-			color: 'error'
-		})
+		const destination = (route.query.redirect as string) || '/dashboard'
+		navigateTo(destination)
 	}
 })
 
@@ -61,47 +46,63 @@ const providers = [{
 	label: 'Masuk dengan GitHub',
 	icon: 'i-simple-icons-github',
 	color: 'neutral' as const,
-	onClick: () => {
-		window.location.href = '/api/auth/github'
+	onClick: async () => {
+		await authClient?.signIn.social({
+			provider: 'github',
+			callbackURL: (route.query.redirect as string) || '/dashboard'
+		})
 	}
 }, {
 	label: 'Masuk dengan Google',
 	icon: 'i-simple-icons-google',
 	color: 'neutral' as const,
-	onClick: () => {
-		window.location.href = '/api/auth/google'
+	onClick: async () => {
+		await authClient?.signIn.social({
+			provider: 'google',
+			callbackURL: (route.query.redirect as string) || '/dashboard'
+		})
 	}
 }]
 
 const schema = z.object({
 	email: z.string().email('Format email tidak valid'),
-	password: z.string().min(1, 'Kata sandi wajib diisi')
+	password: z.string().min(1, 'Kata sandi wajib diisi'),
+	remember: z.boolean().optional()
 })
 
 type Schema = z.output<typeof schema>
 
 async function onSubmit(payload: FormSubmitEvent<Schema>) {
+	if (!authClient) return
 	try {
 		loading.value = true
-		await $fetch('/api/auth/login', {
-			method: 'POST',
-			body: {
-				email: payload.data.email,
-				password: payload.data.password
-			}
+		const { error } = await authClient.signIn.email({
+			email: payload.data.email,
+			password: payload.data.password,
+			rememberMe: payload.data.remember
 		})
-		await refreshSession()
+
+		if (error) {
+			toast.add({
+				title: 'Gagal Masuk',
+				description: error.message || 'Email atau kata sandi tidak valid.',
+				color: 'error'
+			})
+			return
+		}
+
 		toast.add({
 			title: 'Berhasil Masuk',
 			description: 'Selamat datang kembali di Majalengka Tech!',
 			color: 'success'
 		})
-		navigateTo('/')
+		const destination = (route.query.redirect as string) || '/dashboard'
+		await navigateTo(destination)
 	} catch (err: unknown) {
-		const errorResponse = err as { data?: { statusMessage?: string } }
+		const errorMessage = err instanceof Error ? err.message : 'Terjadi kesalahan sistem.'
 		toast.add({
 			title: 'Gagal Masuk',
-			description: errorResponse?.data?.statusMessage || 'Email atau kata sandi tidak valid.',
+			description: errorMessage,
 			color: 'error'
 		})
 	} finally {

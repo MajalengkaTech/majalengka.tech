@@ -3,7 +3,6 @@ title: Majalengka Design System (MDS)
 description: Rintisan sistem desain antarmuka terbuka untuk website publik dan aplikasi komunitas di Majalengka.
 navigation:
   title: Ikhtisar Design System
-  icon: i-lucide-palette
 ---
 
 # Majalengka Design System (MDS)

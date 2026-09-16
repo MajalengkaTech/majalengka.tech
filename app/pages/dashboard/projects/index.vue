@@ -2,8 +2,7 @@
 import type { ProjectItem } from '~/types/project'
 
 definePageMeta({
-	layout: 'dashboard',
-	middleware: 'auth'
+	layout: 'dashboard'
 })
 
 useSeoMeta({
@@ -79,12 +78,14 @@ async function executeDelete() {
 
 			<template #right>
 				<UButton
-					label="Tambah Projek Baru"
 					icon="i-lucide-plus"
 					color="primary"
 					size="sm"
+					aria-label="Tambah Projek Baru"
 					@click="createModalOpen = true"
-				/>
+				>
+					<span class="hidden sm:inline">Tambah Projek Baru</span>
+				</UButton>
 			</template>
 		</UDashboardNavbar>
 

@@ -9,8 +9,13 @@ useSeoMeta({
 	title,
 	ogTitle: title,
 	description,
-	ogDescription: description,
-	ogImage: 'https://ui.nuxt.com/assets/templates/nuxt/saas-light.png'
+	ogDescription: description
+})
+
+defineOgImage('Saas', {
+	headline: 'Komunitas Teknologi',
+	title,
+	description
 })
 </script>
 
@@ -46,8 +51,6 @@ useSeoMeta({
 		<UPageSection
 			v-for="(section, index) in page.sections"
 			:key="index"
-			:title="section.title"
-			:description="section.description"
 			:orientation="section.orientation"
 			:reverse="section.reverse"
 		>
@@ -61,6 +64,22 @@ useSeoMeta({
 					variant="subtle"
 					size="sm"
 					class="mb-2"
+				/>
+			</template>
+
+			<template #title>
+				<MDC
+					v-if="section.title"
+					:value="section.title"
+					unwrap="p"
+				/>
+			</template>
+
+			<template #description>
+				<MDC
+					v-if="section.description"
+					:value="section.description"
+					unwrap="p"
 				/>
 			</template>
 
@@ -88,7 +107,13 @@ useSeoMeta({
 				</UPageFeature>
 			</template>
 
-			<ImagePlaceholder />
+			<NuxtImg
+				v-if="section.image"
+				:src="typeof section.image === 'string' ? section.image : section.image.src"
+				:alt="(typeof section.image === 'object' ? section.image.alt : '') || section.title"
+				class="h-auto w-full rounded-xl border border-neutral-200 object-contain shadow-sm dark:border-neutral-800"
+			/>
+			<ImagePlaceholder v-else />
 		</UPageSection>
 
 		<UPageSection

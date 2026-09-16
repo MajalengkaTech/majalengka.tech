@@ -4,11 +4,11 @@ export default defineNuxtConfig({
 		'@nuxt/eslint',
 		'@nuxt/image',
 		'@nuxt/ui',
+		'@nuxtjs/seo',
 		'@nuxt/content',
 		'@vueuse/nuxt',
-		'nuxt-og-image',
-		'nuxt-auth-utils',
-		'@nuxthub/core'
+		'@nuxthub/core',
+		'@nuxtjs/better-auth'
 	],
 
 	devtools: {
@@ -17,6 +17,14 @@ export default defineNuxtConfig({
 
 	css: ['~/assets/css/main.css'],
 
+	site: {
+		url: process.env.NUXT_SITE_URL || 'https://majalengka.tech',
+		name: 'Majalengka Tech',
+		description: 'Komunitas Open Source, Riset Teknologi Lokal & Talenta Digital Majalengka',
+		defaultLocale: 'id',
+		indexable: true
+	},
+
 	content: {
 		experimental: {
 			sqliteConnector: 'native'
@@ -24,7 +32,12 @@ export default defineNuxtConfig({
 	},
 
 	routeRules: {
-		'/docs': { redirect: '/docs/getting-started', prerender: false }
+		'/docs': { redirect: '/docs/getting-started', prerender: false },
+		'/projek': { prerender: false },
+		'/projek/**': { prerender: false },
+		'/dashboard/**': { auth: 'user', prerender: false, ssr: false, robots: false, sitemap: false },
+		'/kelola/**': { auth: 'user', prerender: false, ssr: false, robots: false, sitemap: false },
+		'/api/**': { prerender: false, robots: false, sitemap: false }
 	},
 
 	compatibilityDate: '2026-06-30',
@@ -33,6 +46,17 @@ export default defineNuxtConfig({
 		preset: 'cloudflare_module',
 		cloudflare: {
 			deployConfig: true,
+			pages: {
+				routes: {
+					exclude: [
+						'/assets/*',
+						'/images/*',
+						'/__og-image__/*',
+						'/_og/*',
+						'/*.{js,css,png,jpg,jpeg,webp,svg,ico,json}'
+					]
+				}
+			},
 			wrangler: {
 				d1_databases: [
 					{
@@ -53,7 +77,13 @@ export default defineNuxtConfig({
 			routes: [
 				'/'
 			],
-			crawlLinks: true
+			crawlLinks: true,
+			ignore: [
+				'/projek',
+				'/dashboard',
+				'/kelola',
+				'/api'
+			]
 		}
 	},
 
@@ -90,5 +120,37 @@ export default defineNuxtConfig({
 
 	ogImage: {
 		zeroRuntime: true
+	},
+
+	robots: {
+		groups: [
+			{
+				userAgent: '*',
+				disallow: [
+					'/dashboard',
+					'/kelola'
+				]
+			}
+		]
+	},
+
+	schemaOrg: {
+		identity: {
+			type: 'Organization',
+			name: 'Majalengka Tech',
+			url: 'https://majalengka.tech',
+			logo: '/logo-circle.svg',
+			sameAs: [
+				'https://github.com/majalengka-tech'
+			]
+		}
+	},
+
+	sitemap: {
+		exclude: [
+			'/dashboard/**',
+			'/kelola/**',
+			'/api/**'
+		]
 	}
 })

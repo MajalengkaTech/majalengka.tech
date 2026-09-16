@@ -1,6 +1,6 @@
 export interface ProjectItem {
 	id: number
-	userId: number
+	userId: string | number
 	title: string
 	slug: string
 	description: string
@@ -12,7 +12,7 @@ export interface ProjectItem {
 	createdAt: string | Date
 	updatedAt?: string | Date | null
 	author?: {
-		id: number
+		id: string | number
 		name: string
 		avatarUrl?: string | null
 		githubUsername?: string | null

@@ -6,12 +6,27 @@ useSeoMeta({
 	description: 'Jelajahi karya teknologi, pustaka open-source, dan inovasi aplikasi yang dibangun oleh komunitas developer Majalengka.'
 })
 
+defineOgImage('Saas', {
+	headline: 'Showcase Developer',
+	title: 'Showcase Projek Komunitas',
+	description: 'Jelajahi karya teknologi, pustaka open-source, dan inovasi aplikasi yang dibangun oleh komunitas developer Majalengka.'
+})
+
 const search = ref('')
 const selectedTag = ref<string | null>(null)
 
-const { data, status } = await useFetch('/api/projects')
+const { data, status, refresh } = await useFetch('/api/projects', {
+	key: 'showcase-projects'
+})
 
 const projects = computed<ProjectItem[]>(() => (data.value?.projects as ProjectItem[]) || [])
+
+// Fallback: jika halaman dibuka dari cache statis yang kosong, refresh ulang secara reaktif di client
+onMounted(() => {
+	if (!projects.value.length) {
+		refresh()
+	}
+})
 
 const allTags = computed(() => {
 	const set = new Set<string>()
@@ -67,16 +82,9 @@ const filteredProjects = computed(() => {
 
 				<div class="flex flex-wrap items-center justify-center gap-3">
 					<UButton
-						label="Unggah Projek Anda"
-						icon="i-lucide-plus-circle"
-						color="primary"
-						to="/dashboard/projects/new"
-						size="md"
-					/>
-					<UButton
 						label="Gabung Komunitas"
-						variant="outline"
-						color="neutral"
+						icon="i-lucide-user-plus"
+						color="primary"
 						to="/signup"
 						size="md"
 					/>
@@ -85,12 +93,22 @@ const filteredProjects = computed(() => {
 
 			<!-- Search & Filter Controls -->
 			<div class="flex flex-col sm:flex-row items-center justify-between gap-4 mb-8">
-				<div class="w-full sm:w-80">
+				<div class="w-full sm:w-80 flex items-center gap-2">
 					<UInput
 						v-model="search"
 						placeholder="Cari projek, developer, teknologi..."
 						icon="i-lucide-search"
 						class="w-full"
+					/>
+					<UButton
+						icon="i-lucide-rotate-cw"
+						color="neutral"
+						variant="subtle"
+						size="sm"
+						:loading="status === 'pending'"
+						title="Segarkan data projek"
+						aria-label="Segarkan data projek"
+						@click="() => refresh()"
 					/>
 				</div>
 
@@ -144,15 +162,8 @@ const filteredProjects = computed(() => {
 					{{ search || selectedTag ? 'Tidak Ada Projek yang Sesuai' : 'Belum Ada Projek Terdaftar' }}
 				</h3>
 				<p class="text-sm text-muted">
-					{{ search || selectedTag ? 'Coba gunakan kata kunci atau tag lain.' : 'Jadilah yang pertama mengunggah karya Anda dan menginspirasi developer lainnya di Majalengka!' }}
+					{{ search || selectedTag ? 'Coba gunakan kata kunci atau tag lain.' : 'Jadilah yang pertama menginspirasi developer lainnya di Majalengka!' }}
 				</p>
-				<UButton
-					label="Unggah Sekarang"
-					icon="i-lucide-plus"
-					color="primary"
-					to="/dashboard/projects/new"
-					class="mt-2"
-				/>
 			</div>
 
 			<!-- Projects Grid -->

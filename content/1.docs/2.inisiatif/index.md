@@ -3,7 +3,6 @@ title: Roadmap & Inisiatif Komunitas
 description: Rangkuman 5 peta jalan teknologi terbuka untuk memajukan potensi Majalengka.
 navigation:
   title: Ikhtisar Inisiatif
-  icon: i-lucide-rocket
 ---
 
 # Roadmap & Inisiatif Komunitas

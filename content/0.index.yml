@@ -20,8 +20,9 @@ hero:
       target: _blank
 sections:
   - headline: Roadmap Inisiatif
+    reverse: true
     title: Rencana Proyek untuk Kebutuhan Warga
-    description: Peta jalan (*roadmap*) inisiatif teknologi yang sedang dan akan kami rancang secara terbuka. Belum semua rilis, dan kami membuka pintu selebar-lebarnya buat kamu yang mau ikut urun ide atau ngoding bareng.
+    description: Peta jalan [roadmap]{class="text-primary"} inisiatif teknologi yang sedang dan akan kami rancang secara terbuka. Belum semua rilis, dan kami membuka pintu selebar-lebarnya buat kamu yang mau ikut urun ide atau ngoding bareng.
     id: inisiatif
     orientation: horizontal
     features:
@@ -42,7 +43,6 @@ sections:
     description: Eksplorasi awal untuk merapikan cara kita mengelola dokumentasi dan antarmuka publik daerah agar mudah dipelajari manusia maupun sistem AI cerdas.
     id: standards
     orientation: horizontal
-    reverse: true
     features:
       - title: Majalengka Design System
         badge: Tahap Konsep

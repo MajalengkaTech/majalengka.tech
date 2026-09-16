@@ -172,12 +172,25 @@ async function onSubmit(event: FormSubmitEvent<ProjectSchema>) {
 <template>
 	<UModal
 		v-model:open="isOpen"
-		title="Tambah Projek Baru"
-		description="Unggah karya, aplikasi, atau tools teknologi Anda untuk dipamerkan ke ekosistem Majalengka Tech."
 		:ui="{
-			content: 'sm:max-w-2xl'
+			content: 'sm:max-w-2xl max-h-[calc(100dvh-2rem)] sm:max-h-[calc(100dvh-4rem)] flex flex-col overflow-hidden',
+			header: 'p-4 sm:p-6 shrink-0 relative pr-12',
+			body: 'flex-1 overflow-y-auto min-h-0 p-4 sm:p-6',
+			footer: 'p-4 sm:px-6 shrink-0'
 		}"
 	>
+		<template #title>
+			<span class="text-base sm:text-lg font-bold text-highlighted pr-6 block">
+				Tambah Projek Baru
+			</span>
+		</template>
+
+		<template #description>
+			<span class="text-xs sm:text-sm text-muted leading-relaxed pr-6 block mt-1">
+				Unggah karya, aplikasi, atau tools teknologi Anda untuk dipamerkan ke ekosistem Majalengka Tech.
+			</span>
+		</template>
+
 		<template #body>
 			<UForm
 				id="create-project-form"

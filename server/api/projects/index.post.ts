@@ -51,7 +51,7 @@ export default defineEventHandler(async (event) => {
 	}
 
 	const [newProject] = await db.insert(schema.projects).values({
-		userId: Number(session.user.id),
+		userId: session.user.id,
 		title: body.title.trim(),
 		slug,
 		description: body.description.trim(),

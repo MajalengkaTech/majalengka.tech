@@ -11,13 +11,14 @@ useSeoMeta({
 	description: 'Bergabung dengan ekosistem open-source dan komunitas teknologi Majalengka'
 })
 
-const { loggedIn, fetch: refreshSession } = useUserSession()
+const { loggedIn } = useUserSession()
+const authClient = useAuthClient()
 const toast = useToast()
 const loading = ref(false)
 
 watchEffect(() => {
 	if (loggedIn.value) {
-		navigateTo('/')
+		navigateTo('/dashboard')
 	}
 })
 
@@ -44,15 +45,21 @@ const providers = [{
 	label: 'Daftar dengan GitHub',
 	icon: 'i-simple-icons-github',
 	color: 'neutral' as const,
-	onClick: () => {
-		window.location.href = '/api/auth/github'
+	onClick: async () => {
+		await authClient?.signIn.social({
+			provider: 'github',
+			callbackURL: '/dashboard'
+		})
 	}
 }, {
 	label: 'Daftar dengan Google',
 	icon: 'i-simple-icons-google',
 	color: 'neutral' as const,
-	onClick: () => {
-		window.location.href = '/api/auth/google'
+	onClick: async () => {
+		await authClient?.signIn.social({
+			provider: 'google',
+			callbackURL: '/dashboard'
+		})
 	}
 }]
 
@@ -65,28 +72,36 @@ const schema = z.object({
 type Schema = z.output<typeof schema>
 
 async function onSubmit(payload: FormSubmitEvent<Schema>) {
+	if (!authClient) return
 	try {
 		loading.value = true
-		await $fetch('/api/auth/register', {
-			method: 'POST',
-			body: {
-				name: payload.data.name,
-				email: payload.data.email,
-				password: payload.data.password
-			}
+		const { error } = await authClient.signUp.email({
+			name: payload.data.name,
+			email: payload.data.email,
+			password: payload.data.password,
+			callbackURL: '/dashboard'
 		})
-		await refreshSession()
+
+		if (error) {
+			toast.add({
+				title: 'Gagal Mendaftar',
+				description: error.message || 'Terjadi kesalahan saat mendaftar.',
+				color: 'error'
+			})
+			return
+		}
+
 		toast.add({
 			title: 'Pendaftaran Berhasil',
 			description: `Selamat datang di Majalengka Tech, ${payload.data.name}!`,
 			color: 'success'
 		})
-		navigateTo('/')
+		await navigateTo('/dashboard')
 	} catch (err: unknown) {
-		const errorResponse = err as { data?: { statusMessage?: string } }
+		const errorMessage = err instanceof Error ? err.message : 'Terjadi kesalahan saat mendaftar.'
 		toast.add({
 			title: 'Gagal Mendaftar',
-			description: errorResponse?.data?.statusMessage || 'Terjadi kesalahan saat mendaftar.',
+			description: errorMessage,
 			color: 'error'
 		})
 	} finally {

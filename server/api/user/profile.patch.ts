@@ -22,14 +22,14 @@ export default defineEventHandler(async (event) => {
 	const body = await readValidatedBody(event, updateProfileSchema.parse)
 	const now = new Date()
 
-	const [updatedUser] = await db.update(schema.users).set({
+	const [updatedUser] = await db.update(schema.user).set({
 		name: body.name.trim(),
 		bio: body.bio?.trim() || null,
-		avatarUrl: body.avatarUrl?.trim() || null,
+		image: body.avatarUrl?.trim() || null,
 		githubUsername: body.githubUsername?.trim()?.replace(/^@/, '') || null,
 		websiteUrl: body.websiteUrl?.trim() || null,
 		updatedAt: now
-	}).where(eq(schema.users.id, Number(session.user.id))).returning()
+	}).where(eq(schema.user.id, session.user.id)).returning()
 
 	if (!updatedUser) {
 		throw createError({
@@ -38,28 +38,17 @@ export default defineEventHandler(async (event) => {
 		})
 	}
 
-	await setUserSession(event, {
-		user: {
-			id: updatedUser.id,
-			name: updatedUser.name,
-			email: updatedUser.email,
-			avatar: updatedUser.avatarUrl || undefined,
-			provider: updatedUser.provider
-		}
-	})
-
 	return {
 		success: true,
 		user: {
 			id: updatedUser.id,
 			name: updatedUser.name,
 			email: updatedUser.email,
-			avatarUrl: updatedUser.avatarUrl,
-			bio: updatedUser.bio,
-			githubUsername: updatedUser.githubUsername,
-			websiteUrl: updatedUser.websiteUrl,
-			role: updatedUser.role,
-			provider: updatedUser.provider
+			avatarUrl: updatedUser.image,
+			bio: (updatedUser as { bio?: string }).bio || null,
+			githubUsername: (updatedUser as { githubUsername?: string }).githubUsername || null,
+			websiteUrl: (updatedUser as { websiteUrl?: string }).websiteUrl || null,
+			role: updatedUser.role || 'user'
 		}
 	}
 })

@@ -10,8 +10,8 @@ export default defineEventHandler(async (event) => {
 		})
 	}
 
-	const user = await db.query.users.findFirst({
-		where: eq(schema.users.id, Number(session.user.id))
+	const user = await db.query.user.findFirst({
+		where: eq(schema.user.id, session.user.id)
 	})
 
 	if (!user) {
@@ -30,12 +30,11 @@ export default defineEventHandler(async (event) => {
 			id: user.id,
 			name: user.name,
 			email: user.email,
-			avatarUrl: user.avatarUrl,
-			bio: user.bio,
-			githubUsername: user.githubUsername,
-			websiteUrl: user.websiteUrl,
-			role: user.role,
-			provider: user.provider,
+			avatarUrl: user.image,
+			bio: (user as { bio?: string }).bio || null,
+			githubUsername: (user as { githubUsername?: string }).githubUsername || null,
+			websiteUrl: (user as { websiteUrl?: string }).websiteUrl || null,
+			role: user.role || 'user',
 			createdAt: user.createdAt
 		},
 		projectCount: userProjects.length

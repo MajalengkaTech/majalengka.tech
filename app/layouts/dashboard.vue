@@ -3,8 +3,16 @@ import type { NavigationMenuItem } from '@nuxt/ui'
 
 const open = ref(false)
 
-const navLinks = computed<NavigationMenuItem[][]>(() => [
-	[
+const { user } = useUserSession()
+
+const isAdmin = computed(() => {
+	const role = (user.value as { role?: string })?.role
+	const email = user.value?.email?.toLowerCase()
+	return role === 'admin' || email === 'dinarpermadi07@gmail.com'
+})
+
+const navLinks = computed<NavigationMenuItem[][]>(() => {
+	const primaryLinks: NavigationMenuItem[] = [
 		{
 			label: 'Ringkasan',
 			icon: 'i-lucide-layout-dashboard',
@@ -30,26 +38,41 @@ const navLinks = computed<NavigationMenuItem[][]>(() => [
 				open.value = false
 			}
 		}
-	],
-	[
-		{
-			label: 'Showcase Publik',
-			icon: 'i-lucide-sparkles',
-			to: '/projek',
-			target: '_blank'
-		},
-		{
-			label: 'Dokumentasi',
-			icon: 'i-lucide-book-open',
-			to: '/docs'
-		},
-		{
-			label: 'Ke Website',
-			icon: 'i-lucide-external-link',
-			to: '/'
-		}
 	]
-])
+
+	if (isAdmin.value) {
+		primaryLinks.push({
+			label: 'Konsol Kelola',
+			icon: 'i-lucide-shield-alert',
+			to: '/kelola',
+			onSelect: () => {
+				open.value = false
+			}
+		})
+	}
+
+	return [
+		primaryLinks,
+		[
+			{
+				label: 'Showcase Publik',
+				icon: 'i-lucide-sparkles',
+				to: '/projek',
+				target: '_blank'
+			},
+			{
+				label: 'Dokumentasi',
+				icon: 'i-lucide-book-open',
+				to: '/docs'
+			},
+			{
+				label: 'Ke Website',
+				icon: 'i-lucide-external-link',
+				to: '/'
+			}
+		]
+	]
+})
 </script>
 
 <template>
@@ -68,15 +91,24 @@ const navLinks = computed<NavigationMenuItem[][]>(() => [
 				<div class="flex items-center gap-2.5 px-1 py-1 w-full overflow-hidden">
 					<NuxtLink
 						to="/"
-						class="flex items-center gap-2 text-highlighted hover:opacity-80 transition-opacity"
+						class="flex items-center gap-2.5 text-highlighted hover:opacity-80 transition-opacity min-w-0"
 					>
-						<AppLogo class="w-auto h-6 shrink-0" />
-						<span
-							v-if="!collapsed"
-							class="text-xs font-bold uppercase tracking-wider text-primary truncate"
+						<img
+							src="/logo-circle.svg"
+							alt="Majalengka Tech Logo"
+							class="size-7 rounded-md object-contain shrink-0"
 						>
-							Developer Hub
-						</span>
+						<div
+							v-if="!collapsed"
+							class="flex flex-col min-w-0 leading-tight"
+						>
+							<span class="text-sm font-bold tracking-tight text-neutral-900 dark:text-white truncate">
+								majalengka<span class="text-primary font-bold">.tech</span>
+							</span>
+							<span class="text-[10px] font-semibold uppercase tracking-wider text-muted truncate">
+								Developer Hub
+							</span>
+						</div>
 					</NuxtLink>
 				</div>
 			</template>

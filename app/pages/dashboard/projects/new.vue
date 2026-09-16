@@ -3,8 +3,7 @@ import * as z from 'zod'
 import type { FormSubmitEvent } from '@nuxt/ui'
 
 definePageMeta({
-	layout: 'dashboard',
-	middleware: 'auth'
+	layout: 'dashboard'
 })
 
 useSeoMeta({
@@ -58,7 +57,7 @@ const sampleThumbnails = [
 
 const previewProject = computed(() => ({
 	id: 0,
-	userId: Number(user.value?.id || 0),
+	userId: user.value?.id || '0',
 	title: state.title || 'Judul Projek Anda',
 	slug: 'preview-slug',
 	description: state.description || 'Deskripsi projek Anda akan tampil di sini. Jelaskan solusi, fitur utama, dan keunggulan projek yang Anda kembangkan.',
@@ -70,9 +69,9 @@ const previewProject = computed(() => ({
 	createdAt: new Date(),
 	updatedAt: new Date(),
 	author: {
-		id: Number(user.value?.id || 0),
+		id: user.value?.id || '0',
 		name: user.value?.name || 'Developer',
-		avatarUrl: user.value?.avatar || null,
+		avatarUrl: (user.value as { image?: string })?.image || null,
 		githubUsername: null
 	}
 }))

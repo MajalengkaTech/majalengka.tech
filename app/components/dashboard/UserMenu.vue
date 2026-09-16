@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const { user, clear } = useUserSession()
+const { user, signOut } = useUserSession()
 const colorMode = useColorMode()
 
 defineProps<{
@@ -7,7 +7,7 @@ defineProps<{
 }>()
 
 async function handleLogout() {
-	await clear()
+	await signOut()
 	await navigateTo('/login')
 }
 
@@ -15,16 +15,14 @@ function toggleColorMode() {
 	colorMode.preference = colorMode.value === 'dark' ? 'light' : 'dark'
 }
 
-const items = computed(() => [
-	[
-		{
-			label: user.value?.name || 'Developer',
-			avatar: {
-				src: user.value?.avatar
-			}
-		}
-	],
-	[
+const isAdmin = computed(() => {
+	const role = (user.value as { role?: string })?.role
+	const email = user.value?.email?.toLowerCase()
+	return role === 'admin' || email === 'dinarpermadi07@gmail.com'
+})
+
+const items = computed(() => {
+	const secondSection = [
 		{
 			label: 'Edit Profil',
 			icon: 'i-lucide-user-cog',
@@ -40,28 +38,48 @@ const items = computed(() => [
 			icon: 'i-lucide-sparkles',
 			to: '/projek'
 		}
-	],
-	[
-		{
-			label: colorMode.value === 'dark' ? 'Mode Terang' : 'Mode Gelap',
-			icon: colorMode.value === 'dark' ? 'i-lucide-sun' : 'i-lucide-moon',
-			onSelect: () => toggleColorMode()
-		},
-		{
-			label: 'Kembali ke Web',
-			icon: 'i-lucide-arrow-left',
-			to: '/'
-		}
-	],
-	[
-		{
-			label: 'Keluar (Logout)',
-			icon: 'i-lucide-log-out',
-			color: 'error' as const,
-			onSelect: () => handleLogout()
-		}
 	]
-])
+
+	if (isAdmin.value) {
+		secondSection.push({
+			label: 'Konsol Kelola',
+			icon: 'i-lucide-shield-alert',
+			to: '/kelola'
+		})
+	}
+
+	return [
+		[
+			{
+				label: user.value?.name || 'Developer',
+				avatar: {
+					src: (user.value as { image?: string })?.image
+				}
+			}
+		],
+		secondSection,
+		[
+			{
+				label: colorMode.value === 'dark' ? 'Mode Terang' : 'Mode Gelap',
+				icon: colorMode.value === 'dark' ? 'i-lucide-sun' : 'i-lucide-moon',
+				onSelect: () => toggleColorMode()
+			},
+			{
+				label: 'Kembali ke Web',
+				icon: 'i-lucide-arrow-left',
+				to: '/'
+			}
+		],
+		[
+			{
+				label: 'Keluar (Logout)',
+				icon: 'i-lucide-log-out',
+				color: 'error' as const,
+				onSelect: () => handleLogout()
+			}
+		]
+	]
+})
 </script>
 
 <template>
@@ -76,7 +94,7 @@ const items = computed(() => [
 			:class="[collapsed && 'justify-center p-1.5']"
 		>
 			<UAvatar
-				:src="user?.avatar"
+				:src="(user as { image?: string })?.image"
 				:alt="user?.name || 'User'"
 				size="sm"
 				class="shrink-0"

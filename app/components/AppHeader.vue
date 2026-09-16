@@ -4,7 +4,7 @@ import type { ContentNavigationItem } from '@nuxt/content'
 const route = useRoute()
 const navigation = inject<Ref<ContentNavigationItem[]>>('navigation')
 const { open: searchOpen } = useContentSearch()
-const { loggedIn, user, clear } = useUserSession()
+const { loggedIn, user, signOut } = useUserSession()
 
 const open = ref(false)
 const isDocs = computed(() => route.path === '/docs' || route.path.startsWith('/docs/'))
@@ -16,7 +16,7 @@ watch(searchOpen, (value) => {
 })
 
 async function handleLogout() {
-	await clear()
+	await signOut()
 	await navigateTo('/')
 }
 
@@ -25,7 +25,7 @@ const userMenuItems = computed(() => [
 		{
 			label: user.value?.name || 'Developer',
 			avatar: {
-				src: user.value?.avatar
+				src: (user.value as { image?: string })?.image
 			}
 		}
 	],
@@ -52,21 +52,6 @@ const userMenuItems = computed(() => [
 			icon: 'i-lucide-log-out',
 			color: 'error' as const,
 			onSelect: () => handleLogout()
-		}
-	]
-])
-
-const authMenuItems = computed(() => [
-	[
-		{
-			label: 'Masuk (Login)',
-			icon: 'i-lucide-log-in',
-			to: '/login'
-		},
-		{
-			label: 'Daftar Akun',
-			icon: 'i-lucide-user-plus',
-			to: '/signup'
 		}
 	]
 ])
@@ -129,7 +114,7 @@ const items = computed(() => [{
 						aria-label="Menu Pengguna"
 					>
 						<UAvatar
-							:src="user.avatar"
+							:src="(user as { image?: string })?.image"
 							:alt="user.name"
 							size="sm"
 						/>
@@ -138,25 +123,15 @@ const items = computed(() => [{
 			</template>
 
 			<template v-else>
-				<UDropdownMenu :items="authMenuItems">
-					<UButton
-						icon="i-lucide-circle-user"
-						label="Akun"
-						color="neutral"
-						variant="outline"
-						trailing-icon="i-lucide-chevron-down"
-						size="sm"
-						class="hidden sm:inline-flex"
-					/>
-					<UButton
-						icon="i-lucide-circle-user"
-						color="neutral"
-						variant="ghost"
-						size="sm"
-						aria-label="Akun"
-						class="sm:hidden"
-					/>
-				</UDropdownMenu>
+				<UButton
+					icon="i-lucide-log-in"
+					color="neutral"
+					variant="ghost"
+					to="/login"
+					aria-label="Masuk (Login)"
+					title="Masuk (Login)"
+					class="hidden sm:inline-flex"
+				/>
 			</template>
 		</template>
 
@@ -186,12 +161,12 @@ const items = computed(() => [{
 			<template v-if="loggedIn && user">
 				<div class="flex items-center gap-3 p-3 rounded-lg bg-neutral-100 dark:bg-neutral-800 mb-3">
 					<UAvatar
-						:src="user.avatar"
+						:src="(user as { image?: string })?.image"
 						:alt="user.name"
 					/>
 					<div class="flex flex-col">
 						<span class="font-medium text-sm">{{ user.name }}</span>
-						<span class="text-xs text-muted">{{ user.email || user.provider }}</span>
+						<span class="text-xs text-muted">{{ user.email }}</span>
 					</div>
 				</div>
 				<UButton

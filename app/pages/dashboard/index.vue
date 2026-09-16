@@ -2,8 +2,7 @@
 import type { ProjectItem } from '~/types/project'
 
 definePageMeta({
-	layout: 'dashboard',
-	middleware: 'auth'
+	layout: 'dashboard'
 })
 
 useSeoMeta({
@@ -60,12 +59,14 @@ async function handleDeleteProject(id: number) {
 
 			<template #right>
 				<UButton
-					label="Tambah Projek"
 					icon="i-lucide-plus"
 					color="primary"
 					size="sm"
+					aria-label="Tambah Projek"
 					@click="isCreateModalOpen = true"
-				/>
+				>
+					<span class="hidden sm:inline">Tambah Projek</span>
+				</UButton>
 			</template>
 		</UDashboardNavbar>
 
@@ -75,7 +76,7 @@ async function handleDeleteProject(id: number) {
 				<div class="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
 					<div class="flex items-center gap-4">
 						<UAvatar
-							:src="profileData?.user?.avatarUrl || user?.avatar || undefined"
+							:src="profileData?.user?.avatarUrl || (user as { image?: string })?.image || undefined"
 							:alt="user?.name || 'Developer'"
 							size="3xl"
 							class="ring-2 ring-primary/40 shadow-md"

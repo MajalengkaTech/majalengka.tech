@@ -21,9 +21,53 @@ useSeoMeta({
 	titleTemplate: '%s · Majalengka Tech',
 	twitterCard: 'summary_large_image'
 })
+interface ContentNavItem {
+	title: string
+	path: string
+	stem?: string
+	icon?: string
+	children?: ContentNavItem[]
+	[key: string]: unknown
+}
+
+function stripChildIcons(children?: ContentNavItem[]): ContentNavItem[] | undefined {
+	if (!children) return undefined
+	return children.map(child => ({
+		...child,
+		icon: undefined,
+		children: stripChildIcons(child.children)
+	}))
+}
+
+const CATEGORY_ICONS: Record<string, string> = {
+	'getting-started': 'i-lucide-compass',
+	'inisiatif': 'i-lucide-rocket',
+	'design-system': 'i-lucide-palette',
+	'open-knowledge-format': 'i-lucide-brain'
+}
 
 const { data: navigation } = await useAsyncData('navigation', () => queryCollectionNavigation('docs'), {
-	transform: data => data.find(item => item.path === '/docs')?.children || []
+	transform: (data) => {
+		const docsNav = (data.find(item => item.path === '/docs')?.children || []) as ContentNavItem[]
+
+		return docsNav.map((category) => {
+			let categoryIcon = category.icon
+			if (!categoryIcon) {
+				for (const [key, icon] of Object.entries(CATEGORY_ICONS)) {
+					if (category.path?.includes(key)) {
+						categoryIcon = icon
+						break
+					}
+				}
+			}
+
+			return {
+				...category,
+				icon: categoryIcon || 'i-lucide-folder',
+				children: stripChildIcons(category.children)
+			}
+		})
+	}
 })
 const { data: files } = useLazyAsyncData('search', () => queryCollectionSearchSections('docs'), {
 	server: false
@@ -98,7 +142,7 @@ provide('navigation', navigation)
 
 <template>
 	<UApp>
-		<NuxtLoadingIndicator />
+		<NuxtLoadingIndicator :color="'var(--color-primary)'" />
 
 		<NuxtLayout>
 			<NuxtPage />

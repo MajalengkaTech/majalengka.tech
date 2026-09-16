@@ -1,4 +1,17 @@
 import { defineCollection, z } from '@nuxt/content'
+import {
+	defineOgImageSchema,
+	defineRobotsSchema,
+	defineSchemaOrgSchema,
+	defineSitemapSchema
+} from '@nuxtjs/seo/content'
+
+const seoFields = {
+	ogImage: defineOgImageSchema(),
+	robots: defineRobotsSchema(),
+	schemaOrg: defineSchemaOrgSchema(),
+	sitemap: defineSitemapSchema()
+}
 
 const variantEnum = z.enum(['solid', 'outline', 'subtle', 'soft', 'ghost', 'link'])
 const colorEnum = z.enum(['primary', 'secondary', 'neutral', 'error', 'warning', 'success', 'info'])
@@ -43,9 +56,17 @@ export const collections = {
 			sections: z.array(
 				createBaseSchema().extend({
 					id: z.string().nonempty(),
+					headline: z.string().optional(),
 					orientation: orientationEnum.optional(),
 					reverse: z.boolean().optional(),
-					features: z.array(createFeatureItemSchema())
+					image: z.union([
+						z.string().nonempty(),
+						createImageSchema()
+					]).optional(),
+					features: z.array(createFeatureItemSchema().extend({
+						badge: z.string().optional(),
+						status: z.string().optional()
+					}))
 				})
 			),
 			features: createBaseSchema().extend({
@@ -73,7 +94,8 @@ export const collections = {
 	}),
 	docs: defineCollection({
 		source: '1.docs/**/*',
-		type: 'page'
+		type: 'page',
+		schema: z.object(seoFields)
 	}),
 	pricing: defineCollection({
 		source: '2.pricing.yml',
@@ -116,6 +138,7 @@ export const collections = {
 		source: '3.blog/**/*',
 		type: 'page',
 		schema: z.object({
+			...seoFields,
 			image: z.object({ src: z.string().nonempty().editor({ input: 'media' }) }),
 			authors: z.array(
 				z.object({

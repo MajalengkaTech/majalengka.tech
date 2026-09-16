@@ -15,7 +15,7 @@ export default defineEventHandler(async (event) => {
 		}
 
 		const myProjects = await db.query.projects.findMany({
-			where: eq(schema.projects.userId, Number(session.user.id)),
+			where: eq(schema.projects.userId, session.user.id),
 			orderBy: [desc(schema.projects.createdAt)]
 		})
 
@@ -33,16 +33,16 @@ export default defineEventHandler(async (event) => {
 	// Enrich with author info
 	const userIds = [...new Set(allProjects.map(p => p.userId))]
 	const authors = userIds.length > 0
-		? await db.query.users.findMany({
-			where: (users, { inArray }) => inArray(users.id, userIds)
-		})
+		? await db.query.user.findMany({
+				where: (user, { inArray }) => inArray(user.id, userIds)
+			})
 		: []
 
 	const authorMap = new Map(authors.map(u => [u.id, {
 		id: u.id,
 		name: u.name,
-		avatarUrl: u.avatarUrl,
-		githubUsername: u.githubUsername
+		avatarUrl: u.image,
+		githubUsername: null
 	}]))
 
 	const enriched = allProjects.map(p => ({

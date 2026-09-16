@@ -43,8 +43,8 @@ export default defineEventHandler(async (event) => {
 		})
 	}
 
-	// Verify ownership
-	if (project.userId !== Number(session.user.id)) {
+	// Verify ownership or admin role
+	if (project.userId !== session.user.id && (session.user as { role?: string }).role !== 'admin') {
 		throw createError({
 			statusCode: 403,
 			statusMessage: 'Anda tidak memiliki hak akses untuk mengedit projek ini'

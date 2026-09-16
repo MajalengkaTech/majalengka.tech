@@ -3,8 +3,7 @@ import * as z from 'zod'
 import type { FormSubmitEvent } from '@nuxt/ui'
 
 definePageMeta({
-	layout: 'dashboard',
-	middleware: 'auth'
+	layout: 'dashboard'
 })
 
 useSeoMeta({
@@ -13,7 +12,7 @@ useSeoMeta({
 })
 
 const toast = useToast()
-const { fetch: refreshSession } = useUserSession()
+const { fetchSession: refreshSession } = useUserSession()
 
 const { data: profileData, refresh: refreshProfile } = await useFetch('/api/user/profile')
 
@@ -135,12 +134,12 @@ async function onSubmit(event: FormSubmitEvent<ProfileSchema>) {
 							<div class="flex items-center gap-2">
 								<span class="text-sm font-semibold text-highlighted">Foto Profil / Avatar</span>
 								<UBadge
-									v-if="profileData?.user?.provider"
-									color="neutral"
+									v-if="profileData?.user?.role"
+									color="primary"
 									variant="subtle"
 									size="xs"
 								>
-									Login via {{ profileData.user.provider }}
+									Role: {{ profileData.user.role }}
 								</UBadge>
 							</div>
 							<p class="text-xs text-muted">

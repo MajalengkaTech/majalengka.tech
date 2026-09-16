@@ -3,7 +3,6 @@ title: Open Knowledge Format (OKF)
 description: Eksplorasi standar terbuka Google Cloud untuk interoperabilitas dokumentasi dan agen AI.
 navigation:
   title: Ikhtisar OKF
-  icon: i-lucide-brain
 ---
 
 # Open Knowledge Format (OKF)

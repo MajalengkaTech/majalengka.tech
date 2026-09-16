@@ -8,7 +8,9 @@ export default withNuxt(
 		ignores: [
 			'.agents/**',
 			'.roo/**',
-			'okf/**'
+			'okf/**',
+			'**/*.svg',
+			'public/**/*.svg'
 		]
 	},
 	betterTailwindcss.configs['correctness-error'],
@@ -24,9 +26,35 @@ export default withNuxt(
 		},
 		rules: {
 			'better-tailwindcss/no-unknown-classes': ['error', { ignore: ['^stars$', '^star-layer$', '^star$'] }],
-			'@stylistic/no-tabs': 'off',
-			'@stylistic/indent': ['error', 'tab'],
-			'vue/html-indent': ['error', 'tab']
+			'vue/html-indent': [
+				'error',
+				'tab',
+				{
+					ignores: [
+						'VElement[name="svg"]',
+						'VElement[name="svg"] *'
+					]
+				}
+			]
+		}
+	},
+	{
+		files: [
+			'**/*Illustration*.vue',
+			'**/*Svg*.vue',
+			'**/svg/**/*.vue',
+			'**/SVG/**/*.vue',
+			'app/components/HeroIllustration.vue'
+		],
+		rules: {
+			'vue/first-attribute-linebreak': 'off',
+			'vue/html-closing-bracket-newline': 'off',
+			'vue/html-indent': 'off',
+			'vue/html-quotes': 'off',
+			'vue/html-self-closing': 'off',
+			'vue/max-attributes-per-line': 'off',
+			'vue/multiline-html-element-content-newline': 'off',
+			'vue/singleline-html-element-content-newline': 'off'
 		}
 	}
 )
