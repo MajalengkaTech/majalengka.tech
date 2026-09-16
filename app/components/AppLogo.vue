@@ -10,14 +10,7 @@
 			class="size-7 rounded-md object-contain shrink-0"
 		>
 		<span class="text-base font-semibold text-neutral-900 dark:text-white">
-			majalengka
+			majalengka<span class="text-primary font-bold">.tech</span>
 		</span>
-		<UBadge
-			label=".tech"
-			color="primary"
-			variant="subtle"
-			size="xs"
-			class="font-mono font-bold tracking-tight rounded-md px-1.5 py-0.5"
-		/>
 	</div>
 </template>
