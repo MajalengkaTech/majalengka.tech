@@ -13,10 +13,21 @@ useSeoMeta({
 
 const toast = useToast()
 const search = ref('')
-const createModalOpen = ref(false)
+const isProjectModalOpen = ref(false)
+const selectedProject = ref<ProjectItem | null>(null)
 const deleteModalOpen = ref(false)
 const projectToDelete = ref<number | null>(null)
 const deleting = ref(false)
+
+function openCreateModal() {
+	selectedProject.value = null
+	isProjectModalOpen.value = true
+}
+
+function openEditModal(project: ProjectItem) {
+	selectedProject.value = project
+	isProjectModalOpen.value = true
+}
 
 const { data: projectsData, refresh: refreshProjects, status } = await useFetch('/api/projects?mine=true', {
 	key: 'user-projects'
@@ -83,7 +94,7 @@ async function executeDelete() {
 					icon="i-lucide-plus"
 					color="primary"
 					size="sm"
-					@click="createModalOpen = true"
+					@click="openCreateModal"
 				/>
 			</template>
 		</UDashboardNavbar>
@@ -144,7 +155,7 @@ async function executeDelete() {
 					icon="i-lucide-plus"
 					color="primary"
 					class="mt-3"
-					@click="createModalOpen = true"
+					@click="openCreateModal"
 				/>
 			</div>
 
@@ -159,6 +170,7 @@ async function executeDelete() {
 					:project="p"
 					editable
 					@delete="confirmDelete"
+					@edit="openEditModal"
 				/>
 			</div>
 		</div>
@@ -189,9 +201,10 @@ async function executeDelete() {
 			</template>
 		</UModal>
 
-		<!-- Create Project Modal -->
+		<!-- Create/Edit Project Modal -->
 		<DashboardProjectModal
-			v-model:open="createModalOpen"
+			v-model:open="isProjectModalOpen"
+			:project="selectedProject"
 			@saved="refreshProjects"
 		/>
 	</div>

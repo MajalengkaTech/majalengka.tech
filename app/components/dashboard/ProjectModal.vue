@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import * as z from 'zod'
 import type { FormSubmitEvent } from '@nuxt/ui'
+import type { ProjectItem } from '~/types/project'
 
 const props = defineProps<{
 	open?: boolean
+	project?: ProjectItem | null
 }>()
 
 const emit = defineEmits<{
@@ -15,6 +17,10 @@ const isOpen = computed({
 	get: () => props.open ?? false,
 	set: (val: boolean) => emit('update:open', val)
 })
+
+const modalTitle = computed(() => props.project ? 'Edit Projek' : 'Tambah Projek Baru')
+const modalDescription = computed(() => props.project ? 'Perbarui informasi, foto thumbnail, tautan, dan deskripsi karya projek Anda.' : 'Unggah karya, aplikasi, atau tools teknologi Anda untuk dipamerkan ke ekosistem Majalengka Tech.')
+const submitButtonLabel = computed(() => props.project ? 'Perbarui Projek' : 'Simpan Projek')
 
 const toast = useToast()
 const loading = ref(false)
@@ -127,27 +133,65 @@ function resetForm() {
 	state.isPublished = true
 }
 
+watch([() => props.open, () => props.project], ([isOpen, proj]) => {
+	if (isOpen) {
+		if (proj) {
+			state.title = proj.title || ''
+			state.description = proj.description || ''
+			state.thumbnailUrl = proj.thumbnailUrl || ''
+			state.repoUrl = proj.repoUrl || ''
+			state.demoUrl = proj.demoUrl || ''
+			state.tags = proj.tags || ''
+			state.isPublished = proj.isPublished ?? true
+			uploadMode.value = proj.thumbnailUrl ? 'url' : 'upload'
+		} else {
+			resetForm()
+		}
+	}
+}, { immediate: true })
+
 async function onSubmit(event: FormSubmitEvent<ProjectSchema>) {
 	try {
 		loading.value = true
-		await $fetch('/api/projects', {
-			method: 'POST',
-			body: {
-				title: event.data.title,
-				description: event.data.description,
-				thumbnailUrl: event.data.thumbnailUrl,
-				repoUrl: event.data.repoUrl,
-				demoUrl: event.data.demoUrl,
-				tags: event.data.tags,
-				isPublished: event.data.isPublished
-			}
-		})
+		if (props.project?.id) {
+			await $fetch(`/api/projects/${props.project.id}`, {
+				method: 'PUT',
+				body: {
+					title: event.data.title,
+					description: event.data.description,
+					thumbnailUrl: event.data.thumbnailUrl,
+					repoUrl: event.data.repoUrl,
+					demoUrl: event.data.demoUrl,
+					tags: event.data.tags,
+					isPublished: event.data.isPublished
+				}
+			})
 
-		toast.add({
-			title: 'Projek Berhasil Ditambahkan',
-			description: `Projek "${event.data.title}" telah berhasil disimpan ke portofolio Anda.`,
-			color: 'success'
-		})
+			toast.add({
+				title: 'Projek Berhasil Diperbarui',
+				description: `Perubahan pada "${event.data.title}" telah disimpan.`,
+				color: 'success'
+			})
+		} else {
+			await $fetch('/api/projects', {
+				method: 'POST',
+				body: {
+					title: event.data.title,
+					description: event.data.description,
+					thumbnailUrl: event.data.thumbnailUrl,
+					repoUrl: event.data.repoUrl,
+					demoUrl: event.data.demoUrl,
+					tags: event.data.tags,
+					isPublished: event.data.isPublished
+				}
+			})
+
+			toast.add({
+				title: 'Projek Berhasil Ditambahkan',
+				description: `Projek "${event.data.title}" telah berhasil disimpan ke portofolio Anda.`,
+				color: 'success'
+			})
+		}
 
 		await refreshNuxtData()
 		resetForm()
@@ -156,8 +200,8 @@ async function onSubmit(event: FormSubmitEvent<ProjectSchema>) {
 	} catch (err: unknown) {
 		const errorResponse = err as { data?: { statusMessage?: string } }
 		toast.add({
-			title: 'Gagal Menyimpan Projek',
-			description: errorResponse?.data?.statusMessage || 'Terjadi kendala saat menyimpan projek. Silakan periksa formulir.',
+			title: props.project ? 'Gagal Memperbarui Projek' : 'Gagal Menyimpan Projek',
+			description: errorResponse?.data?.statusMessage || 'Terjadi kendala saat memproses projek. Silakan periksa formulir.',
 			color: 'error'
 		})
 	} finally {
@@ -169,8 +213,8 @@ async function onSubmit(event: FormSubmitEvent<ProjectSchema>) {
 <template>
 	<UModal
 		v-model:open="isOpen"
-		title="Tambah Projek Baru"
-		description="Unggah karya, aplikasi, atau tools teknologi Anda untuk dipamerkan ke ekosistem Majalengka Tech."
+		:title="modalTitle"
+		:description="modalDescription"
 		:ui="{
 			content: 'sm:max-w-2xl'
 		}"
@@ -440,7 +484,7 @@ async function onSubmit(event: FormSubmitEvent<ProjectSchema>) {
 				<UButton
 					type="submit"
 					form="create-project-form"
-					label="Simpan Projek"
+					:label="submitButtonLabel"
 					icon="i-lucide-check"
 					color="primary"
 					:loading="loading"

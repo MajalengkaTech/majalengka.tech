@@ -10,6 +10,7 @@ const props = withDefaults(defineProps<{
 
 const emit = defineEmits<{
 	delete: [id: number]
+	edit: [project: ProjectItem]
 }>()
 
 const parsedTags = computed(() => {
@@ -25,7 +26,7 @@ const actionItems = computed(() => [
 		{
 			label: 'Edit Projek',
 			icon: 'i-lucide-pencil',
-			to: `/dashboard/projects/${props.project.id}`
+			onSelect: () => emit('edit', props.project)
 		}
 	],
 	[

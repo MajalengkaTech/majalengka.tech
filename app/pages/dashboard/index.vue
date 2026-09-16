@@ -13,7 +13,18 @@ useSeoMeta({
 
 const { user } = useUserSession()
 
-const isCreateModalOpen = ref(false)
+const isProjectModalOpen = ref(false)
+const selectedProject = ref<ProjectItem | null>(null)
+
+function openCreateModal() {
+	selectedProject.value = null
+	isProjectModalOpen.value = true
+}
+
+function openEditModal(project: ProjectItem) {
+	selectedProject.value = project
+	isProjectModalOpen.value = true
+}
 
 const { data: profileData, refresh: refreshProfile } = await useFetch('/api/user/profile')
 const { data: projectsData, refresh: refreshProjects } = await useFetch('/api/projects?mine=true', {
@@ -64,7 +75,7 @@ async function handleDeleteProject(id: number) {
 					icon="i-lucide-plus"
 					color="primary"
 					size="sm"
-					@click="isCreateModalOpen = true"
+					@click="openCreateModal"
 				/>
 			</template>
 		</UDashboardNavbar>
@@ -217,7 +228,7 @@ async function handleDeleteProject(id: number) {
 						icon="i-lucide-plus"
 						color="primary"
 						class="mt-2"
-						@click="isCreateModalOpen = true"
+						@click="openCreateModal"
 					/>
 				</div>
 
@@ -231,14 +242,16 @@ async function handleDeleteProject(id: number) {
 						:project="p"
 						editable
 						@delete="handleDeleteProject"
+						@edit="openEditModal"
 					/>
 				</div>
 			</div>
 		</div>
 
-		<!-- Modal Tambah Projek -->
+		<!-- Modal Tambah/Edit Projek -->
 		<DashboardProjectModal
-			v-model:open="isCreateModalOpen"
+			v-model:open="isProjectModalOpen"
+			:project="selectedProject"
 			@saved="refreshProjects"
 		/>
 	</div>
