@@ -10,7 +10,7 @@
 			class="size-7 rounded-md object-contain shrink-0"
 		>
 		<span class="text-base font-semibold text-neutral-900 dark:text-white">
-			majalengka<span class="text-primary font-bold">.tech</span>
+			majalengka<span class="text-primary dark:text-blue-600 font-bold">.tech</span>
 		</span>
 	</div>
 </template>
