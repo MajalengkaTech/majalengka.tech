@@ -58,11 +58,18 @@ export default defineNuxtConfig({
 				}
 			},
 			wrangler: {
+				name: 'majalengka-tech',
+				routes: [
+					{
+						pattern: 'majalengka.tech',
+						custom_domain: true
+					}
+				],
 				d1_databases: [
 					{
 						binding: 'DB',
 						database_name: 'majalengka-tech-db',
-						database_id: process.env.CLOUDFLARE_D1_DATABASE_ID || ''
+						database_id: process.env.CLOUDFLARE_D1_DATABASE_ID || '84289e0a-899d-41a7-ab83-cf488e91d29d'
 					}
 				],
 				r2_buckets: [
@@ -74,10 +81,8 @@ export default defineNuxtConfig({
 			}
 		},
 		prerender: {
-			routes: [
-				'/'
-			],
-			crawlLinks: true,
+			routes: [],
+			crawlLinks: false,
 			ignore: [
 				'/projek',
 				'/dashboard',
