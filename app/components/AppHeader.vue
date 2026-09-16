@@ -117,6 +117,7 @@ const items = computed(() => [{
 				to="https://github.com/majalengka-tech"
 				target="_blank"
 				aria-label="Majalengka Tech on GitHub"
+				class="hidden sm:inline-flex"
 			/>
 
 			<template v-if="loggedIn && user">
@@ -145,6 +146,15 @@ const items = computed(() => [{
 						variant="outline"
 						trailing-icon="i-lucide-chevron-down"
 						size="sm"
+						class="hidden sm:inline-flex"
+					/>
+					<UButton
+						icon="i-lucide-circle-user"
+						color="neutral"
+						variant="ghost"
+						size="sm"
+						aria-label="Akun"
+						class="sm:hidden"
 					/>
 				</UDropdownMenu>
 			</template>
@@ -207,6 +217,16 @@ const items = computed(() => [{
 					color="primary"
 					to="/signup"
 					block
+				/>
+				<UButton
+					label="GitHub Majalengka Tech"
+					icon="i-simple-icons-github"
+					color="neutral"
+					variant="subtle"
+					to="https://github.com/majalengka-tech"
+					target="_blank"
+					block
+					class="mt-3"
 				/>
 			</template>
 		</template>

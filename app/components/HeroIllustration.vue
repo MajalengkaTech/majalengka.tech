@@ -4,6 +4,7 @@
 		xmlns="http://www.w3.org/2000/svg"
 		version="1.1"
 		viewBox="0 0 869.4 424.1"
+		class="w-full h-auto block"
 	>
 		<g>
 			<g>
