@@ -18,7 +18,7 @@ export default defineEventHandler(async (event) => {
 		},
 		put: {
 			addRandomSuffix: true,
-			prefix: 'projects'
+			prefix: 'Projek'
 		}
 	})
 

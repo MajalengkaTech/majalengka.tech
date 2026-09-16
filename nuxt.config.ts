@@ -40,6 +40,12 @@ export default defineNuxtConfig({
 						database_name: 'majalengka-tech-db',
 						database_id: process.env.CLOUDFLARE_D1_DATABASE_ID || ''
 					}
+				],
+				r2_buckets: [
+					{
+						binding: 'BLOB',
+						bucket_name: 'majalengkatech'
+					}
 				]
 			}
 		},
