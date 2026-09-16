@@ -1,6 +1,8 @@
 import { z } from 'zod'
 import { eq } from 'drizzle-orm'
+import { blob } from 'hub:blob'
 import { db, schema } from 'hub:db'
+import { SUPER_ADMIN_EMAIL } from '../../utils/admin'
 
 const updateProjectSchema = z.object({
 	title: z.string().min(3, 'Judul minimal 3 karakter').max(120, 'Judul maksimal 120 karakter'),
@@ -43,8 +45,12 @@ export default defineEventHandler(async (event) => {
 		})
 	}
 
+	const role = (session.user as { role?: string })?.role
+	const email = session.user.email?.toLowerCase()
+	const isAdmin = role === 'admin' || email === SUPER_ADMIN_EMAIL.toLowerCase()
+
 	// Verify ownership or admin role
-	if (project.userId !== session.user.id && (session.user as { role?: string }).role !== 'admin') {
+	if (project.userId !== session.user.id && !isAdmin) {
 		throw createError({
 			statusCode: 403,
 			statusMessage: 'Anda tidak memiliki hak akses untuk mengedit projek ini'
@@ -53,11 +59,27 @@ export default defineEventHandler(async (event) => {
 
 	const body = await readValidatedBody(event, updateProjectSchema.parse)
 	const now = new Date()
+	const newThumbnailUrl = body.thumbnailUrl?.trim() || null
+
+	// Hapus thumbnail lama dari R2 jika diganti dengan yang baru
+	if (project.thumbnailUrl && newThumbnailUrl !== project.thumbnailUrl) {
+		try {
+			const oldPathname = project.thumbnailUrl.startsWith('/api/files/')
+				? project.thumbnailUrl.replace('/api/files/', '')
+				: project.thumbnailUrl
+
+			if (oldPathname && !/^https?:\/\//i.test(oldPathname)) {
+				await blob.delete(oldPathname)
+			}
+		} catch (error) {
+			console.warn('[Blob] Gagal menghapus thumbnail lama dari R2:', error)
+		}
+	}
 
 	const [updated] = await db.update(schema.projects).set({
 		title: body.title.trim(),
 		description: body.description.trim(),
-		thumbnailUrl: body.thumbnailUrl?.trim() || null,
+		thumbnailUrl: newThumbnailUrl,
 		repoUrl: body.repoUrl?.trim() || null,
 		demoUrl: body.demoUrl?.trim() || null,
 		tags: body.tags?.trim() || null,
