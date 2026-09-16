@@ -57,6 +57,66 @@ const sampleThumbnails = [
 	'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&auto=format&fit=crop&q=80'
 ]
 
+const isUploading = ref(false)
+const uploadMode = ref<'upload' | 'url'>('upload')
+const fileInput = ref<HTMLInputElement | null>(null)
+
+function triggerFileInput() {
+	fileInput.value?.click()
+}
+
+async function onFileSelected(e: Event) {
+	const target = e.target as HTMLInputElement
+	const file = target.files?.[0]
+	if (!file) return
+
+	if (!file.type.startsWith('image/')) {
+		toast.add({
+			title: 'Format Tidak Didukung',
+			description: 'Harap pilih file gambar (JPG, PNG, WebP, GIF, SVG).',
+			color: 'error'
+		})
+		return
+	}
+
+	if (file.size > 5 * 1024 * 1024) {
+		toast.add({
+			title: 'Ukuran Terlalu Besar',
+			description: 'Ukuran gambar maksimal adalah 5MB.',
+			color: 'error'
+		})
+		return
+	}
+
+	try {
+		isUploading.value = true
+		const formData = new FormData()
+		formData.append('file', file)
+
+		const res = await $fetch<{ success: boolean, url: string, pathname: string }>('/api/upload', {
+			method: 'POST',
+			body: formData
+		})
+
+		state.thumbnailUrl = res.url
+		toast.add({
+			title: 'Foto Berhasil Diunggah',
+			description: 'Foto projek telah tersimpan di cloud storage.',
+			color: 'success'
+		})
+	} catch (err: unknown) {
+		const errorResponse = err as { data?: { statusMessage?: string } }
+		toast.add({
+			title: 'Gagal Mengunggah',
+			description: errorResponse?.data?.statusMessage || 'Terjadi kesalahan saat mengunggah foto.',
+			color: 'error'
+		})
+	} finally {
+		isUploading.value = false
+		if (target) target.value = ''
+	}
+}
+
 function resetForm() {
 	state.title = ''
 	state.description = ''
@@ -165,47 +225,161 @@ async function onSubmit(event: FormSubmitEvent<ProjectSchema>) {
 				</div>
 
 				<UFormField
-					label="URL Thumbnail / Banner Projek"
+					label="Foto / Thumbnail Projek"
 					name="thumbnailUrl"
-					help="Gunakan link gambar (JPG/PNG/WebP) atau pilih salah satu template di bawah."
+					help="Unggah foto langsung dari perangkat (R2) atau masukkan link URL gambar."
 				>
-					<div class="space-y-2.5">
-						<UInput
-							v-model="state.thumbnailUrl"
-							placeholder="https://images.unsplash.com/photo-..."
-							icon="i-lucide-image"
-							class="w-full"
-						/>
+					<div class="space-y-3">
+						<!-- Toggle Mode -->
+						<div class="flex items-center gap-1 p-1 bg-neutral-100 dark:bg-neutral-800 rounded-lg w-fit">
+							<UButton
+								label="Unggah Foto"
+								icon="i-lucide-cloud-upload"
+								size="xs"
+								:variant="uploadMode === 'upload' ? 'solid' : 'ghost'"
+								:color="uploadMode === 'upload' ? 'primary' : 'neutral'"
+								@click="uploadMode = 'upload'"
+							/>
+							<UButton
+								label="Pilih Preset / URL"
+								icon="i-lucide-link-2"
+								size="xs"
+								:variant="uploadMode === 'url' ? 'solid' : 'ghost'"
+								:color="uploadMode === 'url' ? 'primary' : 'neutral'"
+								@click="uploadMode = 'url'"
+							/>
+						</div>
 
-						<div class="flex items-center gap-2">
-							<span class="text-xs text-muted">Contoh gambar:</span>
-							<div class="flex gap-2">
-								<button
-									v-for="(img, idx) in sampleThumbnails"
-									:key="idx"
-									type="button"
-									class="relative w-12 h-7 rounded border overflow-hidden hover:opacity-80 transition-opacity focus-visible:outline-2 focus-visible:outline-primary"
-									:class="state.thumbnailUrl === img ? 'border-primary ring-2 ring-primary/40' : 'border-default'"
-									@click="state.thumbnailUrl = img"
+						<!-- Upload Mode -->
+						<div
+							v-if="uploadMode === 'upload'"
+							class="space-y-2.5"
+						>
+							<input
+								ref="fileInput"
+								type="file"
+								accept="image/png,image/jpeg,image/webp,image/gif,image/svg+xml"
+								class="hidden"
+								@change="onFileSelected"
+							>
+
+							<div
+								v-if="!state.thumbnailUrl"
+								class="border-2 border-dashed border-default rounded-xl p-6 flex flex-col items-center justify-center gap-2.5 hover:border-primary/60 transition-colors bg-neutral-50/50 dark:bg-neutral-900/40 cursor-pointer text-center"
+								@click="triggerFileInput"
+							>
+								<div class="w-11 h-11 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+									<UIcon
+										v-if="!isUploading"
+										name="i-lucide-image-up"
+										class="w-6 h-6"
+									/>
+									<UIcon
+										v-else
+										name="i-lucide-loader-2"
+										class="w-6 h-6 animate-spin"
+									/>
+								</div>
+								<div class="space-y-0.5">
+									<p class="text-sm font-medium text-highlighted">
+										{{ isUploading ? 'Sedang mengunggah foto ke R2...' : 'Klik untuk memilih foto dari komputer/HP' }}
+									</p>
+									<p class="text-xs text-muted">
+										Format: PNG, JPG, WebP, GIF (Maksimal 5 MB)
+									</p>
+								</div>
+								<UButton
+									label="Pilih File Gambar"
+									icon="i-lucide-upload"
+									color="primary"
+									variant="outline"
+									size="xs"
+									:loading="isUploading"
+								/>
+							</div>
+
+							<!-- Uploaded Preview -->
+							<div
+								v-else
+								class="relative w-full h-40 rounded-xl border border-default overflow-hidden bg-neutral-100 dark:bg-neutral-800 group"
+							>
+								<img
+									:src="state.thumbnailUrl"
+									alt="Thumbnail terunggah"
+									class="w-full h-full object-cover"
 								>
-									<img
-										:src="img"
-										alt="Preset thumbnail"
-										class="w-full h-full object-cover"
+								<div class="absolute inset-0 bg-neutral-950/60 backdrop-blur-xs opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2.5 p-4">
+									<UButton
+										label="Ganti Foto"
+										icon="i-lucide-refresh-cw"
+										color="neutral"
+										size="xs"
+										:loading="isUploading"
+										@click="triggerFileInput"
+									/>
+									<UButton
+										label="Hapus"
+										icon="i-lucide-trash-2"
+										color="error"
+										size="xs"
+										@click="state.thumbnailUrl = ''"
+									/>
+								</div>
+								<div class="absolute top-2.5 left-2.5">
+									<UBadge
+										color="success"
+										variant="solid"
+										size="xs"
+										icon="i-lucide-check-circle"
 									>
-								</button>
+										Foto Terpasang
+									</UBadge>
+								</div>
 							</div>
 						</div>
 
+						<!-- URL / Preset Mode -->
 						<div
-							v-if="state.thumbnailUrl"
-							class="mt-2 relative w-full h-32 rounded-lg border border-default overflow-hidden bg-neutral-100 dark:bg-neutral-800"
+							v-else
+							class="space-y-2.5"
 						>
-							<img
-								:src="state.thumbnailUrl"
-								alt="Preview thumbnail"
-								class="w-full h-full object-cover"
+							<UInput
+								v-model="state.thumbnailUrl"
+								placeholder="https://images.unsplash.com/photo-..."
+								icon="i-lucide-image"
+								class="w-full"
+							/>
+
+							<div class="flex items-center gap-2">
+								<span class="text-xs text-muted">Preset cepat:</span>
+								<div class="flex gap-2">
+									<button
+										v-for="(img, idx) in sampleThumbnails"
+										:key="idx"
+										type="button"
+										class="relative w-12 h-7 rounded border overflow-hidden hover:opacity-80 transition-opacity focus-visible:outline-2 focus-visible:outline-primary"
+										:class="state.thumbnailUrl === img ? 'border-primary ring-2 ring-primary/40' : 'border-default'"
+										@click="state.thumbnailUrl = img"
+									>
+										<img
+											:src="img"
+											alt="Preset thumbnail"
+											class="w-full h-full object-cover"
+										>
+									</button>
+								</div>
+							</div>
+
+							<div
+								v-if="state.thumbnailUrl"
+								class="mt-2 relative w-full h-36 rounded-lg border border-default overflow-hidden bg-neutral-100 dark:bg-neutral-800"
 							>
+								<img
+									:src="state.thumbnailUrl"
+									alt="Preview thumbnail"
+									class="w-full h-full object-cover"
+								>
+							</div>
 						</div>
 					</div>
 				</UFormField>

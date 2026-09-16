@@ -52,7 +52,8 @@ export default defineNuxtConfig({
 	},
 
 	hub: {
-		db: 'sqlite'
+		db: 'sqlite',
+		blob: true
 	},
 
 	eslint: {
