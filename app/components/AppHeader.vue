@@ -31,9 +31,42 @@ const userMenuItems = computed(() => [
 	],
 	[
 		{
+			label: 'Dashboard',
+			icon: 'i-lucide-layout-dashboard',
+			to: '/dashboard'
+		},
+		{
+			label: 'Projek Saya',
+			icon: 'i-lucide-folder-git-2',
+			to: '/dashboard/projects'
+		},
+		{
+			label: 'Edit Profil',
+			icon: 'i-lucide-user-cog',
+			to: '/dashboard/settings'
+		}
+	],
+	[
+		{
 			label: 'Keluar (Logout)',
 			icon: 'i-lucide-log-out',
+			color: 'error' as const,
 			onSelect: () => handleLogout()
+		}
+	]
+])
+
+const authMenuItems = computed(() => [
+	[
+		{
+			label: 'Masuk (Login)',
+			icon: 'i-lucide-log-in',
+			to: '/login'
+		},
+		{
+			label: 'Daftar Akun',
+			icon: 'i-lucide-user-plus',
+			to: '/signup'
 		}
 	]
 ])
@@ -43,17 +76,11 @@ const items = computed(() => [{
 	to: '/docs',
 	active: isDocs.value
 }, {
-	label: 'Inisiatif',
-	to: '/docs/inisiatif'
-}, {
-	label: 'Design System',
-	to: '/docs/design-system'
-}, {
-	label: 'OKF Knowledge',
-	to: '/docs/open-knowledge-format'
-}, {
 	label: 'Blog',
 	to: '/blog'
+}, {
+	label: 'Showcase',
+	to: '/projek'
 }])
 </script>
 
@@ -76,7 +103,12 @@ const items = computed(() => [{
 		<template #right>
 			<UColorModeButton />
 
-			<UContentSearchButton class="lg:hidden" />
+			<UContentSearchButton
+				:collapsed="true"
+				color="neutral"
+				variant="ghost"
+				aria-label="Pencarian"
+			/>
 
 			<UButton
 				icon="i-simple-icons-github"
@@ -92,37 +124,38 @@ const items = computed(() => [{
 					<UButton
 						color="neutral"
 						variant="ghost"
-						class="flex items-center gap-2 p-1.5"
+						class="p-0.5 rounded-full"
+						aria-label="Menu Pengguna"
 					>
 						<UAvatar
 							:src="user.avatar"
 							:alt="user.name"
 							size="sm"
 						/>
-						<span class="text-sm font-medium hidden sm:inline">{{ user.name }}</span>
 					</UButton>
 				</UDropdownMenu>
 			</template>
 
 			<template v-else>
-				<UButton
-					label="Masuk"
-					color="neutral"
-					variant="ghost"
-					to="/login"
-					class="hidden sm:inline-flex"
-				/>
-
-				<UButton
-					label="Gabung"
-					color="primary"
-					trailing-icon="i-lucide-arrow-right"
-					to="/signup"
-				/>
+				<UDropdownMenu :items="authMenuItems">
+					<UButton
+						icon="i-lucide-circle-user"
+						label="Akun"
+						color="neutral"
+						variant="outline"
+						trailing-icon="i-lucide-chevron-down"
+						size="sm"
+					/>
+				</UDropdownMenu>
 			</template>
 		</template>
 
 		<template #body>
+			<UContentSearchButton
+				:collapsed="false"
+				class="mb-4 w-full"
+			/>
+
 			<UNavigationMenu
 				:items="items"
 				orientation="vertical"

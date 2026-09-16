@@ -1,7 +1,7 @@
 import { eq } from 'drizzle-orm'
 import { db, schema } from 'hub:db'
 
-export default defineOAuthGoogleEventHandler({
+const oauthHandler = defineOAuthGoogleEventHandler({
 	async onSuccess(event, { user }) {
 		const email = (user.email || `${user.sub}@accounts.google.com`).toLowerCase()
 		const now = new Date()
@@ -48,6 +48,15 @@ export default defineOAuthGoogleEventHandler({
 	},
 	onError(event, error) {
 		console.error('Google OAuth error:', error)
+		return sendRedirect(event, '/login?error=google')
+	}
+})
+
+export default defineEventHandler(async (event) => {
+	try {
+		return await oauthHandler(event)
+	} catch (error) {
+		console.error('Google OAuth unhandled exception:', error)
 		return sendRedirect(event, '/login?error=google')
 	}
 })

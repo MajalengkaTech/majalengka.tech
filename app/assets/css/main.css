@@ -1,36 +1,55 @@
 @import "tailwindcss";
 @import "@nuxt/ui";
 
+@theme static {
+	/* Brand Color Palette anchored directly on logo blue #0014a8 */
+	--color-brand-50: #e6ebff;
+	--color-brand-100: #c5d4ff;
+	--color-brand-200: #9bb5ff;
+	--color-brand-300: #5c85ff;
+	--color-brand-400: #0014a8;
+	--color-brand-500: #0014a8;
+	--color-brand-600: #001087;
+	--color-brand-700: #000d6b;
+	--color-brand-800: #000a54;
+	--color-brand-900: #00073d;
+	--color-brand-950: #000424;
+	--color-brand: #0014a8;
+}
+
 @theme {
-  --font-sans: 'TikTok Sans', sans-serif;
-  --font-serif: 'Bricolage Grotesque', serif;
-  --font-mono: 'Geist Mono', monospace;
+	--font-sans: 'TikTok Sans', sans-serif;
+	--font-serif: 'Bricolage Grotesque', serif;
+	--font-mono: 'Geist Mono', monospace;
 }
 
 /* until v5 ships --ui-font-heading */
 @layer base {
-  h1, h2, h3, h4, h5, h6 {
-    font-family: var(--font-serif);
-    font-weight: 700;
-
-  }
+	h1, h2, h3, h4, h5, h6 {
+		font-family: var(--font-serif);
+		font-weight: 700;
+	}
 }
 
 :root {
-  --ui-radius: 0.125rem;
+	--ui-radius: 0.125rem;
 }
 
 :root, .light {
-  --ui-bg: var(--ui-color-neutral-50);
-  --ui-bg-muted: var(--ui-color-neutral-100);
-  --ui-text-inverted: var(--ui-color-neutral-50);
+	--ui-bg: var(--ui-color-neutral-50);
+	--ui-bg-muted: var(--ui-color-neutral-100);
+	--ui-text-inverted: #ffffff;
+	--ui-primary: #0014a8;
+	--ui-color-primary-500: #0014a8;
+	--ui-color-primary-600: #001087;
 }
 
 .dark {
-  --ui-bg-inverted: var(--ui-color-neutral-50);
-  --ui-text-highlighted: var(--ui-color-neutral-50);
-  --ui-border-inverted: var(--ui-color-neutral-50);
-  --ui-bg: var(--ui-color-neutral-900);
-  --ui-bg-muted: var(--ui-color-neutral-800);
-  --ui-text-inverted: var(--ui-color-neutral-900);
+	--ui-bg-inverted: var(--ui-color-neutral-50);
+	--ui-text-highlighted: var(--ui-color-neutral-50);
+	--ui-border-inverted: var(--ui-color-neutral-50);
+	--ui-bg: var(--ui-color-neutral-900);
+	--ui-bg-muted: var(--ui-color-neutral-800);
+	--ui-text-inverted: var(--ui-color-neutral-900);
+	--ui-primary: var(--ui-color-primary-400);
 }

@@ -15,10 +15,28 @@ const { loggedIn, fetch: refreshSession } = useUserSession()
 const toast = useToast()
 const loading = ref(false)
 
+const route = useRoute()
+
 // Redirect jika sudah login
 watchEffect(() => {
 	if (loggedIn.value) {
 		navigateTo('/')
+	}
+})
+
+onMounted(() => {
+	if (route.query.error === 'google') {
+		toast.add({
+			title: 'Gagal Masuk dengan Google',
+			description: 'Koneksi ke Google gagal atau ditolak. Pastikan koneksi internet stabil dan coba lagi.',
+			color: 'error'
+		})
+	} else if (route.query.error === 'github') {
+		toast.add({
+			title: 'Gagal Masuk dengan GitHub',
+			description: 'Koneksi ke GitHub gagal atau ditolak. Silakan coba lagi.',
+			color: 'error'
+		})
 	}
 })
 

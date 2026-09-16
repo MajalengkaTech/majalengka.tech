@@ -1,7 +1,7 @@
 import { eq } from 'drizzle-orm'
 import { db, schema } from 'hub:db'
 
-export default defineOAuthGitHubEventHandler({
+const oauthHandler = defineOAuthGitHubEventHandler({
 	config: {
 		emailRequired: true
 	},
@@ -52,6 +52,15 @@ export default defineOAuthGitHubEventHandler({
 	},
 	onError(event, error) {
 		console.error('GitHub OAuth error:', error)
+		return sendRedirect(event, '/login?error=github')
+	}
+})
+
+export default defineEventHandler(async (event) => {
+	try {
+		return await oauthHandler(event)
+	} catch (error) {
+		console.error('GitHub OAuth unhandled exception:', error)
 		return sendRedirect(event, '/login?error=github')
 	}
 })
