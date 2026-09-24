@@ -38,7 +38,6 @@ const fields = [{
 	placeholder: 'Masukkan kata sandi'
 }, {
 	name: 'remember',
-	label: 'Ingat saya',
 	type: 'checkbox' as const
 }]
 
@@ -135,6 +134,14 @@ async function onSubmit(payload: FormSubmitEvent<Schema>) {
 				class="text-primary font-medium"
 				tabindex="-1"
 			>Lupa kata sandi?</ULink>
+		</template>
+
+		<template #remember-field="{ state }">
+			<UCheckbox
+				v-model="state.remember"
+				label="Ingat saya"
+				name="remember"
+			/>
 		</template>
 
 		<template #footer>

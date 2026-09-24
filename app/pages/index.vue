@@ -1,5 +1,92 @@
 <script setup lang="ts">
+import type { ProjectItem } from '~/types/project'
+
 const { data: page } = await useAsyncData('index', () => queryCollection('index').first())
+
+const { data: projectsData, refresh: refreshProjects } = await useFetch('/api/projects', {
+	key: 'home-featured-projects'
+})
+
+const featuredProjects = computed<ProjectItem[]>(() => {
+	const list = (projectsData.value?.projects as ProjectItem[]) || []
+	return list.slice(0, 3)
+})
+
+const { loggedIn } = useUserSession()
+const toast = useToast()
+
+const selectedProjectForReview = ref<ProjectItem | null>(null)
+const isReviewModalOpen = ref(false)
+
+function handleOpenReview(project: ProjectItem) {
+	selectedProjectForReview.value = project
+	isReviewModalOpen.value = true
+}
+
+function handleReviewed() {
+	refreshProjects()
+}
+
+async function handleQuickRate({ project, rating }: { project: ProjectItem, rating: number }) {
+	if (!loggedIn.value) {
+		toast.add({
+			title: 'Login Diperlukan',
+			description: 'Silakan masuk terlebih dahulu untuk memberikan rating bintang.',
+			color: 'warning',
+			actions: [{ label: 'Masuk', to: '/login' }]
+		})
+		return
+	}
+
+	const target = featuredProjects.value.find(p => p.id === project.id)
+	const previousRating = target?.currentUserRating
+	const previousAvg = target?.averageRating
+	const previousCount = target?.reviewCount
+
+	if (target) {
+		const hadPrevious = typeof target.currentUserRating === 'number'
+		const prevScore = target.currentUserRating || 0
+		target.currentUserRating = rating
+
+		const prevCount = target.reviewCount || 0
+		const prevAvg = target.averageRating || 0
+		if (hadPrevious) {
+			const totalScore = (prevAvg * prevCount) - prevScore + rating
+			target.averageRating = Number((totalScore / prevCount).toFixed(1))
+		} else {
+			const newCount = prevCount + 1
+			const totalScore = (prevAvg * prevCount) + rating
+			target.reviewCount = newCount
+			target.averageRating = Number((totalScore / newCount).toFixed(1))
+		}
+	}
+
+	try {
+		const res = await $fetch<{ success: boolean, message: string }>(`/api/projects/${project.id}/reviews`, {
+			method: 'POST',
+			body: { rating, comment: null }
+		})
+
+		toast.add({
+			title: 'Rating Tersimpan',
+			description: res.message || `Rating ${rating} bintang berhasil disimpan untuk ${project.title}`,
+			color: 'success'
+		})
+		refreshProjects()
+	} catch (err: unknown) {
+		if (target) {
+			target.currentUserRating = previousRating
+			target.averageRating = previousAvg
+			target.reviewCount = previousCount
+		}
+		const res = err as { data?: { statusMessage?: string } }
+		toast.add({
+			title: 'Gagal Menyimpan Rating',
+			description: res.data?.statusMessage || 'Terjadi kesalahan saat menyimpan rating.',
+			color: 'error'
+		})
+	}
+}
 
 const title = page.value?.seo?.title || page.value?.title
 const description = page.value?.seo?.description || page.value?.description
@@ -27,7 +114,9 @@ defineOgImage('Saas', {
 			:links="page.hero.links"
 			orientation="horizontal"
 			:ui="{
-				container: 'pt-4 pb-12 sm:pt-6 sm:pb-16 lg:pt-8 lg:pb-16 gap-8 lg:gap-12'
+				container: 'pt-4 pb-12 sm:pt-6 sm:pb-16 lg:pt-8 lg:pb-16 gap-8 lg:gap-12',
+				title: 'text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-balance',
+				description: 'text-base sm:text-lg text-muted text-pretty max-w-lg'
 			}"
 		>
 			<template #top>
@@ -41,12 +130,47 @@ defineOgImage('Saas', {
 				/>
 			</template>
 
-			<div class="relative flex items-center justify-center lg:justify-end">
-				<div class="w-full max-w-lg lg:max-w-xl xl:max-w-2xl">
-					<HeroIllustration />
+			<div class="relative flex items-center justify-center">
+				<div class="w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-md xl:max-w-lg flex items-center justify-center">
+					<HeroIllustration class="w-full h-auto max-h-[260px] sm:max-h-[450px]  object-contain drop-shadow-sm" />
 				</div>
 			</div>
 		</UPageHero>
+
+		<!-- Featured Community Projects Showcase Section -->
+		<UPageSection
+			v-if="featuredProjects.length > 0"
+			headline="Showcase Komunitas"
+			title="Karya & Inovasi Developer Lokal"
+			description="Kumpulan aplikasi, tools open source, dan kreasi teknologi yang dibangun oleh para developer Majalengka. Coba langsung dan beri apresiasi rating bintang."
+			:ui="{
+				container: 'py-10 sm:py-14'
+			}"
+		>
+			<template #links>
+				<UButton
+					label="Lihat Semua Projek"
+					icon="i-lucide-arrow-right"
+					trailing
+					to="/projek"
+					color="primary"
+					variant="subtle"
+					size="sm"
+				/>
+			</template>
+
+			<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
+				<DashboardProjectCard
+					v-for="p in featuredProjects"
+					:id="'home-project-' + p.id"
+					:key="p.id"
+					:project="p"
+					:editable="false"
+					@review="handleOpenReview"
+					@quick-rate="handleQuickRate"
+				/>
+			</div>
+		</UPageSection>
 
 		<UPageSection
 			v-for="(section, index) in page.sections"
@@ -163,5 +287,11 @@ defineOgImage('Saas', {
 		>
 			<LazyStarsBg />
 		</UPageCTA>
+
+		<ProjectReviewModal
+			v-model:open="isReviewModalOpen"
+			:project="selectedProjectForReview"
+			@reviewed="handleReviewed"
+		/>
 	</div>
 </template>

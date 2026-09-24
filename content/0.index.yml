@@ -1,23 +1,23 @@
-title: Ekosistem [Teknologi & Open Source]{class="text-primary"}
-description: Rumah kumpul para pengembang, desainer, dan pegiat teknologi di Majalengka. Kami merancang proyek open source, menyiapkan riset teknologi lokal dari lereng Ciremai, dan belajar bareng warga.
+title: Pamerkan Karya [Teknologi Majalengka]{class="text-primary"}
+description: Pamerkan aplikasimu, dapatkan rating komunitas, dan bangun portofolio digital.
 seo:
-  title: Majalengka Tech · Komunitas Open Source & Teknologi Daerah
-  description: Portal komunitas Majalengka Tech. Eksplorasi roadmap smart farming IoT, panduan wisata terbuka, perkakas UMKM, kelas coding gratis, dan standar desain daerah.
+  title: Majalengka Tech · Pamerkan Karya & Projek Digital Daerah
+  description: Showcase projek dan karya teknologi komunitas developer Majalengka.
 navigation: false
 hero:
   links:
-    - label: Lihat Roadmap Inisiatif
-      icon: i-lucide-arrow-right
-      trailing: true
-      to: /docs/inisiatif
+    - label: Pamerkan Projek Kamu
+      icon: i-lucide-folder-plus
+      to: /dashboard/projects/new
       size: xl
-    - label: GitHub Majalengka Tech
-      icon: i-simple-icons-github
+      color: primary
+    - label: Jelajahi Showcase
+      icon: i-lucide-compass
+      to: /projek
       size: xl
       color: neutral
       variant: subtle
-      to: https://github.com/majalengka-tech
-      target: _blank
+
 sections:
   - headline: Roadmap Inisiatif
     reverse: true

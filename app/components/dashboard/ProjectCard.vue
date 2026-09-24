@@ -9,7 +9,9 @@ const props = withDefaults(defineProps<{
 })
 
 const emit = defineEmits<{
-	delete: [id: number]
+	'delete': [id: number]
+	'review': [project: ProjectItem]
+	'quick-rate': [{ project: ProjectItem, rating: number }]
 }>()
 
 const parsedTags = computed(() => {
@@ -98,10 +100,29 @@ const actionItems = computed(() => [
 		</template>
 
 		<div class="flex-1 flex flex-col">
-			<div class="flex items-start justify-between gap-2 mb-2">
+			<div class="flex items-start justify-between gap-2 mb-1.5">
 				<h3 class="font-bold text-base sm:text-lg text-highlighted line-clamp-1 group-hover:text-primary transition-colors">
 					{{ project.title }}
 				</h3>
+			</div>
+
+			<!-- Star Rating Bar: Inline Quick Rate -->
+			<div class="flex items-center gap-1.5 mb-2.5">
+				<UInputRating
+					:model-value="project.currentUserRating || Math.round(project.averageRating || 0)"
+					icon="i-tabler-star-filled"
+					empty-icon="i-tabler-star"
+					hoverable
+					size="sm"
+					:aria-label="`Beri rating bintang untuk ${project.title}`"
+					@update:model-value="(val: number) => emit('quick-rate', { project, rating: val })"
+				/>
+				<span
+					v-if="project.averageRating && project.averageRating > 0"
+					class="text-xs font-semibold text-highlighted ml-0.5"
+				>
+					{{ project.averageRating.toFixed(1) }}
+				</span>
 			</div>
 
 			<p class="text-sm text-muted line-clamp-3 mb-4 flex-1">
@@ -161,6 +182,26 @@ const actionItems = computed(() => [
 					target="_blank"
 					class="flex-1 justify-center"
 				/>
+				<UChip
+					:text="project.reviewCount || undefined"
+					:show="Boolean(project.reviewCount && project.reviewCount > 0)"
+					color="primary"
+					size="3xl"
+					:ui="{ base: 'px-1.5 min-w-[18px] h-[18px] text-[10px] font-bold shadow-xs' }"
+					class="flex-1"
+				>
+					<UButton
+						label="Ulasan"
+						icon="i-lucide-messages-square"
+						color="neutral"
+						variant="subtle"
+						size="xs"
+						class="w-full justify-center"
+						title="Lihat ulasan lengkap"
+						aria-label="Lihat ulasan projek ini"
+						@click="emit('review', project)"
+					/>
+				</UChip>
 			</div>
 		</div>
 	</UCard>

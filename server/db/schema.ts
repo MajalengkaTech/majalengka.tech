@@ -1,4 +1,4 @@
-import { integer, sqliteTable, text } from 'drizzle-orm/sqlite-core'
+import { integer, sqliteTable, text, uniqueIndex } from 'drizzle-orm/sqlite-core'
 
 export const projects = sqliteTable('projects', {
 	id: integer('id').primaryKey({ autoIncrement: true }),
@@ -15,5 +15,19 @@ export const projects = sqliteTable('projects', {
 	updatedAt: integer('updated_at', { mode: 'timestamp' })
 })
 
+export const projectReviews = sqliteTable('project_reviews', {
+	id: integer('id').primaryKey({ autoIncrement: true }),
+	projectId: integer('project_id').notNull().references(() => projects.id, { onDelete: 'cascade' }),
+	userId: text('user_id').notNull(),
+	rating: integer('rating').notNull(),
+	comment: text('comment'),
+	createdAt: integer('created_at', { mode: 'timestamp' }).notNull(),
+	updatedAt: integer('updated_at', { mode: 'timestamp' })
+}, table => [
+	uniqueIndex('project_user_review_unique').on(table.projectId, table.userId)
+])
+
 export type ProjectRecord = typeof projects.$inferSelect
 export type NewProjectRecord = typeof projects.$inferInsert
+export type ProjectReviewRecord = typeof projectReviews.$inferSelect
+export type NewProjectReviewRecord = typeof projectReviews.$inferInsert

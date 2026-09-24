@@ -21,11 +21,8 @@ const { data, status, refresh } = await useFetch('/api/projects', {
 
 const projects = computed<ProjectItem[]>(() => (data.value?.projects as ProjectItem[]) || [])
 
-// Fallback: jika halaman dibuka dari cache statis yang kosong, refresh ulang secara reaktif di client
 onMounted(() => {
-	if (!projects.value.length) {
-		refresh()
-	}
+	if (!projects.value.length) refresh()
 })
 
 const allTags = computed(() => {
@@ -40,6 +37,10 @@ const allTags = computed(() => {
 	}
 	return Array.from(set).slice(0, 10)
 })
+
+const tagOptions = computed(() =>
+	allTags.value.map(t => ({ label: t, value: t }))
+)
 
 const filteredProjects = computed(() => {
 	let list = projects.value
@@ -57,80 +58,155 @@ const filteredProjects = computed(() => {
 	}
 	return list
 })
+
+const isFiltering = computed(() => !!search.value.trim() || !!selectedTag.value)
+
+const { loggedIn } = useUserSession()
+const toast = useToast()
+
+const selectedProjectForReview = ref<ProjectItem | null>(null)
+const isReviewModalOpen = ref(false)
+
+function handleOpenReview(project: ProjectItem) {
+	selectedProjectForReview.value = project
+	isReviewModalOpen.value = true
+}
+
+function handleReviewed() {
+	refresh()
+}
+
+async function handleQuickRate({ project, rating }: { project: ProjectItem, rating: number }) {
+	if (!loggedIn.value) {
+		toast.add({
+			title: 'Login Diperlukan',
+			description: 'Silakan masuk terlebih dahulu untuk memberikan rating bintang.',
+			color: 'warning',
+			actions: [{ label: 'Masuk', to: '/login' }]
+		})
+		return
+	}
+
+	// Optimistic local update untuk respon instan
+	const target = projects.value.find(p => p.id === project.id)
+	const previousRating = target?.currentUserRating
+	const previousAvg = target?.averageRating
+	const previousCount = target?.reviewCount
+
+	if (target) {
+		const hadPrevious = typeof target.currentUserRating === 'number'
+		const prevScore = target.currentUserRating || 0
+		target.currentUserRating = rating
+
+		const prevCount = target.reviewCount || 0
+		const prevAvg = target.averageRating || 0
+		if (hadPrevious) {
+			const totalScore = (prevAvg * prevCount) - prevScore + rating
+			target.averageRating = Number((totalScore / prevCount).toFixed(1))
+		} else {
+			const newCount = prevCount + 1
+			const totalScore = (prevAvg * prevCount) + rating
+			target.reviewCount = newCount
+			target.averageRating = Number((totalScore / newCount).toFixed(1))
+		}
+	}
+
+	try {
+		const res = await $fetch<{ success: boolean, message: string }>(`/api/projects/${project.id}/reviews`, {
+			method: 'POST',
+			body: { rating, comment: null }
+		})
+
+		toast.add({
+			title: 'Rating Tersimpan',
+			description: res.message || `Rating ${rating} bintang berhasil disimpan untuk ${project.title}`,
+			color: 'success'
+		})
+		// Sinkronisasi data latar belakang
+		refresh()
+	} catch (err: unknown) {
+		// Rollback jika terjadi kesalahan jaringan
+		if (target) {
+			target.currentUserRating = previousRating
+			target.averageRating = previousAvg
+			target.reviewCount = previousCount
+		}
+		const res = err as { data?: { statusMessage?: string } }
+		toast.add({
+			title: 'Gagal Menyimpan Rating',
+			description: res.data?.statusMessage || 'Terjadi kesalahan saat menyimpan rating.',
+			color: 'error'
+		})
+	}
+}
+
+function resetFilters() {
+	search.value = ''
+	selectedTag.value = null
+}
 </script>
 
 <template>
 	<div>
-		<UContainer class="py-12 sm:py-16">
-			<!-- Header -->
-			<div class="flex flex-col items-center text-center max-w-3xl mx-auto mb-12">
-				<UBadge
-					color="primary"
-					variant="subtle"
-					class="mb-3"
-				>
-					Karya & Inovasi Lokal
-				</UBadge>
+		<UPageHero
+			headline="Karya & Inovasi Lokal"
+			title="Showcase Projek Komunitas"
+			description="Koleksi aplikasi dan inovasi open-source developer Majalengka. Beri apresiasi rating bintang dan dukung karya lokal."
+			:links="[
+				{ label: 'Pamerkan Projek', icon: 'i-lucide-folder-plus', color: 'primary', to: '/dashboard/projects/new' },
+				{ label: 'Gabung Komunitas', icon: 'i-lucide-user-plus', color: 'neutral', variant: 'subtle', to: '/signup' }
+			]"
+			:ui="{
+				title: 'text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-balance',
+				description: 'text-base sm:text-lg text-muted text-pretty max-w-xl mx-auto'
+			}"
+		/>
 
-				<h1 class="text-3xl sm:text-5xl font-extrabold tracking-tight text-highlighted mb-4">
-					Showcase Projek Komunitas
-				</h1>
+		<UContainer class="pb-16">
+			<!-- Search & Filter Controls Toolbar -->
+			<div class="mb-8 p-3 sm:p-4 rounded-2xl bg-elevated/40 border border-default/70 backdrop-blur-sm shadow-xs flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
+				<div class="flex-1 flex flex-col sm:flex-row items-center gap-2.5">
+					<UFieldGroup class="w-full sm:flex-1">
+						<UInput
+							v-model="search"
+							placeholder="Cari nama projek, deskripsi, teknologi..."
+							icon="i-lucide-search"
+							class="w-full"
+						/>
+						<UButton
+							icon="i-lucide-rotate-cw"
+							color="neutral"
+							variant="subtle"
+							:loading="status === 'pending'"
+							aria-label="Segarkan data projek"
+							@click="() => refresh()"
+						/>
+					</UFieldGroup>
 
-				<p class="text-base sm:text-lg text-muted max-w-2xl leading-relaxed mb-6">
-					Kumpulan aplikasi, tools, dan inisiatif open-source karya para developer Majalengka. Dibuat dengan passion untuk memajukan talenta teknologi lokal.
-				</p>
-
-				<div class="flex flex-wrap items-center justify-center gap-3">
-					<UButton
-						label="Gabung Komunitas"
-						icon="i-lucide-user-plus"
-						color="primary"
-						to="/signup"
-						size="md"
+					<USelectMenu
+						v-if="allTags.length > 0"
+						v-model="selectedTag"
+						:items="tagOptions"
+						value-key="value"
+						placeholder="Semua Tag Kategori"
+						icon="i-lucide-tag"
+						:clear="true"
+						class="w-full sm:w-56"
 					/>
 				</div>
-			</div>
 
-			<!-- Search & Filter Controls -->
-			<div class="flex flex-col sm:flex-row items-center justify-between gap-4 mb-8">
-				<div class="w-full sm:w-80 flex items-center gap-2">
-					<UInput
-						v-model="search"
-						placeholder="Cari projek, developer, teknologi..."
-						icon="i-lucide-search"
-						class="w-full"
-					/>
+				<div class="flex items-center justify-between md:justify-end gap-3 pt-2 md:pt-0 border-t md:border-t-0 border-default/40 text-xs sm:text-sm text-muted shrink-0">
+					<span>
+						Menampilkan <strong class="text-highlighted">{{ filteredProjects.length }}</strong> dari {{ projects.length }} karya
+					</span>
 					<UButton
-						icon="i-lucide-rotate-cw"
+						v-if="isFiltering"
+						label="Reset Filter"
+						icon="i-lucide-x"
+						size="xs"
 						color="neutral"
 						variant="subtle"
-						size="sm"
-						:loading="status === 'pending'"
-						title="Segarkan data projek"
-						aria-label="Segarkan data projek"
-						@click="() => refresh()"
-					/>
-				</div>
-
-				<div
-					v-if="allTags.length > 0"
-					class="flex items-center gap-1.5 overflow-x-auto w-full sm:w-auto pb-2 sm:pb-0"
-				>
-					<UButton
-						label="Semua"
-						size="xs"
-						:variant="selectedTag === null ? 'solid' : 'ghost'"
-						:color="selectedTag === null ? 'primary' : 'neutral'"
-						@click="selectedTag = null"
-					/>
-					<UButton
-						v-for="tag in allTags"
-						:key="tag"
-						:label="tag"
-						size="xs"
-						:variant="selectedTag === tag ? 'solid' : 'ghost'"
-						:color="selectedTag === tag ? 'primary' : 'neutral'"
-						@click="selectedTag = selectedTag === tag ? null : tag"
+						@click="resetFilters"
 					/>
 				</div>
 			</div>
@@ -140,31 +216,22 @@ const filteredProjects = computed(() => {
 				v-if="status === 'pending'"
 				class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
 			>
-				<div
+				<USkeleton
 					v-for="n in 6"
 					:key="n"
-					class="h-72 rounded-xl bg-neutral-100 dark:bg-neutral-800 animate-pulse"
+					class="h-72 w-full rounded-xl"
 				/>
 			</div>
 
 			<!-- Empty State -->
-			<div
+			<UEmpty
 				v-else-if="filteredProjects.length === 0"
-				class="rounded-2xl border border-dashed border-default p-12 text-center flex flex-col items-center justify-center gap-4 bg-neutral-50/50 dark:bg-neutral-900/30 max-w-xl mx-auto my-8"
-			>
-				<div class="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center text-primary">
-					<UIcon
-						name="i-lucide-folder-search"
-						class="w-7 h-7"
-					/>
-				</div>
-				<h3 class="text-lg font-bold text-highlighted">
-					{{ search || selectedTag ? 'Tidak Ada Projek yang Sesuai' : 'Belum Ada Projek Terdaftar' }}
-				</h3>
-				<p class="text-sm text-muted">
-					{{ search || selectedTag ? 'Coba gunakan kata kunci atau tag lain.' : 'Jadilah yang pertama menginspirasi developer lainnya di Majalengka!' }}
-				</p>
-			</div>
+				icon="i-lucide-folder-search"
+				class="max-w-xl mx-auto my-8"
+				:title="isFiltering ? 'Tidak Ada Projek yang Sesuai' : 'Belum Ada Projek Terdaftar'"
+				:description="isFiltering ? 'Coba gunakan kata kunci atau tag lain.' : 'Jadilah yang pertama menginspirasi developer lainnya di Majalengka!'"
+				:actions="isFiltering ? [{ label: 'Reset Filter', icon: 'i-lucide-x', color: 'neutral', variant: 'subtle', onClick: resetFilters }] : []"
+			/>
 
 			<!-- Projects Grid -->
 			<div
@@ -177,8 +244,16 @@ const filteredProjects = computed(() => {
 					:key="p.id"
 					:project="p"
 					:editable="false"
+					@review="handleOpenReview"
+					@quick-rate="handleQuickRate"
 				/>
 			</div>
 		</UContainer>
+
+		<ProjectReviewModal
+			v-model:open="isReviewModalOpen"
+			:project="selectedProjectForReview"
+			@reviewed="handleReviewed"
+		/>
 	</div>
 </template>

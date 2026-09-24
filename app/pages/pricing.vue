@@ -12,19 +12,6 @@ useSeoMeta({
 })
 
 defineOgImage('Saas', { title, description })
-
-const isYearly = ref('0')
-
-const items = ref([
-	{
-		label: 'Monthly',
-		value: '0'
-	},
-	{
-		label: 'Yearly',
-		value: '1'
-	}
-])
 </script>
 
 <template>
@@ -32,22 +19,11 @@ const items = ref([
 		<UPageHero
 			:title="page.title"
 			:description="page.description"
-		>
-			<template #links>
-				<UTabs
-					v-model="isYearly"
-					:items="items"
-					color="neutral"
-					size="xs"
-					class="w-48"
-					:ui="{
-						list: 'ring ring-accented rounded-full',
-						indicator: 'rounded-full',
-						trigger: 'w-1/2'
-					}"
-				/>
-			</template>
-		</UPageHero>
+			:ui="{
+				title: 'text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-balance',
+				description: 'text-base sm:text-lg text-muted text-pretty max-w-2xl mx-auto'
+			}"
+		/>
 
 		<UContainer>
 			<UPricingPlans scale>
@@ -55,8 +31,8 @@ const items = ref([
 					v-for="(plan, index) in page.plans"
 					:key="index"
 					v-bind="plan"
-					:price="isYearly === '1' ? plan.price.year : plan.price.month"
-					:billing-cycle="isYearly === '1' ? '/year' : '/month'"
+					:price="plan.price.month"
+					:billing-cycle="plan.billing_cycle"
 				/>
 			</UPricingPlans>
 		</UContainer>

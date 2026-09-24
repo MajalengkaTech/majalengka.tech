@@ -53,3 +53,45 @@
 	--ui-text-inverted: var(--ui-color-neutral-900);
 	--ui-primary: var(--ui-color-primary-400);
 }
+
+/* Two-tone Rating Stars: Light (Outline Biru & Dalam Kuning) / Dark (Outline Kuning & Dalam Biru) */
+[data-slot="item"] {
+	position: relative;
+}
+
+[data-slot="emptyIcon"] {
+	position: relative;
+	z-index: 2 !important;
+	color: var(--ui-primary) !important;
+	opacity: 1 !important;
+	pointer-events: none;
+	transition: color 0.15s ease, transform 0.15s ease;
+}
+
+[data-slot="indicator"] {
+	z-index: 1 !important;
+}
+
+[data-slot="indicator"] [data-slot="icon"] {
+	color: transparent;
+	transition: color 0.15s ease;
+}
+
+/* Light mode: Dalamnya Kuning */
+[data-slot="indicator"][data-state="active"] [data-slot="icon"] {
+	color: #facc15 !important; /* Kuning cerah */
+}
+
+/* Dark mode: Dibalik -> Outline Kuning & Dalamnya Biru Primary */
+.dark [data-slot="emptyIcon"] {
+	color: #facc15 !important; /* Outline Kuning */
+}
+
+.dark [data-slot="indicator"][data-state="active"] [data-slot="icon"] {
+	color: var(--ui-primary) !important; /* Dalamnya Biru Primary */
+}
+
+/* Hover state enhancement */
+[data-slot="item"]:hover [data-slot="emptyIcon"] {
+	transform: scale(1.08);
+}

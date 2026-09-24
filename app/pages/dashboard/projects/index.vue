@@ -33,6 +33,66 @@ const filteredProjects = computed(() => {
 	)
 })
 
+const selectedProjectForReview = ref<ProjectItem | null>(null)
+const isReviewModalOpen = ref(false)
+
+function handleOpenReview(project: ProjectItem) {
+	selectedProjectForReview.value = project
+	isReviewModalOpen.value = true
+}
+
+async function handleQuickRate({ project, rating }: { project: ProjectItem, rating: number }) {
+	// Optimistic local update
+	const target = projects.value.find(p => p.id === project.id)
+	const previousRating = target?.currentUserRating
+	const previousAvg = target?.averageRating
+	const previousCount = target?.reviewCount
+
+	if (target) {
+		const hadPrevious = typeof target.currentUserRating === 'number'
+		const prevScore = target.currentUserRating || 0
+		target.currentUserRating = rating
+
+		const prevCount = target.reviewCount || 0
+		const prevAvg = target.averageRating || 0
+		if (hadPrevious) {
+			const totalScore = (prevAvg * prevCount) - prevScore + rating
+			target.averageRating = Number((totalScore / prevCount).toFixed(1))
+		} else {
+			const newCount = prevCount + 1
+			const totalScore = (prevAvg * prevCount) + rating
+			target.reviewCount = newCount
+			target.averageRating = Number((totalScore / newCount).toFixed(1))
+		}
+	}
+
+	try {
+		const res = await $fetch<{ success: boolean, message: string }>(`/api/projects/${project.id}/reviews`, {
+			method: 'POST',
+			body: { rating, comment: null }
+		})
+
+		toast.add({
+			title: 'Rating Tersimpan',
+			description: res.message || `Rating ${rating} bintang berhasil disimpan untuk ${project.title}`,
+			color: 'success'
+		})
+		refreshProjects()
+	} catch (err: unknown) {
+		if (target) {
+			target.currentUserRating = previousRating
+			target.averageRating = previousAvg
+			target.reviewCount = previousCount
+		}
+		const res = err as { data?: { statusMessage?: string } }
+		toast.add({
+			title: 'Gagal Menyimpan Rating',
+			description: res.data?.statusMessage || 'Terjadi kesalahan saat menyimpan rating.',
+			color: 'error'
+		})
+	}
+}
+
 function confirmDelete(id: number) {
 	projectToDelete.value = id
 	deleteModalOpen.value = true
@@ -160,9 +220,18 @@ async function executeDelete() {
 					:project="p"
 					editable
 					@delete="confirmDelete"
+					@review="handleOpenReview"
+					@quick-rate="handleQuickRate"
 				/>
 			</div>
 		</div>
+
+		<!-- Review Modal -->
+		<ProjectReviewModal
+			v-model:open="isReviewModalOpen"
+			:project="selectedProjectForReview"
+			@reviewed="refreshProjects"
+		/>
 
 		<!-- Delete Confirmation Modal -->
 		<UModal
