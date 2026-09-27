@@ -31,10 +31,17 @@ export default defineEventHandler(async (event) => {
 		where: eq(schema.projects.id, projectId)
 	})
 
-	if (!project) {
+	if (!project || !project.isPublished) {
 		throw createError({
 			statusCode: 404,
 			statusMessage: 'Projek tidak ditemukan'
+		})
+	}
+
+	if (project.userId === session.user.id) {
+		throw createError({
+			statusCode: 403,
+			statusMessage: 'Kamu tidak bisa memberi ulasan untuk projekmu sendiri'
 		})
 	}
 

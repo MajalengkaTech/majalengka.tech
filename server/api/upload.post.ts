@@ -14,11 +14,12 @@ export default defineEventHandler(async (event) => {
 		multiple: false,
 		ensure: {
 			maxSize: '8MB',
-			types: ['image/png', 'image/jpeg', 'image/webp', 'image/gif', 'image/svg+xml']
+			// SVG ditolak karena bisa membawa script yang jalan di domain majalengka.tech.
+			types: ['image/png', 'image/jpeg', 'image/webp', 'image/gif']
 		},
 		put: {
 			addRandomSuffix: true,
-			prefix: 'Projek'
+			prefix: projectUploadPrefix(session.user.id)
 		}
 	})
 

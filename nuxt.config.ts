@@ -34,6 +34,7 @@ export default defineNuxtConfig({
 
 	runtimeConfig: {
 		betterAuthSecret: process.env.NUXT_BETTER_AUTH_SECRET || process.env.BETTER_AUTH_SECRET || '',
+		superAdminIds: process.env.NUXT_SUPER_ADMIN_IDS || '',
 		oauth: {
 			githubClientId: process.env.NUXT_OAUTH_GITHUB_CLIENT_ID || process.env.GITHUB_CLIENT_ID || '',
 			githubClientSecret: process.env.NUXT_OAUTH_GITHUB_CLIENT_SECRET || process.env.GITHUB_CLIENT_SECRET || '',
@@ -87,7 +88,10 @@ export default defineNuxtConfig({
 					{
 						binding: 'DB',
 						database_name: 'majalengka-tech-db',
-						database_id: process.env.CLOUDFLARE_D1_DATABASE_ID || '84289e0a-899d-41a7-ab83-cf488e91d29d'
+						database_id: process.env.CLOUDFLARE_D1_DATABASE_ID || '84289e0a-899d-41a7-ab83-cf488e91d29d',
+						// D1 produksi mencatat migrasi di tabel bawaan wrangler; path relatif terhadap .output/server/wrangler.json.
+						migrations_table: 'd1_migrations',
+						migrations_dir: '../../server/db/migrations/sqlite'
 					}
 				],
 				r2_buckets: [

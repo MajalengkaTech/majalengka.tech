@@ -20,14 +20,11 @@ definePageMeta({
 	middleware: [
 		() => {
 			const { user } = useUserSession()
-			const role = (user.value as { role?: string })?.role
-			const email = user.value?.email?.toLowerCase()
-
 			if (!user.value) {
 				return navigateTo('/login?redirect=/kelola')
 			}
 
-			if (role !== 'admin' && email !== 'dinarpermadi07@gmail.com') {
+			if ((user.value as { role?: string }).role !== 'admin') {
 				return navigateTo('/dashboard')
 			}
 		}
@@ -547,7 +544,7 @@ function formatDate(dateVal: string | number | Date) {
 											:color="u.banned ? 'success' : 'neutral'"
 											variant="ghost"
 											size="xs"
-											:disabled="u.id === currentSessionUser?.id || u.email.toLowerCase() === 'dinarpermadi07@gmail.com'"
+											:disabled="u.id === currentSessionUser?.id"
 											:title="u.banned ? 'Pulihkan Akun' : 'Tangguhkan Akun'"
 											:aria-label="u.banned ? 'Pulihkan Akun' : 'Tangguhkan Akun'"
 											@click="handleToggleBan(u)"
@@ -559,7 +556,7 @@ function formatDate(dateVal: string | number | Date) {
 											color="error"
 											variant="ghost"
 											size="xs"
-											:disabled="u.id === currentSessionUser?.id || u.email.toLowerCase() === 'dinarpermadi07@gmail.com'"
+											:disabled="u.id === currentSessionUser?.id"
 											title="Hapus Akun Pengguna"
 											aria-label="Hapus Akun Pengguna"
 											@click="openDeleteModal(u)"

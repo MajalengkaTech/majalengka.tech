@@ -6,9 +6,7 @@ const open = ref(false)
 const { user } = useUserSession()
 
 const isAdmin = computed(() => {
-	const role = (user.value as { role?: string })?.role
-	const email = user.value?.email?.toLowerCase()
-	return role === 'admin' || email === 'dinarpermadi07@gmail.com'
+	return (user.value as { role?: string } | null)?.role === 'admin'
 })
 
 const navLinks = computed<NavigationMenuItem[][]>(() => {

@@ -1,19 +1,6 @@
-import { z } from 'zod'
 import { eq } from 'drizzle-orm'
 import { db, schema } from 'hub:db'
-
-const createProjectSchema = z.object({
-	title: z.string().min(3, 'Judul minimal 3 karakter').max(120, 'Judul maksimal 120 karakter'),
-	description: z.string().min(10, 'Deskripsi minimal 10 karakter').max(2000, 'Deskripsi maksimal 2000 karakter'),
-	thumbnailUrl: z.string().refine(
-		val => !val || val.startsWith('/') || /^https?:\/\//i.test(val),
-		{ message: 'URL thumbnail tidak valid' }
-	).optional().nullable(),
-	repoUrl: z.string().url('URL repositori tidak valid').or(z.literal('')).optional().nullable(),
-	demoUrl: z.string().url('URL demo tidak valid').or(z.literal('')).optional().nullable(),
-	tags: z.string().max(200, 'Tag maksimal 200 karakter').optional().nullable(),
-	isPublished: z.boolean().default(true)
-})
+import { assertThumbnailAllowed } from '../../utils/project-blob'
 
 function slugify(text: string): string {
 	return text
@@ -24,38 +11,39 @@ function slugify(text: string): string {
 		.replace(/^-+|-+$/g, '')
 }
 
+async function findUniqueSlug(title: string) {
+	const baseSlug = slugify(title) || 'projek'
+	let slug = baseSlug
+	for (let attempt = 0; attempt < 5; attempt++) {
+		const existing = await db.query.projects.findFirst({
+			where: eq(schema.projects.slug, slug)
+		})
+		if (!existing) return slug
+		slug = `${baseSlug}-${Math.random().toString(36).substring(2, 6)}`
+	}
+	return `${baseSlug}-${Date.now().toString(36)}`
+}
+
 export default defineEventHandler(async (event) => {
 	const session = await getUserSession(event)
 	if (!session?.user?.id) {
 		throw createError({
 			statusCode: 401,
-			statusMessage: 'Unauthorized'
+			statusMessage: 'Silakan masuk terlebih dahulu untuk menambah projek'
 		})
 	}
 
-	const body = await readValidatedBody(event, createProjectSchema.parse)
+	const body = await readValidatedBody(event, projectInputSchema.parse)
+	const thumbnailUrl = body.thumbnailUrl?.trim() || null
+	assertThumbnailAllowed(thumbnailUrl, session.user.id)
+
 	const now = new Date()
-
-	let baseSlug = slugify(body.title)
-	if (!baseSlug) {
-		baseSlug = `project-${Date.now()}`
-	}
-
-	// Ensure unique slug
-	let slug = baseSlug
-	const existing = await db.query.projects.findFirst({
-		where: eq(schema.projects.slug, slug)
-	})
-	if (existing) {
-		slug = `${baseSlug}-${Math.random().toString(36).substring(2, 6)}`
-	}
-
 	const [newProject] = await db.insert(schema.projects).values({
 		userId: session.user.id,
 		title: body.title.trim(),
-		slug,
+		slug: await findUniqueSlug(body.title),
 		description: body.description.trim(),
-		thumbnailUrl: body.thumbnailUrl?.trim() || null,
+		thumbnailUrl,
 		repoUrl: body.repoUrl?.trim() || null,
 		demoUrl: body.demoUrl?.trim() || null,
 		tags: body.tags?.trim() || null,

@@ -34,15 +34,41 @@ const profileCompletion = computed(() => {
 	return Math.min(score, 100)
 })
 
-async function handleDeleteProject(id: number) {
+const toast = useToast()
+const deleteModalOpen = ref(false)
+const projectToDelete = ref<number | null>(null)
+const deleting = ref(false)
+
+function confirmDelete(id: number) {
+	projectToDelete.value = id
+	deleteModalOpen.value = true
+}
+
+async function executeDelete() {
+	if (!projectToDelete.value) return
 	try {
-		await $fetch(`/api/projects/${id}`, {
+		deleting.value = true
+		await $fetch(`/api/projects/${projectToDelete.value}`, {
 			method: 'DELETE'
 		})
+		toast.add({
+			title: 'Projek Dihapus',
+			description: 'Projek sudah dihapus dari portofoliomu.',
+			color: 'success'
+		})
+		deleteModalOpen.value = false
+		projectToDelete.value = null
 		await refreshNuxtData()
 		await refreshProfile()
 	} catch (err: unknown) {
-		console.error('Failed to delete project:', err)
+		const errorResponse = err as { data?: { statusMessage?: string } }
+		toast.add({
+			title: 'Gagal Menghapus',
+			description: errorResponse?.data?.statusMessage || 'Projek belum terhapus. Coba lagi sebentar.',
+			color: 'error'
+		})
+	} finally {
+		deleting.value = false
 	}
 }
 </script>
@@ -231,11 +257,35 @@ async function handleDeleteProject(id: number) {
 						:key="p.id"
 						:project="p"
 						editable
-						@delete="handleDeleteProject"
+						@delete="confirmDelete"
 					/>
 				</div>
 			</div>
 		</div>
+
+		<UModal
+			v-model:open="deleteModalOpen"
+			title="Hapus projek ini?"
+			description="Projek, gambar, dan ulasannya akan dihapus permanen."
+		>
+			<template #footer>
+				<div class="flex items-center justify-end gap-3">
+					<UButton
+						label="Batal"
+						color="neutral"
+						variant="outline"
+						@click="deleteModalOpen = false"
+					/>
+					<UButton
+						label="Ya, Hapus"
+						color="error"
+						icon="i-lucide-trash-2"
+						:loading="deleting"
+						@click="executeDelete"
+					/>
+				</div>
+			</template>
+		</UModal>
 
 		<!-- Modal Tambah Projek -->
 		<DashboardProjectModal

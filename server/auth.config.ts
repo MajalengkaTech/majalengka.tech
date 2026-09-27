@@ -33,24 +33,11 @@ export default defineServerAuth(({ runtimeConfig }) => ({
 		}
 	},
 	plugins: [
-		admin()
-	],
-	databaseHooks: {
-		user: {
-			create: {
-				before: async (user) => {
-					const adminEmails = ['dinarpermadi07@gmail.com']
-					if (adminEmails.includes(user.email.toLowerCase())) {
-						return {
-							data: {
-								...user,
-								role: 'admin'
-							}
-						}
-					}
-					return { data: user }
-				}
-			}
-		}
-	}
+		admin({
+			adminUserIds: (runtimeConfig?.superAdminIds || process.env.NUXT_SUPER_ADMIN_IDS || '')
+				.split(',')
+				.map((id: string) => id.trim())
+				.filter(Boolean)
+		})
+	]
 }))

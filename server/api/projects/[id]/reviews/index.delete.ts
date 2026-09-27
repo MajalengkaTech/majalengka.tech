@@ -1,6 +1,6 @@
 import { and, eq } from 'drizzle-orm'
 import { db, schema } from 'hub:db'
-import { SUPER_ADMIN_EMAIL } from '~~/server/utils/admin'
+import { isAdmin } from '~~/server/utils/admin'
 
 export default defineEventHandler(async (event) => {
 	const session = await getUserSession(event)
@@ -24,11 +24,7 @@ export default defineEventHandler(async (event) => {
 	const query = getQuery(event)
 	const reviewId = query.reviewId ? Number(query.reviewId) : null
 
-	const role = (session.user as { role?: string })?.role
-	const email = session.user.email?.toLowerCase()
-	const isAdmin = role === 'admin' || email === SUPER_ADMIN_EMAIL.toLowerCase()
-
-	if (reviewId && isAdmin) {
+	if (reviewId && isAdmin(session.user)) {
 		// Admin can delete specific review by reviewId
 		await db
 			.delete(schema.projectReviews)

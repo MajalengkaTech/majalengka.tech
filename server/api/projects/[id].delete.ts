@@ -1,19 +1,19 @@
 import { eq } from 'drizzle-orm'
-import { blob } from 'hub:blob'
 import { db, schema } from 'hub:db'
-import { SUPER_ADMIN_EMAIL } from '../../utils/admin'
+import { isAdmin } from '../../utils/admin'
+import { deleteOwnedBlob } from '../../utils/project-blob'
 
 export default defineEventHandler(async (event) => {
 	const session = await getUserSession(event)
 	if (!session?.user?.id) {
 		throw createError({
 			statusCode: 401,
-			statusMessage: 'Unauthorized'
+			statusMessage: 'Silakan masuk terlebih dahulu'
 		})
 	}
 
-	const id = getRouterParam(event, 'id')
-	if (!id) {
+	const id = Number(getRouterParam(event, 'id'))
+	if (!Number.isInteger(id) || id <= 0) {
 		throw createError({
 			statusCode: 400,
 			statusMessage: 'ID projek tidak valid'
@@ -21,7 +21,7 @@ export default defineEventHandler(async (event) => {
 	}
 
 	const project = await db.query.projects.findFirst({
-		where: eq(schema.projects.id, Number(id))
+		where: eq(schema.projects.id, id)
 	})
 
 	if (!project) {
@@ -31,35 +31,20 @@ export default defineEventHandler(async (event) => {
 		})
 	}
 
-	const role = (session.user as { role?: string })?.role
-	const email = session.user.email?.toLowerCase()
-	const isAdmin = role === 'admin' || email === SUPER_ADMIN_EMAIL.toLowerCase()
-
-	// Verify ownership or admin role
-	if (project.userId !== session.user.id && !isAdmin) {
+	if (project.userId !== session.user.id && !isAdmin(session.user)) {
 		throw createError({
 			statusCode: 403,
-			statusMessage: 'Anda tidak memiliki hak akses untuk menghapus projek ini'
+			statusMessage: 'Kamu tidak punya akses untuk menghapus projek ini'
 		})
 	}
 
-	// Hapus file thumbnail dari Cloudflare R2 jika file disimpan di R2 lokal/internal
-	if (project.thumbnailUrl) {
-		try {
-			const pathname = project.thumbnailUrl.startsWith('/api/files/')
-				? project.thumbnailUrl.replace('/api/files/', '')
-				: project.thumbnailUrl
+	// Ulasan dihapus eksplisit karena cascade FK tidak aktif di SQLite lokal.
+	await db.batch([
+		db.delete(schema.projectReviews).where(eq(schema.projectReviews.projectId, id)),
+		db.delete(schema.projects).where(eq(schema.projects.id, id))
+	])
 
-			// Pastikan bukan URL eksternal (http:// atau https://)
-			if (pathname && !/^https?:\/\//i.test(pathname)) {
-				await blob.delete(pathname)
-			}
-		} catch (error) {
-			console.warn('[Blob] Gagal menghapus file thumbnail dari R2:', error)
-		}
-	}
-
-	await db.delete(schema.projects).where(eq(schema.projects.id, Number(id)))
+	await deleteOwnedBlob(project.thumbnailUrl, project.userId)
 
 	return {
 		success: true,

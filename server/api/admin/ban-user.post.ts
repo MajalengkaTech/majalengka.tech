@@ -1,7 +1,7 @@
 import { eq } from 'drizzle-orm'
 import { db, schema } from 'hub:db'
 import { z } from 'zod'
-import { requireAdminSession, SUPER_ADMIN_EMAIL } from '../../utils/admin'
+import { isSuperAdmin, requireAdminSession } from '../../utils/admin'
 
 const banUserSchema = z.object({
 	userId: z.string().min(1, 'User ID wajib diisi'),
@@ -33,7 +33,7 @@ export default defineEventHandler(async (event) => {
 		})
 	}
 
-	if (targetUser.email.toLowerCase() === SUPER_ADMIN_EMAIL.toLowerCase() && body.banned) {
+	if (isSuperAdmin(targetUser.id) && body.banned) {
 		throw createError({
 			statusCode: 400,
 			statusMessage: 'Tidak dapat memblokir Super Admin utama'

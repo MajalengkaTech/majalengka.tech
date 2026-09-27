@@ -26,8 +26,22 @@
     {
       "idx": 3,
       "version": "6",
+      "when": 1789570000000,
+      "tag": "0003_update_projects_user_id",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
       "when": 1789600000000,
       "tag": "0004_project_reviews",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "6",
+      "when": 1790000000000,
+      "tag": "0005_schema_sync",
       "breakpoints": true
     }
   ]

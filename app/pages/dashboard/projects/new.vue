@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import * as z from 'zod'
 import type { FormSubmitEvent } from '@nuxt/ui'
 
 definePageMeta({
@@ -14,21 +13,6 @@ useSeoMeta({
 const toast = useToast()
 const { user } = useUserSession()
 const loading = ref(false)
-
-const projectSchema = z.object({
-	title: z.string().min(3, 'Judul minimal 3 karakter').max(120, 'Judul maksimal 120 karakter'),
-	description: z.string().min(10, 'Deskripsi minimal 10 karakter').max(2000, 'Deskripsi maksimal 2000 karakter'),
-	thumbnailUrl: z.string().refine(
-		val => !val || val.startsWith('/') || /^https?:\/\//i.test(val),
-		{ message: 'URL thumbnail harus berupa link web valid (https://...) atau file yang diunggah' }
-	).optional().nullable(),
-	repoUrl: z.string().url('URL repositori tidak valid').or(z.literal('')).optional().nullable(),
-	demoUrl: z.string().url('URL demo tidak valid').or(z.literal('')).optional().nullable(),
-	tags: z.string().max(200, 'Tag maksimal 200 karakter').optional().nullable(),
-	isPublished: z.boolean().default(true)
-})
-
-type ProjectSchema = z.output<typeof projectSchema>
 
 const state = reactive<{
 	title: string
@@ -76,7 +60,7 @@ const previewProject = computed(() => ({
 	}
 }))
 
-async function onSubmit(event: FormSubmitEvent<ProjectSchema>) {
+async function onSubmit(event: FormSubmitEvent<ProjectInput>) {
 	try {
 		loading.value = true
 		await $fetch('/api/projects', {
@@ -159,7 +143,7 @@ async function onSubmit(event: FormSubmitEvent<ProjectSchema>) {
 						</template>
 
 						<UForm
-							:schema="projectSchema"
+							:schema="projectInputSchema"
 							:state="state"
 							class="space-y-5"
 							@submit="onSubmit"

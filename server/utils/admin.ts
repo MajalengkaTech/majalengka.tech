@@ -1,23 +1,37 @@
 import type { H3Event } from 'h3'
 
-export const SUPER_ADMIN_EMAIL = 'dinarpermadi07@gmail.com'
+interface SessionUserLike {
+	id?: string | number
+	role?: string | null
+}
+
+// Super admin ditentukan lewat ID user (NUXT_SUPER_ADMIN_IDS), bukan email, karena email bisa didaftarkan tanpa verifikasi.
+export function getSuperAdminIds(): string[] {
+	const raw = useRuntimeConfig().superAdminIds || ''
+	return raw.split(',').map(id => id.trim()).filter(Boolean)
+}
+
+export function isSuperAdmin(userId?: string | number | null) {
+	return !!userId && getSuperAdminIds().includes(String(userId))
+}
+
+export function isAdmin(user?: SessionUserLike | null) {
+	return user?.role === 'admin' || isSuperAdmin(user?.id)
+}
 
 export async function requireAdminSession(event: H3Event) {
 	const session = await getUserSession(event)
 	if (!session?.user?.id) {
 		throw createError({
 			statusCode: 401,
-			statusMessage: 'Unauthorized: Silakan login terlebih dahulu'
+			statusMessage: 'Silakan masuk terlebih dahulu'
 		})
 	}
 
-	const role = (session.user as { role?: string })?.role
-	const email = session.user.email?.toLowerCase()
-
-	if (role !== 'admin' && email !== SUPER_ADMIN_EMAIL.toLowerCase()) {
+	if (!isAdmin(session.user as SessionUserLike)) {
 		throw createError({
 			statusCode: 403,
-			statusMessage: 'Forbidden: Hanya untuk administrator'
+			statusMessage: 'Halaman ini hanya untuk administrator'
 		})
 	}
 

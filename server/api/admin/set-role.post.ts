@@ -1,7 +1,7 @@
 import { eq } from 'drizzle-orm'
 import { db, schema } from 'hub:db'
 import { z } from 'zod'
-import { requireAdminSession, SUPER_ADMIN_EMAIL } from '../../utils/admin'
+import { isSuperAdmin, requireAdminSession } from '../../utils/admin'
 
 const setRoleSchema = z.object({
 	userId: z.string().min(1, 'User ID wajib diisi'),
@@ -26,7 +26,7 @@ export default defineEventHandler(async (event) => {
 	}
 
 	// Prevent demoting super admin
-	if (targetUser.email.toLowerCase() === SUPER_ADMIN_EMAIL.toLowerCase() && body.role !== 'admin') {
+	if (isSuperAdmin(targetUser.id) && body.role !== 'admin') {
 		throw createError({
 			statusCode: 400,
 			statusMessage: 'Tidak dapat mengubah role Super Admin utama'

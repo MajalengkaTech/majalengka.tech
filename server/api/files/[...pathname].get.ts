@@ -5,9 +5,15 @@ export default defineEventHandler(async (event) => {
 	if (!pathname) {
 		throw createError({
 			statusCode: 400,
-			statusMessage: 'Pathname is required'
+			statusMessage: 'Path file wajib diisi'
 		})
 	}
+
+	// File upload pengguna disajikan tanpa izin menjalankan script, termasuk SVG lama yang sudah terlanjur diunggah.
+	setResponseHeaders(event, {
+		'Content-Security-Policy': 'default-src \'none\'; img-src \'self\'; style-src \'unsafe-inline\'; sandbox',
+		'X-Content-Type-Options': 'nosniff'
+	})
 
 	return blob.serve(event, pathname)
 })
