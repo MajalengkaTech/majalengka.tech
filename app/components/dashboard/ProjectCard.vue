@@ -51,7 +51,7 @@ const actionItems = computed(() => [
 		}"
 	>
 		<template #header>
-			<div class="relative w-full aspect-video overflow-hidden bg-neutral-100 dark:bg-neutral-800/80 border-b border-default">
+			<div class="relative w-full aspect-video overflow-hidden bg-elevated border-b border-default">
 				<NuxtImg
 					v-if="project.thumbnailUrl"
 					:src="project.thumbnailUrl"
@@ -109,6 +109,7 @@ const actionItems = computed(() => [
 			<!-- Star Rating Bar: Inline Quick Rate -->
 			<div class="flex items-center gap-1.5 mb-2.5">
 				<UInputRating
+					data-rating="dua-warna"
 					:model-value="project.currentUserRating || Math.round(project.averageRating || 0)"
 					icon="i-tabler-star-filled"
 					empty-icon="i-tabler-star"

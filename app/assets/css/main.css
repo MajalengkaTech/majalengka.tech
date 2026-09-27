@@ -2,19 +2,36 @@
 @import "@nuxt/ui";
 
 @theme static {
-	/* Brand Color Palette anchored directly on logo blue #0014a8 */
-	--color-brand-50: #e6ebff;
-	--color-brand-100: #c5d4ff;
-	--color-brand-200: #9bb5ff;
-	--color-brand-300: #5c85ff;
-	--color-brand-400: #0014a8;
+	/*
+	 * Skala dibuat di OKLCH dengan hue tetap. 500 = biru logo (primer light mode),
+	 * 400 = primer dark mode (6,07:1 di atas slate-900). Aturan pakai ada di DESIGN.md.
+	 */
+	--color-brand-50: #f0f5ff;
+	--color-brand-100: #dfeafe;
+	--color-brand-200: #c4d8ff;
+	--color-brand-300: #99bafe;
+	--color-brand-400: #6293ff;
 	--color-brand-500: #0014a8;
-	--color-brand-600: #001087;
-	--color-brand-700: #000d6b;
-	--color-brand-800: #000a54;
-	--color-brand-900: #00073d;
-	--color-brand-950: #000424;
+	--color-brand-600: #010096;
+	--color-brand-700: #00017b;
+	--color-brand-800: #000161;
+	--color-brand-900: #00004a;
+	--color-brand-950: #000033;
 	--color-brand: #0014a8;
+
+	/* Aksen Kuning Mangga: jangan jadi warna teks di latar terang kecuali 700 ke atas (500 di putih hanya 2,13:1). */
+	--color-mango-50: #fef9f3;
+	--color-mango-100: #feefdc;
+	--color-mango-200: #ffe1ba;
+	--color-mango-300: #ffca81;
+	--color-mango-400: #feb33b;
+	--color-mango-500: #f0a202;
+	--color-mango-600: #c78606;
+	--color-mango-700: #9d6800;
+	--color-mango-800: #774f02;
+	--color-mango-900: #5b3b00;
+	--color-mango-950: #362200;
+	--color-mango: #f0a202;
 }
 
 @theme {
@@ -35,13 +52,10 @@
 	--ui-radius: 0.125rem;
 }
 
+/* Warna primer diatur lewat app.config (primary: 'brand'); di sini hanya permukaan netral. */
 :root, .light {
 	--ui-bg: var(--ui-color-neutral-50);
 	--ui-bg-muted: var(--ui-color-neutral-100);
-	--ui-text-inverted: #ffffff;
-	--ui-primary: #0014a8;
-	--ui-color-primary-500: #0014a8;
-	--ui-color-primary-600: #001087;
 }
 
 .dark {
@@ -51,47 +65,47 @@
 	--ui-bg: var(--ui-color-neutral-900);
 	--ui-bg-muted: var(--ui-color-neutral-800);
 	--ui-text-inverted: var(--ui-color-neutral-900);
-	--ui-primary: var(--ui-color-primary-400);
 }
 
-/* Two-tone Rating Stars: Light (Outline Biru & Dalam Kuning) / Dark (Outline Kuning & Dalam Biru) */
-[data-slot="item"] {
+/*
+ * Bintang rating dua warna. Wajib di-scope ke [data-rating="dua-warna"]: slot "indicator"/"item"/"icon"
+ * juga dipakai UTabs dan komponen lain, dan selector global dulu menutupi teks tab aktif.
+ * Blok ini dihapus saat rating diganti Apresiasi.
+ */
+[data-rating="dua-warna"] [data-slot="item"] {
 	position: relative;
 }
 
-[data-slot="emptyIcon"] {
+[data-rating="dua-warna"] [data-slot="emptyIcon"] {
 	position: relative;
-	z-index: 2 !important;
-	color: var(--ui-primary) !important;
-	opacity: 1 !important;
+	z-index: 2;
+	color: var(--ui-primary);
+	opacity: 1;
 	pointer-events: none;
 	transition: color 0.15s ease, transform 0.15s ease;
 }
 
-[data-slot="indicator"] {
-	z-index: 1 !important;
+[data-rating="dua-warna"] [data-slot="indicator"] {
+	z-index: 1;
 }
 
-[data-slot="indicator"] [data-slot="icon"] {
+[data-rating="dua-warna"] [data-slot="indicator"] [data-slot="icon"] {
 	color: transparent;
 	transition: color 0.15s ease;
 }
 
-/* Light mode: Dalamnya Kuning */
-[data-slot="indicator"][data-state="active"] [data-slot="icon"] {
-	color: #facc15 !important; /* Kuning cerah */
+[data-rating="dua-warna"] [data-slot="indicator"][data-state="active"] [data-slot="icon"] {
+	color: var(--color-mango-500);
 }
 
-/* Dark mode: Dibalik -> Outline Kuning & Dalamnya Biru Primary */
-.dark [data-slot="emptyIcon"] {
-	color: #facc15 !important; /* Outline Kuning */
+.dark [data-rating="dua-warna"] [data-slot="emptyIcon"] {
+	color: var(--color-mango-400);
 }
 
-.dark [data-slot="indicator"][data-state="active"] [data-slot="icon"] {
-	color: var(--ui-primary) !important; /* Dalamnya Biru Primary */
+.dark [data-rating="dua-warna"] [data-slot="indicator"][data-state="active"] [data-slot="icon"] {
+	color: var(--ui-primary);
 }
 
-/* Hover state enhancement */
-[data-slot="item"]:hover [data-slot="emptyIcon"] {
+[data-rating="dua-warna"] [data-slot="item"]:hover [data-slot="emptyIcon"] {
 	transform: scale(1.08);
 }

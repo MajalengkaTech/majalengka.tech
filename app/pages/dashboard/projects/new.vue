@@ -242,7 +242,7 @@ async function onSubmit(event: FormSubmitEvent<ProjectInput>) {
 								/>
 							</UFormField>
 
-							<div class="flex items-center justify-between p-4 rounded-xl bg-neutral-50 dark:bg-neutral-900/40 border border-default">
+							<div class="flex items-center justify-between p-4 rounded-xl bg-muted border border-default">
 								<div class="flex flex-col">
 									<span class="text-sm font-semibold text-highlighted">Status Publikasi</span>
 									<span class="text-xs text-muted">Tampilkan projek ini di etalase publik Majalengka Tech.</span>

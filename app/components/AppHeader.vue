@@ -159,7 +159,7 @@ const items = computed(() => [{
 			<USeparator class="my-6" />
 
 			<template v-if="loggedIn && user">
-				<div class="flex items-center gap-3 p-3 rounded-lg bg-neutral-100 dark:bg-neutral-800 mb-3">
+				<div class="flex items-center gap-3 p-3 rounded-lg bg-elevated mb-3">
 					<UAvatar
 						:src="(user as { image?: string })?.image"
 						:alt="user.name"

@@ -80,7 +80,7 @@ const navLinks = computed<NavigationMenuItem[][]>(() => {
 			v-model:open="open"
 			collapsible
 			resizable
-			class="bg-neutral-50/50 dark:bg-neutral-900/50 border-r border-default"
+			class="bg-muted border-r border-default"
 			:ui="{
 				footer: 'border-t border-default p-2'
 			}"
@@ -100,7 +100,7 @@ const navLinks = computed<NavigationMenuItem[][]>(() => {
 							v-if="!collapsed"
 							class="flex flex-col min-w-0 leading-tight"
 						>
-							<span class="text-sm font-bold tracking-tight text-neutral-900 dark:text-white truncate">
+							<span class="text-sm font-bold tracking-tight text-highlighted truncate">
 								majalengka<span class="text-primary font-bold">.tech</span>
 							</span>
 							<span class="text-[10px] font-semibold uppercase tracking-wider text-muted truncate">

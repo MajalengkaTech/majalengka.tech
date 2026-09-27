@@ -231,7 +231,7 @@ async function onSubmit(event: FormSubmitEvent<ProjectInput>) {
 				>
 					<div class="space-y-3">
 						<!-- Toggle Mode -->
-						<div class="flex items-center gap-1 p-1 bg-neutral-100 dark:bg-neutral-800 rounded-lg w-fit">
+						<div class="flex items-center gap-1 p-1 bg-elevated rounded-lg w-fit">
 							<UButton
 								label="Unggah Foto"
 								icon="i-lucide-cloud-upload"
@@ -265,7 +265,7 @@ async function onSubmit(event: FormSubmitEvent<ProjectInput>) {
 
 							<div
 								v-if="!state.thumbnailUrl"
-								class="border-2 border-dashed border-default rounded-xl p-6 flex flex-col items-center justify-center gap-2.5 hover:border-primary/60 transition-colors bg-neutral-50/50 dark:bg-neutral-900/40 cursor-pointer text-center"
+								class="border-2 border-dashed border-default rounded-xl p-6 flex flex-col items-center justify-center gap-2.5 hover:border-primary/60 transition-colors bg-muted cursor-pointer text-center"
 								@click="triggerFileInput"
 							>
 								<div class="w-11 h-11 rounded-full bg-primary/10 flex items-center justify-center text-primary">
@@ -301,7 +301,7 @@ async function onSubmit(event: FormSubmitEvent<ProjectInput>) {
 							<!-- Uploaded Preview -->
 							<div
 								v-else
-								class="relative w-full h-40 rounded-xl border border-default overflow-hidden bg-neutral-100 dark:bg-neutral-800 group"
+								class="relative w-full h-40 rounded-xl border border-default overflow-hidden bg-elevated group"
 							>
 								<img
 									:src="state.thumbnailUrl"
@@ -372,7 +372,7 @@ async function onSubmit(event: FormSubmitEvent<ProjectInput>) {
 
 							<div
 								v-if="state.thumbnailUrl"
-								class="mt-2 relative w-full h-36 rounded-lg border border-default overflow-hidden bg-neutral-100 dark:bg-neutral-800"
+								class="mt-2 relative w-full h-36 rounded-lg border border-default overflow-hidden bg-elevated"
 							>
 								<img
 									:src="state.thumbnailUrl"

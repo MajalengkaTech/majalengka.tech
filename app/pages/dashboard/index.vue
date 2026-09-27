@@ -172,7 +172,7 @@ async function executeDelete() {
 					<div class="mt-2 text-3xl font-bold text-highlighted">
 						{{ profileCompletion }}%
 					</div>
-					<div class="w-full bg-neutral-200 dark:bg-neutral-800 rounded-full h-1.5 mt-2 overflow-hidden">
+					<div class="w-full bg-accented rounded-full h-1.5 mt-2 overflow-hidden">
 						<div
 							class="bg-primary h-1.5 rounded-full transition-all duration-500"
 							:style="{ width: `${profileCompletion}%` }"
@@ -225,7 +225,7 @@ async function executeDelete() {
 
 				<div
 					v-if="projects.length === 0"
-					class="rounded-xl border border-dashed border-default p-8 text-center flex flex-col items-center justify-center gap-3 bg-neutral-50/50 dark:bg-neutral-900/30"
+					class="rounded-xl border border-dashed border-default p-8 text-center flex flex-col items-center justify-center gap-3 bg-muted/50"
 				>
 					<div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary">
 						<UIcon

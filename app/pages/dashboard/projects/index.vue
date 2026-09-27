@@ -175,17 +175,17 @@ async function executeDelete() {
 				v-if="status === 'pending'"
 				class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"
 			>
-				<div
+				<USkeleton
 					v-for="n in 3"
 					:key="n"
-					class="h-64 rounded-xl bg-neutral-100 dark:bg-neutral-800 animate-pulse"
+					class="h-64 rounded-xl"
 				/>
 			</div>
 
 			<!-- Empty State -->
 			<div
 				v-else-if="filteredProjects.length === 0"
-				class="rounded-2xl border border-dashed border-default p-12 text-center flex flex-col items-center justify-center gap-3 bg-neutral-50/50 dark:bg-neutral-900/20 my-auto"
+				class="rounded-2xl border border-dashed border-default p-12 text-center flex flex-col items-center justify-center gap-3 bg-muted/50 my-auto"
 			>
 				<div class="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center text-primary">
 					<UIcon

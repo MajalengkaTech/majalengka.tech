@@ -123,7 +123,7 @@ async function onSubmit(event: FormSubmitEvent<ProfileSchema>) {
 					@submit="onSubmit"
 				>
 					<!-- Avatar preview & field -->
-					<div class="flex flex-col sm:flex-row items-start sm:items-center gap-5 p-4 rounded-xl bg-neutral-50 dark:bg-neutral-900/40 border border-default">
+					<div class="flex flex-col sm:flex-row items-start sm:items-center gap-5 p-4 rounded-xl bg-muted border border-default">
 						<UAvatar
 							:src="state.avatarUrl || profileData?.user?.avatarUrl || undefined"
 							:alt="state.name || 'User'"

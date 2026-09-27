@@ -219,6 +219,7 @@ function calculatePercentage(count: number, total: number) {
 								{{ summary.totalReviews > 0 ? summary.averageRating.toFixed(1) : '0.0' }}
 							</div>
 							<UInputRating
+								data-rating="dua-warna"
 								:model-value="Math.round(summary.averageRating)"
 								icon="i-tabler-star-filled"
 								empty-icon="i-tabler-star"
@@ -281,6 +282,7 @@ function calculatePercentage(count: number, total: number) {
 							<div class="flex items-center gap-2">
 								<UInputRating
 									v-model="rating"
+									data-rating="dua-warna"
 									icon="i-tabler-star-filled"
 									empty-icon="i-tabler-star"
 									hoverable
@@ -415,6 +417,7 @@ function calculatePercentage(count: number, total: number) {
 
 								<div class="flex items-center gap-2">
 									<UInputRating
+										data-rating="dua-warna"
 										:model-value="r.rating"
 										icon="i-tabler-star-filled"
 										empty-icon="i-tabler-star"

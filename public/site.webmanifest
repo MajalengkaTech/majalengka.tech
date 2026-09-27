@@ -1,12 +1,11 @@
 {
-  "name": "Your Application Name",
-  "short_name": "App",
-  "description": "Application description",
+  "name": "Majalengka Tech",
+  "short_name": "Majalengka Tech",
+  "description": "Etalase karya dan profil kreator teknologi Majalengka.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#ffffff",
-  "orientation": "portrait-primary",
+  "background_color": "#f8fafc",
+  "theme_color": "#0014a8",
   "icons": [
     {
       "src": "/favicon.svg",
@@ -27,9 +26,6 @@
       "purpose": "any maskable"
     }
   ],
-  "categories": [
-    "productivity"
-  ],
-  "lang": "en",
+  "lang": "id",
   "dir": "ltr"
 }

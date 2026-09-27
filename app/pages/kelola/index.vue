@@ -331,7 +331,7 @@ function formatDate(dateVal: string | number | Date) {
 
 			<!-- Stats Grid -->
 			<div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-				<div class="p-4 rounded-xl border border-default bg-neutral-50/50 dark:bg-neutral-900/40 flex flex-col gap-1">
+				<div class="p-4 rounded-xl border border-default bg-muted flex flex-col gap-1">
 					<span class="text-xs font-semibold text-muted">Total Pengguna</span>
 					<div class="flex items-baseline justify-between">
 						<span class="text-2xl font-black text-highlighted">{{ totalUsers }}</span>
@@ -342,35 +342,35 @@ function formatDate(dateVal: string | number | Date) {
 					</div>
 				</div>
 
-				<div class="p-4 rounded-xl border border-default bg-neutral-50/50 dark:bg-neutral-900/40 flex flex-col gap-1">
+				<div class="p-4 rounded-xl border border-default bg-muted flex flex-col gap-1">
 					<span class="text-xs font-semibold text-muted">Administrator</span>
 					<div class="flex items-baseline justify-between">
 						<span class="text-2xl font-black text-highlighted">{{ totalAdmins }}</span>
 						<UIcon
 							name="i-lucide-shield-check"
-							class="w-5 h-5 text-emerald-500"
+							class="w-5 h-5 text-success"
 						/>
 					</div>
 				</div>
 
-				<div class="p-4 rounded-xl border border-default bg-neutral-50/50 dark:bg-neutral-900/40 flex flex-col gap-1">
+				<div class="p-4 rounded-xl border border-default bg-muted flex flex-col gap-1">
 					<span class="text-xs font-semibold text-muted">Akun Aktif</span>
 					<div class="flex items-baseline justify-between">
 						<span class="text-2xl font-black text-highlighted">{{ totalActive }}</span>
 						<UIcon
 							name="i-lucide-user-check"
-							class="w-5 h-5 text-blue-500"
+							class="w-5 h-5 text-primary"
 						/>
 					</div>
 				</div>
 
-				<div class="p-4 rounded-xl border border-default bg-neutral-50/50 dark:bg-neutral-900/40 flex flex-col gap-1">
+				<div class="p-4 rounded-xl border border-default bg-muted flex flex-col gap-1">
 					<span class="text-xs font-semibold text-muted">Total Projek Komunitas</span>
 					<div class="flex items-baseline justify-between">
 						<span class="text-2xl font-black text-highlighted">{{ totalProjects }}</span>
 						<UIcon
 							name="i-lucide-folder-git-2"
-							class="w-5 h-5 text-amber-500"
+							class="w-5 h-5 text-warning"
 						/>
 					</div>
 				</div>
@@ -413,10 +413,10 @@ function formatDate(dateVal: string | number | Date) {
 			</div>
 
 			<!-- Users Table -->
-			<div class="rounded-xl border border-default bg-neutral-50/30 dark:bg-neutral-900/20 overflow-hidden">
+			<div class="rounded-xl border border-default bg-muted/50 overflow-hidden">
 				<div class="overflow-x-auto">
 					<table class="w-full text-left text-sm">
-						<thead class="bg-neutral-100/70 dark:bg-neutral-800/60 border-b border-default text-xs font-semibold text-muted uppercase tracking-wider">
+						<thead class="bg-elevated border-b border-default text-xs font-semibold text-muted uppercase tracking-wider">
 							<tr>
 								<th class="py-3 px-4">
 									Pengguna
@@ -442,7 +442,7 @@ function formatDate(dateVal: string | number | Date) {
 							<tr
 								v-for="u in filteredUsers"
 								:key="u.id"
-								class="hover:bg-neutral-100/50 dark:hover:bg-neutral-800/40 transition-colors"
+								class="hover:bg-elevated/50 transition-colors"
 							>
 								<!-- Pengguna Info -->
 								<td class="py-3.5 px-4">
@@ -502,7 +502,7 @@ function formatDate(dateVal: string | number | Date) {
 									>
 										<span
 											class="w-1.5 h-1.5 rounded-full"
-											:class="u.banned ? 'bg-red-500' : 'bg-emerald-500'"
+											:class="u.banned ? 'bg-error' : 'bg-success'"
 										/>
 										{{ u.banned ? 'Ditangguhkan' : 'Aktif' }}
 									</UBadge>
@@ -596,7 +596,7 @@ function formatDate(dateVal: string | number | Date) {
 		>
 			<template #body>
 				<div class="flex flex-col gap-4 py-2">
-					<div class="p-3 rounded-lg bg-neutral-100 dark:bg-neutral-800 text-xs flex items-center gap-3">
+					<div class="p-3 rounded-lg bg-elevated text-xs flex items-center gap-3">
 						<UAvatar
 							:src="selectedUserForPassword?.image || undefined"
 							:alt="selectedUserForPassword?.name || 'User'"
@@ -679,7 +679,7 @@ function formatDate(dateVal: string | number | Date) {
 					<div class="space-y-3">
 						<label
 							class="flex items-start gap-3 p-3 rounded-xl border border-default cursor-pointer transition-colors"
-							:class="selectedRole === 'admin' ? 'border-primary bg-primary/5' : 'hover:bg-neutral-50 dark:hover:bg-neutral-800'"
+							:class="selectedRole === 'admin' ? 'border-primary bg-primary/5' : 'hover:bg-elevated'"
 						>
 							<input
 								v-model="selectedRole"
@@ -703,7 +703,7 @@ function formatDate(dateVal: string | number | Date) {
 
 						<label
 							class="flex items-start gap-3 p-3 rounded-xl border border-default cursor-pointer transition-colors"
-							:class="selectedRole === 'user' ? 'border-primary bg-primary/5' : 'hover:bg-neutral-50 dark:hover:bg-neutral-800'"
+							:class="selectedRole === 'user' ? 'border-primary bg-primary/5' : 'hover:bg-elevated'"
 						>
 							<input
 								v-model="selectedRole"
@@ -715,7 +715,7 @@ function formatDate(dateVal: string | number | Date) {
 								<span class="font-bold text-highlighted flex items-center gap-1.5">
 									<UIcon
 										name="i-lucide-user"
-										class="w-4 h-4 text-neutral-500"
+										class="w-4 h-4 text-muted"
 									/>
 									Developer (Pengguna Biasa)
 								</span>

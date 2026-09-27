@@ -15,8 +15,7 @@ defineProps<{
 		class="relative flex h-full w-full overflow-hidden bg-neutral-950 text-white"
 		data-theme="dark"
 	>
-		<!-- Left blue brand accent bar -->
-		<div class="absolute top-0 left-0 h-full w-2 bg-blue-600" />
+		<div class="absolute top-0 left-0 h-full w-2 bg-[#6293ff]" />
 
 		<div class="flex flex-1 flex-col justify-between px-20 py-16">
 			<div />
@@ -24,7 +23,7 @@ defineProps<{
 			<div class="flex flex-col gap-5">
 				<span
 					v-if="headline"
-					class="text-2xl font-semibold uppercase tracking-wider text-blue-400"
+					class="text-2xl font-semibold uppercase tracking-wider text-[#99bafe]"
 				>
 					{{ headline }}
 				</span>
@@ -52,7 +51,7 @@ defineProps<{
 					class="size-10 rounded-md object-contain"
 				>
 				<span class="text-2xl font-bold tracking-tight text-white">
-					majalengka<span class="text-blue-500 font-extrabold">.tech</span>
+					majalengka<span class="text-[#6293ff] font-extrabold">.tech</span>
 				</span>
 				<div class="h-px flex-1 bg-neutral-800" />
 				<span class="text-lg font-medium text-neutral-400">Komunitas Open Source Majalengka</span>

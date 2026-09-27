@@ -235,7 +235,7 @@ defineOgImage('Saas', {
 				v-if="section.image"
 				:src="typeof section.image === 'string' ? section.image : section.image.src"
 				:alt="(typeof section.image === 'object' ? section.image.alt : '') || section.title"
-				class="h-auto w-full rounded-xl border border-neutral-200 object-contain shadow-sm dark:border-neutral-800"
+				class="h-auto w-full rounded-xl border border-default object-contain shadow-sm"
 			/>
 			<ImagePlaceholder v-else />
 		</UPageSection>

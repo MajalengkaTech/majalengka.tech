@@ -1,7 +1,8 @@
 export default defineAppConfig({
 	ui: {
 		colors: {
-			primary: 'blue'
+			primary: 'brand',
+			neutral: 'slate'
 		},
 		icons: {
 			arrowDown: 'i-tabler-arrow-down',
