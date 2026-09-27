@@ -6,7 +6,7 @@ definePageMeta({
 })
 
 useSeoMeta({
-	title: 'Dashboard Developer · Majalengka Tech',
+	title: 'Dashboard Developer',
 	description: 'Kelola profil developer dan showcase projek Majalengka Tech'
 })
 

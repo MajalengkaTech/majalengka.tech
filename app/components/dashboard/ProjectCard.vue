@@ -52,15 +52,21 @@ const actionItems = computed(() => [
 	>
 		<template #header>
 			<div class="relative w-full aspect-video overflow-hidden bg-elevated border-b border-default">
-				<NuxtImg
+				<NuxtLink
 					v-if="project.thumbnailUrl"
-					:src="project.thumbnailUrl"
-					:alt="project.title"
-					class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-					loading="lazy"
-					format="webp"
-					sizes="sm:100vw md:50vw lg:400px"
-				/>
+					:to="`/projek/${project.slug}`"
+					tabindex="-1"
+					aria-hidden="true"
+				>
+					<NuxtImg
+						:src="project.thumbnailUrl"
+						:alt="project.title"
+						class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+						loading="lazy"
+						format="webp"
+						sizes="sm:100vw md:50vw lg:400px"
+					/>
+				</NuxtLink>
 				<div
 					v-else
 					class="w-full h-full flex flex-col items-center justify-center text-muted gap-2"
@@ -102,7 +108,12 @@ const actionItems = computed(() => [
 		<div class="flex-1 flex flex-col">
 			<div class="flex items-start justify-between gap-2 mb-1.5">
 				<h3 class="font-bold text-base sm:text-lg text-highlighted line-clamp-1 group-hover:text-primary transition-colors">
-					{{ project.title }}
+					<NuxtLink
+						:to="`/projek/${project.slug}`"
+						class="rounded-sm outline-primary/25 focus-visible:outline-3"
+					>
+						{{ project.title }}
+					</NuxtLink>
 				</h3>
 			</div>
 

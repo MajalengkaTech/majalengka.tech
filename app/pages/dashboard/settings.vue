@@ -7,7 +7,7 @@ definePageMeta({
 })
 
 useSeoMeta({
-	title: 'Edit Profil · Majalengka Tech',
+	title: 'Edit Profil',
 	description: 'Pengaturan dan pembaruan data profil developer'
 })
 

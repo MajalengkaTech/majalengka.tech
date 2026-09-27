@@ -6,7 +6,7 @@ definePageMeta({
 })
 
 useSeoMeta({
-	title: 'Unggah Projek Baru · Majalengka Tech',
+	title: 'Unggah Projek Baru',
 	description: 'Tambahkan karya dan projek baru ke showcase Majalengka Tech'
 })
 

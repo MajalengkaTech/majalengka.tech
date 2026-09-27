@@ -6,7 +6,7 @@ definePageMeta({
 })
 
 useSeoMeta({
-	title: 'Projek Saya · Majalengka Tech',
+	title: 'Projek Saya',
 	description: 'Kelola portofolio dan karya teknologi Anda di Majalengka Tech'
 })
 

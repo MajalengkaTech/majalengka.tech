@@ -13,6 +13,7 @@
 	"dependencies": {
 		"@iconify-json/lucide": "^1.2.131",
 		"@iconify-json/simple-icons": "^1.2.95",
+		"@iconify-json/tabler": "^1.2.40",
 		"@libsql/client": "^0.18.0",
 		"@nuxt/content": "^3.16.0",
 		"@nuxt/image": "^2.1.0",

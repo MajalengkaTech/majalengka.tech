@@ -2,7 +2,7 @@
 import type { ProjectItem } from '~/types/project'
 
 useSeoMeta({
-	title: 'Showcase Projek Komunitas · Majalengka Tech',
+	title: 'Showcase Projek Komunitas',
 	description: 'Jelajahi karya teknologi, pustaka open-source, dan inovasi aplikasi yang dibangun oleh komunitas developer Majalengka.'
 })
 

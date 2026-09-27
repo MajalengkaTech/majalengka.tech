@@ -6,7 +6,7 @@ definePageMeta({
 })
 
 useSeoMeta({
-	title: 'Edit Projek · Majalengka Tech',
+	title: 'Edit Projek',
 	description: 'Perbarui detail dan informasi projek'
 })
 

@@ -7,7 +7,7 @@ definePageMeta({
 })
 
 useSeoMeta({
-	title: 'Masuk · Majalengka Tech',
+	title: 'Masuk',
 	description: 'Masuk ke portal komunitas developer Majalengka Tech'
 })
 

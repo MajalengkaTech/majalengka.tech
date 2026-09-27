@@ -7,7 +7,7 @@ definePageMeta({
 })
 
 useSeoMeta({
-	title: 'Daftar Developer · Majalengka Tech',
+	title: 'Daftar Developer',
 	description: 'Bergabung dengan ekosistem open-source dan komunitas teknologi Majalengka'
 })
 

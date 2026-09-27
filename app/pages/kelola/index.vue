@@ -32,7 +32,7 @@ definePageMeta({
 })
 
 useSeoMeta({
-	title: 'Konsol Manajemen Komunitas · Majalengka Tech',
+	title: 'Konsol Manajemen Komunitas',
 	description: 'Ruang kendali administrator untuk mengelola akun dan data komunitas Majalengka Tech'
 })
 
