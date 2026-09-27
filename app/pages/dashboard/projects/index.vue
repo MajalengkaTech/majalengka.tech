@@ -12,12 +12,11 @@ useSeoMeta({
 
 const toast = useToast()
 const search = ref('')
-const createModalOpen = ref(false)
 const deleteModalOpen = ref(false)
 const projectToDelete = ref<number | null>(null)
 const deleting = ref(false)
 
-const { data: projectsData, refresh: refreshProjects, status } = await useFetch('/api/projects?mine=true', {
+const { data: projectsData, status } = await useFetch('/api/projects?mine=true', {
 	key: 'user-projects'
 })
 
@@ -33,66 +32,6 @@ const filteredProjects = computed(() => {
 	)
 })
 
-const selectedProjectForReview = ref<ProjectItem | null>(null)
-const isReviewModalOpen = ref(false)
-
-function handleOpenReview(project: ProjectItem) {
-	selectedProjectForReview.value = project
-	isReviewModalOpen.value = true
-}
-
-async function handleQuickRate({ project, rating }: { project: ProjectItem, rating: number }) {
-	// Optimistic local update
-	const target = projects.value.find(p => p.id === project.id)
-	const previousRating = target?.currentUserRating
-	const previousAvg = target?.averageRating
-	const previousCount = target?.reviewCount
-
-	if (target) {
-		const hadPrevious = typeof target.currentUserRating === 'number'
-		const prevScore = target.currentUserRating || 0
-		target.currentUserRating = rating
-
-		const prevCount = target.reviewCount || 0
-		const prevAvg = target.averageRating || 0
-		if (hadPrevious) {
-			const totalScore = (prevAvg * prevCount) - prevScore + rating
-			target.averageRating = Number((totalScore / prevCount).toFixed(1))
-		} else {
-			const newCount = prevCount + 1
-			const totalScore = (prevAvg * prevCount) + rating
-			target.reviewCount = newCount
-			target.averageRating = Number((totalScore / newCount).toFixed(1))
-		}
-	}
-
-	try {
-		const res = await $fetch<{ success: boolean, message: string }>(`/api/projects/${project.id}/reviews`, {
-			method: 'POST',
-			body: { rating, comment: null }
-		})
-
-		toast.add({
-			title: 'Rating Tersimpan',
-			description: res.message || `Rating ${rating} bintang berhasil disimpan untuk ${project.title}`,
-			color: 'success'
-		})
-		refreshProjects()
-	} catch (err: unknown) {
-		if (target) {
-			target.currentUserRating = previousRating
-			target.averageRating = previousAvg
-			target.reviewCount = previousCount
-		}
-		const res = err as { data?: { statusMessage?: string } }
-		toast.add({
-			title: 'Gagal Menyimpan Rating',
-			description: res.data?.statusMessage || 'Terjadi kesalahan saat menyimpan rating.',
-			color: 'error'
-		})
-	}
-}
-
 function confirmDelete(id: number) {
 	projectToDelete.value = id
 	deleteModalOpen.value = true
@@ -107,7 +46,7 @@ async function executeDelete() {
 		})
 		toast.add({
 			title: 'Projek Dihapus',
-			description: 'Projek telah berhasil dihapus dari portofolio Anda.',
+			description: 'Karya sudah dihapus dari portofoliomu.',
 			color: 'success'
 		})
 		deleteModalOpen.value = false
@@ -142,7 +81,7 @@ async function executeDelete() {
 					color="primary"
 					size="sm"
 					aria-label="Tambah Projek Baru"
-					@click="createModalOpen = true"
+					to="/dashboard/projects/new"
 				>
 					<span class="hidden sm:inline">Tambah Projek Baru</span>
 				</UButton>
@@ -173,12 +112,12 @@ async function executeDelete() {
 			<!-- Loading state -->
 			<div
 				v-if="status === 'pending'"
-				class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"
+				class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-10"
 			>
 				<USkeleton
 					v-for="n in 3"
 					:key="n"
-					class="h-64 rounded-xl"
+					class="aspect-4/3 w-full rounded-xl"
 				/>
 			</div>
 
@@ -205,14 +144,14 @@ async function executeDelete() {
 					icon="i-lucide-plus"
 					color="primary"
 					class="mt-3"
-					@click="createModalOpen = true"
+					to="/dashboard/projects/new"
 				/>
 			</div>
 
 			<!-- Projects Grid -->
 			<div
 				v-else
-				class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+				class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-10"
 			>
 				<DashboardProjectCard
 					v-for="p in filteredProjects"
@@ -220,24 +159,15 @@ async function executeDelete() {
 					:project="p"
 					editable
 					@delete="confirmDelete"
-					@review="handleOpenReview"
-					@quick-rate="handleQuickRate"
 				/>
 			</div>
 		</div>
 
-		<!-- Review Modal -->
-		<ProjectReviewModal
-			v-model:open="isReviewModalOpen"
-			:project="selectedProjectForReview"
-			@reviewed="refreshProjects"
-		/>
-
 		<!-- Delete Confirmation Modal -->
 		<UModal
 			v-model:open="deleteModalOpen"
-			title="Konfirmasi Hapus Projek"
-			description="Apakah Anda yakin ingin menghapus projek ini? Tindakan ini tidak dapat dibatalkan."
+			title="Hapus karya ini?"
+			description="Karya, gambar, apresiasi, dan komentarnya akan dihapus permanen."
 		>
 			<template #footer>
 				<div class="flex items-center justify-end gap-3">
@@ -258,11 +188,5 @@ async function executeDelete() {
 				</div>
 			</template>
 		</UModal>
-
-		<!-- Create Project Modal -->
-		<DashboardProjectModal
-			v-model:open="createModalOpen"
-			@saved="refreshProjects"
-		/>
 	</div>
 </template>

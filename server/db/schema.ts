@@ -1,4 +1,4 @@
-import { index, integer, primaryKey, sqliteTable, text, uniqueIndex } from 'drizzle-orm/sqlite-core'
+import { index, integer, primaryKey, sqliteTable, text } from 'drizzle-orm/sqlite-core'
 import { user } from '#auth/schema'
 
 export const projects = sqliteTable('projects', {
@@ -57,22 +57,7 @@ export const projectComments = sqliteTable('project_comments', {
 	index('project_comments_project_idx').on(table.projectId, table.createdAt)
 ])
 
-// Tabel rating lama. Dihapus setelah UI rating diganti Apresiasi (Fase 6).
-export const projectReviews = sqliteTable('project_reviews', {
-	id: integer('id').primaryKey({ autoIncrement: true }),
-	projectId: integer('project_id').notNull().references(() => projects.id, { onDelete: 'cascade' }),
-	userId: text('user_id').notNull().references(() => user.id, { onDelete: 'cascade' }),
-	rating: integer('rating').notNull(),
-	comment: text('comment'),
-	createdAt: integer('created_at', { mode: 'timestamp' }).notNull(),
-	updatedAt: integer('updated_at', { mode: 'timestamp' })
-}, table => [
-	uniqueIndex('project_user_review_unique').on(table.projectId, table.userId)
-])
-
 export type ProjectRecord = typeof projects.$inferSelect
 export type NewProjectRecord = typeof projects.$inferInsert
 export type ProjectImageRecord = typeof projectImages.$inferSelect
 export type ProjectCommentRecord = typeof projectComments.$inferSelect
-export type ProjectReviewRecord = typeof projectReviews.$inferSelect
-export type NewProjectReviewRecord = typeof projectReviews.$inferInsert

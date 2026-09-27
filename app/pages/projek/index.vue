@@ -61,85 +61,6 @@ const filteredProjects = computed(() => {
 
 const isFiltering = computed(() => !!search.value.trim() || !!selectedTag.value)
 
-const { loggedIn } = useUserSession()
-const toast = useToast()
-
-const selectedProjectForReview = ref<ProjectItem | null>(null)
-const isReviewModalOpen = ref(false)
-
-function handleOpenReview(project: ProjectItem) {
-	selectedProjectForReview.value = project
-	isReviewModalOpen.value = true
-}
-
-function handleReviewed() {
-	refresh()
-}
-
-async function handleQuickRate({ project, rating }: { project: ProjectItem, rating: number }) {
-	if (!loggedIn.value) {
-		toast.add({
-			title: 'Login Diperlukan',
-			description: 'Silakan masuk terlebih dahulu untuk memberikan rating bintang.',
-			color: 'warning',
-			actions: [{ label: 'Masuk', to: '/login' }]
-		})
-		return
-	}
-
-	// Optimistic local update untuk respon instan
-	const target = projects.value.find(p => p.id === project.id)
-	const previousRating = target?.currentUserRating
-	const previousAvg = target?.averageRating
-	const previousCount = target?.reviewCount
-
-	if (target) {
-		const hadPrevious = typeof target.currentUserRating === 'number'
-		const prevScore = target.currentUserRating || 0
-		target.currentUserRating = rating
-
-		const prevCount = target.reviewCount || 0
-		const prevAvg = target.averageRating || 0
-		if (hadPrevious) {
-			const totalScore = (prevAvg * prevCount) - prevScore + rating
-			target.averageRating = Number((totalScore / prevCount).toFixed(1))
-		} else {
-			const newCount = prevCount + 1
-			const totalScore = (prevAvg * prevCount) + rating
-			target.reviewCount = newCount
-			target.averageRating = Number((totalScore / newCount).toFixed(1))
-		}
-	}
-
-	try {
-		const res = await $fetch<{ success: boolean, message: string }>(`/api/projects/${project.id}/reviews`, {
-			method: 'POST',
-			body: { rating, comment: null }
-		})
-
-		toast.add({
-			title: 'Rating Tersimpan',
-			description: res.message || `Rating ${rating} bintang berhasil disimpan untuk ${project.title}`,
-			color: 'success'
-		})
-		// Sinkronisasi data latar belakang
-		refresh()
-	} catch (err: unknown) {
-		// Rollback jika terjadi kesalahan jaringan
-		if (target) {
-			target.currentUserRating = previousRating
-			target.averageRating = previousAvg
-			target.reviewCount = previousCount
-		}
-		const res = err as { data?: { statusMessage?: string } }
-		toast.add({
-			title: 'Gagal Menyimpan Rating',
-			description: res.data?.statusMessage || 'Terjadi kesalahan saat menyimpan rating.',
-			color: 'error'
-		})
-	}
-}
-
 function resetFilters() {
 	search.value = ''
 	selectedTag.value = null
@@ -151,7 +72,7 @@ function resetFilters() {
 		<UPageHero
 			headline="Karya & Inovasi Lokal"
 			title="Showcase Projek Komunitas"
-			description="Koleksi aplikasi dan inovasi open-source developer Majalengka. Beri apresiasi rating bintang dan dukung karya lokal."
+			description="Karya developer dan desainer Majalengka. Buka karyanya, beri apresiasi, dan kenali kreatornya."
 			:links="[
 				{ label: 'Pamerkan Projek', icon: 'i-lucide-folder-plus', color: 'primary', to: '/dashboard/projects/new' },
 				{ label: 'Gabung Komunitas', icon: 'i-lucide-user-plus', color: 'neutral', variant: 'subtle', to: '/signup' }
@@ -214,12 +135,12 @@ function resetFilters() {
 			<!-- Loading Skeleton -->
 			<div
 				v-if="status === 'pending'"
-				class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+				class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-10"
 			>
 				<USkeleton
 					v-for="n in 6"
 					:key="n"
-					class="h-72 w-full rounded-xl"
+					class="aspect-4/3 w-full rounded-xl"
 				/>
 			</div>
 
@@ -236,7 +157,7 @@ function resetFilters() {
 			<!-- Projects Grid -->
 			<div
 				v-else
-				class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+				class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-10"
 			>
 				<DashboardProjectCard
 					v-for="p in filteredProjects"
@@ -244,16 +165,8 @@ function resetFilters() {
 					:key="p.id"
 					:project="p"
 					:editable="false"
-					@review="handleOpenReview"
-					@quick-rate="handleQuickRate"
 				/>
 			</div>
 		</UContainer>
-
-		<ProjectReviewModal
-			v-model:open="isReviewModalOpen"
-			:project="selectedProjectForReview"
-			@reviewed="handleReviewed"
-		/>
 	</div>
 </template>

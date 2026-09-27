@@ -12,10 +12,8 @@ useSeoMeta({
 
 const { user } = useUserSession()
 
-const isCreateModalOpen = ref(false)
-
 const { data: profileData, refresh: refreshProfile } = await useFetch('/api/user/profile')
-const { data: projectsData, refresh: refreshProjects } = await useFetch('/api/projects?mine=true', {
+const { data: projectsData } = await useFetch('/api/projects?mine=true', {
 	key: 'user-projects'
 })
 
@@ -94,7 +92,7 @@ async function executeDelete() {
 					color="primary"
 					size="sm"
 					aria-label="Tambah Projek"
-					@click="isCreateModalOpen = true"
+					to="/dashboard/projects/new"
 				>
 					<span class="hidden sm:inline">Tambah Projek</span>
 				</UButton>
@@ -249,13 +247,13 @@ async function executeDelete() {
 						icon="i-lucide-plus"
 						color="primary"
 						class="mt-2"
-						@click="isCreateModalOpen = true"
+						to="/dashboard/projects/new"
 					/>
 				</div>
 
 				<div
 					v-else
-					class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"
+					class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-10"
 				>
 					<DashboardProjectCard
 						v-for="p in projects.slice(0, 3)"
@@ -291,11 +289,5 @@ async function executeDelete() {
 				</div>
 			</template>
 		</UModal>
-
-		<!-- Modal Tambah Projek -->
-		<DashboardProjectModal
-			v-model:open="isCreateModalOpen"
-			@saved="refreshProjects"
-		/>
 	</div>
 </template>

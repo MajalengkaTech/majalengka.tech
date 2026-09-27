@@ -50,6 +50,13 @@
       "when": 1790530594431,
       "tag": "0006_creator_showcase",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "6",
+      "when": 1790533260503,
+      "tag": "0007_drop_project_reviews",
+      "breakpoints": true
     }
   ]
 }

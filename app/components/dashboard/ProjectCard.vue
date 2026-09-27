@@ -9,30 +9,32 @@ const props = withDefaults(defineProps<{
 })
 
 const emit = defineEmits<{
-	'delete': [id: number]
-	'review': [project: ProjectItem]
-	'quick-rate': [{ project: ProjectItem, rating: number }]
+	delete: [id: number]
 }>()
 
-const parsedTags = computed(() => {
-	if (!props.project.tags) return []
-	return props.project.tags
-		.split(',')
-		.map(t => t.trim())
-		.filter(Boolean)
-})
+const { user } = useUserSession()
+const { toggleLike, isPending } = useProjectLike()
+
+const detailPath = computed(() => `/projek/${props.project.slug}`)
+const isOwn = computed(() => (user.value as { id?: string } | null)?.id === String(props.project.userId))
+const category = computed(() => categoryLabel(props.project.category))
 
 const actionItems = computed(() => [
 	[
 		{
-			label: 'Edit Projek',
+			label: 'Lihat Halaman Karya',
+			icon: 'i-lucide-external-link',
+			to: detailPath.value
+		},
+		{
+			label: 'Edit Karya',
 			icon: 'i-lucide-pencil',
 			to: `/dashboard/projects/${props.project.id}`
 		}
 	],
 	[
 		{
-			label: 'Hapus Projek',
+			label: 'Hapus Karya',
 			icon: 'i-lucide-trash-2',
 			color: 'error' as const,
 			onSelect: () => emit('delete', props.project.id)
@@ -42,188 +44,144 @@ const actionItems = computed(() => [
 </script>
 
 <template>
-	<UCard
-		class="flex flex-col h-full overflow-hidden hover:border-primary/50 transition-all duration-200 group"
-		:ui="{
-			root: 'relative',
-			header: 'p-0 sm:p-0',
-			body: 'flex-1 flex flex-col p-4 sm:p-5'
-		}"
-	>
-		<template #header>
-			<div class="relative w-full aspect-video overflow-hidden bg-elevated border-b border-default">
-				<NuxtLink
+	<article class="group flex flex-col gap-3">
+		<div class="relative">
+			<!-- Lapisan hover hanya pelengkap: judul dan kreator selalu tampil di baris bawah untuk layar sentuh. -->
+			<NuxtLink
+				:to="detailPath"
+				class="relative block aspect-4/3 overflow-hidden rounded-xl bg-elevated outline-primary/40 outline-offset-2 focus-visible:outline-3"
+				:aria-label="`${project.title}, ${category}`"
+			>
+				<NuxtImg
 					v-if="project.thumbnailUrl"
-					:to="`/projek/${project.slug}`"
-					tabindex="-1"
+					:src="project.thumbnailUrl"
+					alt=""
+					class="absolute inset-0 size-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.03] motion-reduce:transition-none"
+					loading="lazy"
+					format="webp"
+					sizes="100vw sm:50vw lg:33vw"
+				/>
+				<span
+					v-else
+					class="flex size-full items-center justify-center px-6 text-center text-sm text-dimmed"
+				>
+					{{ category }}
+				</span>
+
+				<span
+					class="pointer-events-none absolute inset-0 flex items-end justify-between gap-4 bg-linear-to-t from-black/80 via-black/25 to-transparent p-5 opacity-0 transition-opacity duration-300 group-hover:opacity-100 group-focus-within:opacity-100 motion-reduce:transition-none"
 					aria-hidden="true"
 				>
-					<NuxtImg
-						:src="project.thumbnailUrl"
-						:alt="project.title"
-						class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-						loading="lazy"
-						format="webp"
-						sizes="sm:100vw md:50vw lg:400px"
+					<span class="flex min-w-0 flex-col gap-1">
+						<span class="text-xs font-medium text-white/85">{{ category }}</span>
+						<span class="truncate text-xl font-bold text-white">{{ project.title }}</span>
+					</span>
+					<UIcon
+						name="i-lucide-arrow-up-right"
+						class="size-7 shrink-0 text-white"
 					/>
-				</NuxtLink>
-				<div
-					v-else
-					class="w-full h-full flex flex-col items-center justify-center text-muted gap-2"
+				</span>
+			</NuxtLink>
+
+			<div class="pointer-events-none absolute top-3 left-3 flex flex-wrap gap-1.5">
+				<span
+					v-if="project.isFeatured"
+					class="inline-flex items-center gap-1 rounded-sm bg-mango-100 px-1.5 py-0.5 text-xs font-semibold text-mango-900 shadow-xs"
 				>
 					<UIcon
-						name="i-lucide-code-xml"
-						class="w-10 h-10 opacity-40"
+						name="i-lucide-award"
+						class="size-3"
 					/>
-					<span class="text-xs uppercase tracking-wider font-semibold opacity-60">Majalengka Tech Project</span>
-				</div>
-
-				<div class="absolute top-2 right-2 flex items-center gap-1.5">
-					<UBadge
-						v-if="editable"
-						:color="project.isPublished ? 'success' : 'neutral'"
-						variant="subtle"
-						size="xs"
-					>
-						{{ project.isPublished ? 'Publik' : 'Draf' }}
-					</UBadge>
-
-					<UDropdownMenu
-						v-if="editable"
-						:items="actionItems"
-					>
-						<UButton
-							icon="i-lucide-more-vertical"
-							color="neutral"
-							variant="solid"
-							size="xs"
-							class="rounded-full shadow-sm"
-							aria-label="Opsi Projek"
-						/>
-					</UDropdownMenu>
-				</div>
+					Pilihan Kurator
+				</span>
+				<UBadge
+					v-if="editable && !project.isPublished"
+					label="Draf"
+					color="neutral"
+					variant="solid"
+					size="sm"
+				/>
 			</div>
-		</template>
 
-		<div class="flex-1 flex flex-col">
-			<div class="flex items-start justify-between gap-2 mb-1.5">
-				<h3 class="font-bold text-base sm:text-lg text-highlighted line-clamp-1 group-hover:text-primary transition-colors">
+			<UDropdownMenu
+				v-if="editable"
+				:items="actionItems"
+			>
+				<UButton
+					icon="i-lucide-ellipsis-vertical"
+					color="neutral"
+					variant="solid"
+					size="sm"
+					class="absolute top-3 right-3"
+					:aria-label="`Opsi untuk ${project.title}`"
+				/>
+			</UDropdownMenu>
+		</div>
+
+		<div class="flex items-center justify-between gap-3">
+			<div class="flex min-w-0 items-center gap-2">
+				<h3 class="truncate font-semibold text-highlighted">
 					<NuxtLink
-						:to="`/projek/${project.slug}`"
-						class="rounded-sm outline-primary/25 focus-visible:outline-3"
+						:to="detailPath"
+						class="rounded-sm outline-primary/25 hover:text-primary focus-visible:outline-3"
+						tabindex="-1"
 					>
 						{{ project.title }}
 					</NuxtLink>
 				</h3>
-			</div>
 
-			<!-- Star Rating Bar: Inline Quick Rate -->
-			<div class="flex items-center gap-1.5 mb-2.5">
-				<UInputRating
-					data-rating="dua-warna"
-					:model-value="project.currentUserRating || Math.round(project.averageRating || 0)"
-					icon="i-tabler-star-filled"
-					empty-icon="i-tabler-star"
-					hoverable
-					size="sm"
-					:aria-label="`Beri rating bintang untuk ${project.title}`"
-					@update:model-value="(val: number) => emit('quick-rate', { project, rating: val })"
-				/>
-				<span
-					v-if="project.averageRating && project.averageRating > 0"
-					class="text-xs font-semibold text-highlighted ml-0.5"
-				>
-					{{ project.averageRating.toFixed(1) }}
-				</span>
-			</div>
-
-			<p class="text-sm text-muted line-clamp-3 mb-4 flex-1">
-				{{ project.description }}
-			</p>
-
-			<div
-				v-if="parsedTags.length > 0"
-				class="flex flex-wrap gap-1.5 mb-4"
-			>
-				<UBadge
-					v-for="tag in parsedTags"
-					:key="tag"
-					color="neutral"
-					variant="outline"
-					size="xs"
-					class="rounded-md"
-				>
-					{{ tag }}
-				</UBadge>
-			</div>
-
-			<div
-				v-if="project.author"
-				class="flex items-center gap-2 pt-3 border-t border-default/60 mb-4"
-			>
-				<UAvatar
-					:src="project.author.avatarUrl || undefined"
-					:alt="project.author.name"
-					size="xs"
-				/>
-				<span class="text-xs text-muted truncate">
-					Oleh
+				<template v-if="!editable && project.author">
+					<span class="shrink-0 text-xs text-muted">oleh</span>
+					<UAvatar
+						:src="project.author.avatarUrl || undefined"
+						:alt="project.author.name"
+						size="2xs"
+						class="shrink-0"
+					/>
 					<NuxtLink
 						v-if="project.author.username"
 						:to="`/@${project.author.username}`"
-						class="rounded-sm font-medium text-highlighted outline-primary/25 hover:text-primary focus-visible:outline-3"
-					>{{ project.author.name }}</NuxtLink>
-					<strong
+						class="truncate rounded-sm text-sm font-medium text-default underline decoration-(--ui-border-accented) underline-offset-4 outline-primary/25 hover:text-primary hover:decoration-primary focus-visible:outline-3"
+					>
+						{{ project.author.name }}
+					</NuxtLink>
+					<span
 						v-else
-						class="text-highlighted font-medium"
-					>{{ project.author.name }}</strong>
-				</span>
+						class="truncate text-sm font-medium text-default"
+					>{{ project.author.name }}</span>
+				</template>
+
+				<span
+					v-else-if="editable"
+					class="shrink-0 text-xs text-muted"
+				>{{ formatTanggal(project.createdAt) }}</span>
 			</div>
 
-			<div class="flex items-center gap-2 pt-2">
+			<div class="flex shrink-0 items-center">
 				<UButton
-					v-if="project.demoUrl"
-					label="Demo"
-					icon="i-lucide-external-link"
-					color="primary"
-					variant="solid"
-					size="xs"
-					:to="project.demoUrl"
-					target="_blank"
-					class="flex-1 justify-center"
+					v-if="!editable && !isOwn"
+					:icon="project.likedByMe ? 'i-tabler-heart-filled' : 'i-tabler-heart'"
+					:label="String(project.likeCount || 0)"
+					:color="project.likedByMe ? 'primary' : 'neutral'"
+					variant="ghost"
+					size="sm"
+					:aria-pressed="project.likedByMe"
+					:aria-label="project.likedByMe ? `Tarik apresiasi untuk ${project.title}` : `Beri apresiasi untuk ${project.title}`"
+					:loading="isPending(project.id)"
+					@click="toggleLike(project)"
 				/>
-				<UButton
-					v-if="project.repoUrl"
-					label="Repo"
-					icon="i-simple-icons-github"
-					color="neutral"
-					variant="outline"
-					size="xs"
-					:to="project.repoUrl"
-					target="_blank"
-					class="flex-1 justify-center"
-				/>
-				<UChip
-					:text="project.reviewCount || undefined"
-					:show="Boolean(project.reviewCount && project.reviewCount > 0)"
-					color="primary"
-					size="3xl"
-					:ui="{ base: 'px-1.5 min-w-[18px] h-[18px] text-[10px] font-bold shadow-xs' }"
-					class="flex-1"
+				<span
+					v-else
+					class="inline-flex items-center gap-1 px-2 text-xs text-muted"
+					:aria-label="`${project.likeCount || 0} apresiasi`"
 				>
-					<UButton
-						label="Ulasan"
-						icon="i-lucide-messages-square"
-						color="neutral"
-						variant="subtle"
-						size="xs"
-						class="w-full justify-center"
-						title="Lihat ulasan lengkap"
-						aria-label="Lihat ulasan projek ini"
-						@click="emit('review', project)"
+					<UIcon
+						name="i-tabler-heart"
+						class="size-4"
 					/>
-				</UChip>
+					{{ project.likeCount || 0 }}
+				</span>
 			</div>
 		</div>
-	</UCard>
+	</article>
 </template>

@@ -54,10 +54,8 @@ export default defineEventHandler(async (event) => {
 
 	// Semua relasi dihapus eksplisit karena cascade FK tidak aktif di SQLite lokal.
 	await db.batch([
-		db.delete(schema.projectReviews).where(eq(schema.projectReviews.userId, body.userId)),
 		db.delete(schema.projectComments).where(eq(schema.projectComments.userId, body.userId)),
 		db.delete(schema.projectLikes).where(eq(schema.projectLikes.userId, body.userId)),
-		db.delete(schema.projectReviews).where(inArray(schema.projectReviews.projectId, ownProjectIds)),
 		db.delete(schema.projectComments).where(inArray(schema.projectComments.projectId, ownProjectIds)),
 		db.delete(schema.projectLikes).where(inArray(schema.projectLikes.projectId, ownProjectIds)),
 		db.delete(schema.projectImages).where(inArray(schema.projectImages.projectId, ownProjectIds)),

@@ -1,4 +1,4 @@
-import { eq } from 'drizzle-orm'
+import { asc, eq } from 'drizzle-orm'
 import { db, schema } from 'hub:db'
 import { isAdmin } from '../../utils/admin'
 
@@ -34,7 +34,13 @@ export default defineEventHandler(async (event) => {
 		})
 	}
 
+	const images = await db
+		.select({ id: schema.projectImages.id, url: schema.projectImages.url, alt: schema.projectImages.alt })
+		.from(schema.projectImages)
+		.where(eq(schema.projectImages.projectId, id))
+		.orderBy(asc(schema.projectImages.sortOrder), asc(schema.projectImages.id))
+
 	return {
-		project
+		project: { ...project, images }
 	}
 })

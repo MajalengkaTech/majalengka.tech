@@ -3,90 +3,15 @@ import type { ProjectItem } from '~/types/project'
 
 const { data: page } = await useAsyncData('index', () => queryCollection('index').first())
 
-const { data: projectsData, refresh: refreshProjects } = await useFetch('/api/projects', {
-	key: 'home-featured-projects'
+const { data: projectsData } = await useFetch('/api/projects', {
+	key: 'home-featured-projects',
+	query: { limit: 3 }
 })
 
 const featuredProjects = computed<ProjectItem[]>(() => {
 	const list = (projectsData.value?.projects as ProjectItem[]) || []
 	return list.slice(0, 3)
 })
-
-const { loggedIn } = useUserSession()
-const toast = useToast()
-
-const selectedProjectForReview = ref<ProjectItem | null>(null)
-const isReviewModalOpen = ref(false)
-
-function handleOpenReview(project: ProjectItem) {
-	selectedProjectForReview.value = project
-	isReviewModalOpen.value = true
-}
-
-function handleReviewed() {
-	refreshProjects()
-}
-
-async function handleQuickRate({ project, rating }: { project: ProjectItem, rating: number }) {
-	if (!loggedIn.value) {
-		toast.add({
-			title: 'Login Diperlukan',
-			description: 'Silakan masuk terlebih dahulu untuk memberikan rating bintang.',
-			color: 'warning',
-			actions: [{ label: 'Masuk', to: '/login' }]
-		})
-		return
-	}
-
-	const target = featuredProjects.value.find(p => p.id === project.id)
-	const previousRating = target?.currentUserRating
-	const previousAvg = target?.averageRating
-	const previousCount = target?.reviewCount
-
-	if (target) {
-		const hadPrevious = typeof target.currentUserRating === 'number'
-		const prevScore = target.currentUserRating || 0
-		target.currentUserRating = rating
-
-		const prevCount = target.reviewCount || 0
-		const prevAvg = target.averageRating || 0
-		if (hadPrevious) {
-			const totalScore = (prevAvg * prevCount) - prevScore + rating
-			target.averageRating = Number((totalScore / prevCount).toFixed(1))
-		} else {
-			const newCount = prevCount + 1
-			const totalScore = (prevAvg * prevCount) + rating
-			target.reviewCount = newCount
-			target.averageRating = Number((totalScore / newCount).toFixed(1))
-		}
-	}
-
-	try {
-		const res = await $fetch<{ success: boolean, message: string }>(`/api/projects/${project.id}/reviews`, {
-			method: 'POST',
-			body: { rating, comment: null }
-		})
-
-		toast.add({
-			title: 'Rating Tersimpan',
-			description: res.message || `Rating ${rating} bintang berhasil disimpan untuk ${project.title}`,
-			color: 'success'
-		})
-		refreshProjects()
-	} catch (err: unknown) {
-		if (target) {
-			target.currentUserRating = previousRating
-			target.averageRating = previousAvg
-			target.reviewCount = previousCount
-		}
-		const res = err as { data?: { statusMessage?: string } }
-		toast.add({
-			title: 'Gagal Menyimpan Rating',
-			description: res.data?.statusMessage || 'Terjadi kesalahan saat menyimpan rating.',
-			color: 'error'
-		})
-	}
-}
 
 const title = page.value?.seo?.title || page.value?.title
 const description = page.value?.seo?.description || page.value?.description
@@ -142,7 +67,7 @@ defineOgImage('Saas', {
 			v-if="featuredProjects.length > 0"
 			headline="Showcase Komunitas"
 			title="Karya & Inovasi Developer Lokal"
-			description="Kumpulan aplikasi, tools open source, dan kreasi teknologi yang dibangun oleh para developer Majalengka. Coba langsung dan beri apresiasi rating bintang."
+			description="Aplikasi, desain, dan karya teknologi buatan developer dan desainer Majalengka. Buka karyanya dan beri apresiasi."
 			:ui="{
 				container: 'py-10 sm:py-14'
 			}"
@@ -159,15 +84,13 @@ defineOgImage('Saas', {
 				/>
 			</template>
 
-			<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
+			<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-10 w-full">
 				<DashboardProjectCard
 					v-for="p in featuredProjects"
 					:id="'home-project-' + p.id"
 					:key="p.id"
 					:project="p"
 					:editable="false"
-					@review="handleOpenReview"
-					@quick-rate="handleQuickRate"
 				/>
 			</div>
 		</UPageSection>
@@ -263,11 +186,5 @@ defineOgImage('Saas', {
 		>
 			<LazyStarsBg />
 		</UPageCTA>
-
-		<ProjectReviewModal
-			v-model:open="isReviewModalOpen"
-			:project="selectedProjectForReview"
-			@reviewed="handleReviewed"
-		/>
 	</div>
 </template>
