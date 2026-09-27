@@ -36,3 +36,10 @@ wrangler.jsonc
 # Local AI assistant folders
 .claude/
 .roo/
+
+# File AI tidak boleh ada di subfolder; aturan & skill hanya di root E:\website\majalengka
+.agents/
+AGENTS.md
+CLAUDE.md
+skills-lock.json
+graft/
