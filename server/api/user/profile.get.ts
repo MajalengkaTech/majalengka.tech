@@ -1,17 +1,13 @@
-import { eq } from 'drizzle-orm'
+import { count, eq } from 'drizzle-orm'
 import { db, schema } from 'hub:db'
+import { requireSignedIn } from '../../utils/project-access'
+import { toPrivateProfile } from '../../utils/profile'
 
 export default defineEventHandler(async (event) => {
-	const session = await getUserSession(event)
-	if (!session?.user?.id) {
-		throw createError({
-			statusCode: 401,
-			statusMessage: 'Unauthorized'
-		})
-	}
+	const session = await requireSignedIn(event)
 
 	const user = await db.query.user.findFirst({
-		where: eq(schema.user.id, session.user.id)
+		where: eq(schema.user.id, String(session.user.id))
 	})
 
 	if (!user) {
@@ -21,22 +17,13 @@ export default defineEventHandler(async (event) => {
 		})
 	}
 
-	const userProjects = await db.query.projects.findMany({
-		where: eq(schema.projects.userId, user.id)
-	})
+	const [countRow] = await db
+		.select({ total: count() })
+		.from(schema.projects)
+		.where(eq(schema.projects.userId, user.id))
 
 	return {
-		user: {
-			id: user.id,
-			name: user.name,
-			email: user.email,
-			avatarUrl: user.image,
-			bio: (user as { bio?: string }).bio || null,
-			githubUsername: (user as { githubUsername?: string }).githubUsername || null,
-			websiteUrl: (user as { websiteUrl?: string }).websiteUrl || null,
-			role: user.role || 'user',
-			createdAt: user.createdAt
-		},
-		projectCount: userProjects.length
+		user: toPrivateProfile(user),
+		projectCount: countRow?.total ?? 0
 	}
 })

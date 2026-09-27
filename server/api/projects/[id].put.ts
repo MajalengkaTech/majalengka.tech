@@ -42,7 +42,7 @@ export default defineEventHandler(async (event) => {
 	const newThumbnailUrl = body.thumbnailUrl?.trim() || null
 	assertThumbnailAllowed(newThumbnailUrl, project.userId, project.thumbnailUrl)
 
-	const [updated] = await db.update(schema.projects).set({
+	const changes: Partial<typeof schema.projects.$inferInsert> = {
 		title: body.title.trim(),
 		description: body.description.trim(),
 		thumbnailUrl: newThumbnailUrl,
@@ -51,7 +51,17 @@ export default defineEventHandler(async (event) => {
 		tags: body.tags?.trim() || null,
 		isPublished: body.isPublished,
 		updatedAt: new Date()
-	}).where(eq(schema.projects.id, id)).returning()
+	}
+	// Field baru hanya diubah bila dikirim, supaya form lama tidak mengosongkannya.
+	if (body.tagline !== undefined) changes.tagline = body.tagline?.trim() || null
+	if (body.category !== undefined) changes.category = body.category
+	if (body.contribution !== undefined) changes.contribution = body.contribution?.trim() || null
+	if (body.designUrl !== undefined) changes.designUrl = body.designUrl?.trim() || null
+
+	const [updated] = await db.update(schema.projects)
+		.set(changes)
+		.where(eq(schema.projects.id, id))
+		.returning()
 
 	if (project.thumbnailUrl && project.thumbnailUrl !== newThumbnailUrl) {
 		await deleteOwnedBlob(project.thumbnailUrl, project.userId)

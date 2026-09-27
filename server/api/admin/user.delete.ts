@@ -40,27 +40,35 @@ export default defineEventHandler(async (event) => {
 	}
 
 	const userProjects = await db
-		.select({ id: schema.projects.id, thumbnailUrl: schema.projects.thumbnailUrl })
+		.select({ thumbnailUrl: schema.projects.thumbnailUrl })
 		.from(schema.projects)
 		.where(eq(schema.projects.userId, body.userId))
-	const projectIds = userProjects.map(p => p.id)
+	const userImages = await db
+		.select({ url: schema.projectImages.url })
+		.from(schema.projectImages)
+		.innerJoin(schema.projects, eq(schema.projectImages.projectId, schema.projects.id))
+		.where(eq(schema.projects.userId, body.userId))
+
+	// Subquery per user, bukan inArray(ids), karena D1 membatasi 100 parameter per query.
+	const ownProjectIds = db.select({ id: schema.projects.id }).from(schema.projects).where(eq(schema.projects.userId, body.userId))
 
 	// Semua relasi dihapus eksplisit karena cascade FK tidak aktif di SQLite lokal.
 	await db.batch([
 		db.delete(schema.projectReviews).where(eq(schema.projectReviews.userId, body.userId)),
-		...(projectIds.length > 0
-			? [
-					db.delete(schema.projectReviews).where(inArray(schema.projectReviews.projectId, projectIds)),
-					db.delete(schema.projects).where(inArray(schema.projects.id, projectIds))
-				]
-			: []),
+		db.delete(schema.projectComments).where(eq(schema.projectComments.userId, body.userId)),
+		db.delete(schema.projectLikes).where(eq(schema.projectLikes.userId, body.userId)),
+		db.delete(schema.projectReviews).where(inArray(schema.projectReviews.projectId, ownProjectIds)),
+		db.delete(schema.projectComments).where(inArray(schema.projectComments.projectId, ownProjectIds)),
+		db.delete(schema.projectLikes).where(inArray(schema.projectLikes.projectId, ownProjectIds)),
+		db.delete(schema.projectImages).where(inArray(schema.projectImages.projectId, ownProjectIds)),
+		db.delete(schema.projects).where(eq(schema.projects.userId, body.userId)),
 		db.delete(schema.account).where(eq(schema.account.userId, body.userId)),
 		db.delete(schema.session).where(eq(schema.session.userId, body.userId)),
 		db.delete(schema.user).where(eq(schema.user.id, body.userId))
 	])
 
-	for (const project of userProjects) {
-		await deleteOwnedBlob(project.thumbnailUrl, body.userId)
+	for (const url of [...userProjects.map(p => p.thumbnailUrl), ...userImages.map(image => image.url)]) {
+		await deleteOwnedBlob(url, body.userId)
 	}
 
 	return {

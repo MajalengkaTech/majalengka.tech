@@ -38,13 +38,23 @@ export default defineEventHandler(async (event) => {
 		})
 	}
 
-	// Ulasan dihapus eksplisit karena cascade FK tidak aktif di SQLite lokal.
+	const images = await db
+		.select({ url: schema.projectImages.url })
+		.from(schema.projectImages)
+		.where(eq(schema.projectImages.projectId, id))
+
+	// Relasi dihapus eksplisit karena cascade FK tidak aktif di SQLite lokal.
 	await db.batch([
 		db.delete(schema.projectReviews).where(eq(schema.projectReviews.projectId, id)),
+		db.delete(schema.projectComments).where(eq(schema.projectComments.projectId, id)),
+		db.delete(schema.projectLikes).where(eq(schema.projectLikes.projectId, id)),
+		db.delete(schema.projectImages).where(eq(schema.projectImages.projectId, id)),
 		db.delete(schema.projects).where(eq(schema.projects.id, id))
 	])
 
-	await deleteOwnedBlob(project.thumbnailUrl, project.userId)
+	for (const url of [project.thumbnailUrl, ...images.map(image => image.url)]) {
+		await deleteOwnedBlob(url, project.userId)
+	}
 
 	return {
 		success: true,

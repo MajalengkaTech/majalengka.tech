@@ -1,35 +1,50 @@
-import { z } from 'zod'
-import { eq } from 'drizzle-orm'
+import { and, eq, ne } from 'drizzle-orm'
 import { db, schema } from 'hub:db'
-
-const updateProfileSchema = z.object({
-	name: z.string().min(2, 'Nama minimal 2 karakter').max(100, 'Nama maksimal 100 karakter'),
-	bio: z.string().max(500, 'Bio maksimal 500 karakter').optional().nullable(),
-	avatarUrl: z.string().url('URL avatar tidak valid').or(z.literal('')).optional().nullable(),
-	githubUsername: z.string().max(50, 'Username GitHub maksimal 50 karakter').optional().nullable(),
-	websiteUrl: z.string().url('URL website tidak valid').or(z.literal('')).optional().nullable()
-})
+import { requireSignedIn } from '../../utils/project-access'
+import { toPrivateProfile } from '../../utils/profile'
 
 export default defineEventHandler(async (event) => {
-	const session = await getUserSession(event)
-	if (!session?.user?.id) {
-		throw createError({
-			statusCode: 401,
-			statusMessage: 'Unauthorized'
-		})
+	const session = await requireSignedIn(event)
+	const userId = String(session.user.id)
+	const body = await readValidatedBody(event, profileInputSchema.parse)
+	const username = body.username || null
+
+	if (username) {
+		const [taken] = await db
+			.select({ id: schema.user.id })
+			.from(schema.user)
+			.where(and(eq(schema.user.username, username), ne(schema.user.id, userId)))
+			.limit(1)
+		if (taken) {
+			throw createError({
+				statusCode: 409,
+				statusMessage: `Username @${username} sudah dipakai kreator lain`
+			})
+		}
 	}
 
-	const body = await readValidatedBody(event, updateProfileSchema.parse)
-	const now = new Date()
+	const text = (value?: string | null) => value?.trim() || null
+	// Field yang tidak dikirim dibiarkan apa adanya, supaya form lama tidak menghapus data profil baru.
+	const changes: Partial<typeof schema.user.$inferInsert> = {
+		name: body.name,
+		updatedAt: new Date()
+	}
+	if (body.username !== undefined) changes.username = username
+	if (body.bio !== undefined) changes.bio = text(body.bio)
+	if (body.avatarUrl !== undefined) changes.image = text(body.avatarUrl)
+	if (body.creatorRole !== undefined) changes.creatorRole = body.creatorRole || null
+	if (body.location !== undefined) changes.location = text(body.location)
+	if (body.skills !== undefined) changes.skills = text(body.skills)
+	if (body.openToWork !== undefined) changes.openToWork = body.openToWork
+	if (body.githubUsername !== undefined) changes.githubUsername = text(body.githubUsername)?.replace(/^@/, '') || null
+	if (body.websiteUrl !== undefined) changes.websiteUrl = text(body.websiteUrl)
+	if (body.designUrl !== undefined) changes.designUrl = text(body.designUrl)
+	if (body.linkedinUrl !== undefined) changes.linkedinUrl = text(body.linkedinUrl)
 
-	const [updatedUser] = await db.update(schema.user).set({
-		name: body.name.trim(),
-		bio: body.bio?.trim() || null,
-		image: body.avatarUrl?.trim() || null,
-		githubUsername: body.githubUsername?.trim()?.replace(/^@/, '') || null,
-		websiteUrl: body.websiteUrl?.trim() || null,
-		updatedAt: now
-	}).where(eq(schema.user.id, session.user.id)).returning()
+	const [updatedUser] = await db.update(schema.user)
+		.set(changes)
+		.where(eq(schema.user.id, userId))
+		.returning()
 
 	if (!updatedUser) {
 		throw createError({
@@ -40,15 +55,6 @@ export default defineEventHandler(async (event) => {
 
 	return {
 		success: true,
-		user: {
-			id: updatedUser.id,
-			name: updatedUser.name,
-			email: updatedUser.email,
-			avatarUrl: updatedUser.image,
-			bio: (updatedUser as { bio?: string }).bio || null,
-			githubUsername: (updatedUser as { githubUsername?: string }).githubUsername || null,
-			websiteUrl: (updatedUser as { websiteUrl?: string }).websiteUrl || null,
-			role: updatedUser.role || 'user'
-		}
+		user: toPrivateProfile(updatedUser)
 	}
 })

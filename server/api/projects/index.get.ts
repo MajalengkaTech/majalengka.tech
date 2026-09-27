@@ -1,134 +1,54 @@
-import { desc, eq, inArray } from 'drizzle-orm'
+import { z } from 'zod'
+import { and, desc, eq, sql, type SQL } from 'drizzle-orm'
 import { db, schema } from 'hub:db'
+import { projectListColumns, toProjectItem } from '../../utils/project-listing'
+
+const querySchema = z.object({
+	mine: z.enum(['true', '1']).optional(),
+	category: z.enum(projectCategoryValues).optional(),
+	featured: z.enum(['true', '1']).optional(),
+	author: z.string().trim().max(30).optional(),
+	sort: z.enum(['terbaru', 'populer']).default('terbaru'),
+	limit: z.coerce.number().int().min(1).max(60).default(60)
+})
 
 export default defineEventHandler(async (event) => {
-	const query = getQuery(event)
-	const isMine = query.mine === 'true' || query.mine === '1'
+	const query = await getValidatedQuery(event, querySchema.parse)
+	const session = await getUserSession(event).catch(() => null)
+	const currentUserId = session?.user?.id ? String(session.user.id) : null
 
-	if (isMine) {
-		const session = await getUserSession(event)
-		if (!session?.user?.id) {
+	const filters: SQL[] = []
+
+	if (query.mine) {
+		if (!currentUserId) {
 			throw createError({
 				statusCode: 401,
-				statusMessage: 'Unauthorized'
+				statusMessage: 'Silakan masuk terlebih dahulu'
 			})
 		}
-
-		const myProjects = await db.query.projects.findMany({
-			where: eq(schema.projects.userId, session.user.id),
-			orderBy: [desc(schema.projects.createdAt)]
-		})
-
-		const projectIds = myProjects.map(p => p.id)
-		const allReviews = projectIds.length > 0
-			? await db
-					.select({
-						projectId: schema.projectReviews.projectId,
-						rating: schema.projectReviews.rating
-					})
-					.from(schema.projectReviews)
-					.where(inArray(schema.projectReviews.projectId, projectIds))
-			: []
-
-		const statsMap = new Map<number, { sum: number, count: number }>()
-		for (const rev of allReviews) {
-			const curr = statsMap.get(rev.projectId) || { sum: 0, count: 0 }
-			curr.sum += rev.rating
-			curr.count += 1
-			statsMap.set(rev.projectId, curr)
-		}
-
-		const enriched = myProjects.map((p) => {
-			const stats = statsMap.get(p.id)
-			const averageRating = stats && stats.count > 0
-				? Number((stats.sum / stats.count).toFixed(1))
-				: 0
-			const reviewCount = stats ? stats.count : 0
-
-			return {
-				...p,
-				averageRating,
-				reviewCount
-			}
-		})
-
-		return {
-			projects: enriched
-		}
+		filters.push(eq(schema.projects.userId, currentUserId))
+	} else {
+		filters.push(eq(schema.projects.isPublished, true))
 	}
 
-	const session = await getUserSession(event).catch(() => null)
-	const currentUserId = session?.user?.id
+	if (query.category) filters.push(eq(schema.projects.category, query.category))
+	if (query.featured) filters.push(eq(schema.projects.isFeatured, true))
+	if (query.author) filters.push(eq(schema.user.username, query.author.toLowerCase()))
 
-	// Public showcase projects
-	const allProjects = await db.query.projects.findMany({
-		where: eq(schema.projects.isPublished, true),
-		orderBy: [desc(schema.projects.createdAt)]
-	})
+	const columns = projectListColumns(currentUserId)
+	const orderBy = query.sort === 'populer'
+		? [desc(sql`like_count`), desc(schema.projects.createdAt)]
+		: [desc(schema.projects.createdAt)]
 
-	// Enrich with author info
-	const userIds = [...new Set(allProjects.map(p => p.userId))]
-	const authors = userIds.length > 0
-		? await db.query.user.findMany({
-				where: (user, { inArray: inArr }) => inArr(user.id, userIds)
-			})
-		: []
-
-	const authorMap = new Map(authors.map(u => [u.id, {
-		id: u.id,
-		name: u.name,
-		avatarUrl: u.image,
-		githubUsername: null
-	}]))
-
-	// Fetch review statistics
-	const projectIds = allProjects.map(p => p.id)
-	const allReviews = projectIds.length > 0
-		? await db
-				.select({
-					projectId: schema.projectReviews.projectId,
-					rating: schema.projectReviews.rating,
-					userId: schema.projectReviews.userId
-				})
-				.from(schema.projectReviews)
-				.where(inArray(schema.projectReviews.projectId, projectIds))
-		: []
-
-	const statsMap = new Map<number, { sum: number, count: number }>()
-	const userRatingsMap = new Map<number, number>()
-	for (const rev of allReviews) {
-		const curr = statsMap.get(rev.projectId) || { sum: 0, count: 0 }
-		curr.sum += rev.rating
-		curr.count += 1
-		statsMap.set(rev.projectId, curr)
-		if (currentUserId && rev.userId === currentUserId) {
-			userRatingsMap.set(rev.projectId, rev.rating)
-		}
-	}
-
-	const enriched = allProjects.map((p) => {
-		const stats = statsMap.get(p.id)
-		const averageRating = stats && stats.count > 0
-			? Number((stats.sum / stats.count).toFixed(1))
-			: 0
-		const reviewCount = stats ? stats.count : 0
-		const currentUserRating = userRatingsMap.get(p.id) || null
-
-		return {
-			...p,
-			averageRating,
-			reviewCount,
-			currentUserRating,
-			author: authorMap.get(p.userId) || {
-				id: p.userId,
-				name: 'Komunitas Majalengka',
-				avatarUrl: null,
-				githubUsername: null
-			}
-		}
-	})
+	const rows = await db
+		.select(columns)
+		.from(schema.projects)
+		.leftJoin(schema.user, eq(schema.projects.userId, schema.user.id))
+		.where(and(...filters))
+		.orderBy(...orderBy)
+		.limit(query.limit)
 
 	return {
-		projects: enriched
+		projects: rows.map(toProjectItem)
 	}
 })

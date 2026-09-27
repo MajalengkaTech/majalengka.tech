@@ -16,6 +16,44 @@ export default defineServerAuth(({ runtimeConfig }) => ({
 			websiteUrl: {
 				type: 'string',
 				required: false
+			},
+			// Field profil kreator diisi lewat /api/user/profile yang memvalidasi isinya, bukan lewat sign-up.
+			username: {
+				type: 'string',
+				required: false,
+				unique: true,
+				input: false
+			},
+			creatorRole: {
+				type: 'string',
+				required: false,
+				input: false
+			},
+			location: {
+				type: 'string',
+				required: false,
+				input: false
+			},
+			skills: {
+				type: 'string',
+				required: false,
+				input: false
+			},
+			openToWork: {
+				type: 'boolean',
+				required: false,
+				defaultValue: false,
+				input: false
+			},
+			designUrl: {
+				type: 'string',
+				required: false,
+				input: false
+			},
+			linkedinUrl: {
+				type: 'string',
+				required: false,
+				input: false
 			}
 		}
 	},
