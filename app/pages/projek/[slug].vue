@@ -62,7 +62,7 @@ function shareProject() {
 
 const breadcrumb = computed(() => [
 	{ label: 'Showcase', to: '/projek' },
-	{ label: category.value },
+	{ label: category.value, to: `/projek?kategori=${project.value.category || 'lainnya'}` },
 	{ label: project.value.title }
 ])
 

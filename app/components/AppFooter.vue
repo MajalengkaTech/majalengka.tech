@@ -36,10 +36,10 @@ const columns = [{
 	label: 'Komunitas',
 	children: [{
 		label: 'Tentang Kami',
-		to: '/docs'
+		to: '/tentang'
 	}, {
 		label: 'Panduan Kontribusi',
-		to: 'https://github.com/majalengka-tech',
+		to: 'https://github.com/majalengkatech',
 		target: '_blank'
 	}, {
 		label: 'Blog & Update',
@@ -49,7 +49,7 @@ const columns = [{
 		to: '/changelog'
 	}, {
 		label: 'GitHub Organization',
-		to: 'https://github.com/majalengka-tech',
+		to: 'https://github.com/majalengkatech',
 		target: '_blank'
 	}]
 }]
@@ -75,7 +75,7 @@ const columns = [{
 
 		<template #right>
 			<UButton
-				to="https://github.com/majalengka-tech"
+				to="https://github.com/majalengkatech"
 				target="_blank"
 				icon="i-simple-icons-github"
 				aria-label="Majalengka Tech di GitHub"

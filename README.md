@@ -47,7 +47,7 @@ Proyek ini menggunakan **Bun** sebagai default package manager dan runtime:
 
 ```bash
 # Clone repositori
-git clone https://github.com/majalengka-tech/majalengka.tech.git
+git clone https://github.com/majalengkatech/majalengka.tech.git
 cd majalengka.tech
 
 # Install dependensi
@@ -70,4 +70,4 @@ bun run lint
 Kami menyambut kontribusi dari siapa saja—mulai dari pelaporan issue, perbaikan dokumentasi, penambahan token desain, hingga modul IoT dan aplikasi web!
 
 Silakan buat Pull Request atau buka Issue di repositori GitHub kami:
-[https://github.com/majalengka-tech](https://github.com/majalengka-tech)
+[https://github.com/majalengkatech](https://github.com/majalengkatech)

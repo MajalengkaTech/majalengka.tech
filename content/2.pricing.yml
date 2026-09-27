@@ -33,7 +33,7 @@ plans:
     scale: true
     button:
       label: Dukung via GitHub
-      to: https://github.com/majalengka-tech
+      to: https://github.com/majalengkatech
       target: _blank
     features:
       - Menjaga server & infrastruktur tetap aktif
@@ -49,7 +49,7 @@ plans:
     billing_cycle: / kolaborasi
     button:
       label: Hubungi Kami
-      to: https://github.com/majalengka-tech
+      to: https://github.com/majalengkatech
       target: _blank
       color: neutral
       variant: subtle

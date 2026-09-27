@@ -1,93 +1,20 @@
 title: Pamerkan Karya [Teknologi Majalengka]{class="text-primary"}
-description: Pamerkan aplikasimu, dapatkan rating komunitas, dan bangun portofolio digital.
+description: Etalase karya developer dan desainer Majalengka. Unggah karyamu, dapatkan apresiasi, dan punya satu alamat portofolio untuk dibagikan.
 seo:
-  title: Majalengka Tech · Pamerkan Karya & Projek Digital Daerah
-  description: Showcase projek dan karya teknologi komunitas developer Majalengka.
+  title: Majalengka Tech · Etalase Karya Developer & Desainer Majalengka
+  description: Karya aplikasi, desain, dan teknologi buatan developer dan desainer Majalengka.
 navigation: false
 hero:
   links:
-    - label: Pamerkan Projek Kamu
+    - label: Pamerkan Karyamu
       icon: i-lucide-folder-plus
       to: /dashboard/projects/new
       size: xl
       color: primary
-    - label: Jelajahi Showcase
-      icon: i-lucide-compass
+    - label: Lihat Showcase
+      icon: i-lucide-arrow-right
+      trailing: true
       to: /projek
       size: xl
       color: neutral
       variant: subtle
-
-sections:
-  - headline: Roadmap Inisiatif
-    reverse: true
-    title: Rencana Proyek untuk Kebutuhan Warga
-    description: Peta jalan [roadmap]{class="text-primary"} inisiatif teknologi yang sedang dan akan kami rancang secara terbuka. Belum semua rilis, dan kami membuka pintu selebar-lebarnya buat kamu yang mau ikut urun ide atau ngoding bareng.
-    id: inisiatif
-    orientation: horizontal
-    features:
-      - title: AgriTech & Sensor Pertanian
-        badge: Coming Soon
-        description: Rencana eksperimen sensor tanah dan pemantauan iklim mikro lereng Ciremai untuk membantu efisiensi irigasi petani lokal.
-        icon: i-lucide-sprout
-      - title: Panduan Wisata Terbuka
-        badge: Coming Soon
-        description: Rencana direktori peta digital berbasis data terbuka untuk jelajah wisata alam (Panyaweuyan, Situ Cipanten) dan direktori kuliner lokal.
-        icon: i-lucide-map-pin
-      - title: Perkakas Digital UMKM
-        badge: Coming Soon
-        description: Rencana pembuatan aplikasi kasir ringan (POS) dan generator katalog produk online gratis tanpa biaya sewa aplikasi.
-        icon: i-lucide-store
-  - headline: Riset Standar Terbuka
-    title: Standar Desain & Pengetahuan Terbuka
-    description: Eksplorasi awal untuk merapikan cara kita mengelola dokumentasi dan antarmuka publik daerah agar mudah dipelajari manusia maupun sistem AI cerdas.
-    id: standards
-    orientation: horizontal
-    features:
-      - title: Majalengka Design System
-        badge: Tahap Konsep
-        description: Rintisan panduan desain antarmuka bersih dan ramah pembaca layar (WCAG 2.1 AA) yang terinspirasi IDDS untuk website layanan daerah.
-        icon: i-lucide-palette
-      - title: Open Knowledge Format
-        badge: Eksplorasi
-        description: Eksplorasi format pencatatan dokumen terstruktur (mengadopsi Google Cloud OKF) agar dokumentasi komunitas siap dibaca agen AI.
-        icon: i-lucide-brain
-      - title: Data Terbuka & Visualisasi Publik
-        badge: Rencana
-        description: Rencana pengumpulan dan visualisasi grafik data komoditas pertanian dan cuaca mikro yang bisa dicek publik secara transparan.
-        icon: i-lucide-bar-chart-3
-features:
-  title: Prinsip yang Kami Pegang
-  description: Nilai dasar tiap kali kami menulis baris kode dan merancang proyek bersama warga Majalengka.
-  items:
-    - title: 100% Terbuka & Bebas Dipelajari
-      description: Semua rancangan kode aplikasi, skema alat IoT, dan data dirilis dengan lisensi open source (MIT/Apache).
-      icon: i-lucide-unlock
-    - title: Nyaman Dipakai Siapa Saja
-      description: Kami mengutamakan kontras warna yang jelas, teks mudah dibaca, dan navigasi ramah pembaca layar (WCAG 2.1 AA).
-      icon: i-lucide-accessibility
-    - title: Buka Akses Belajar Anak Muda
-      description: Modul coding web dan materi teknologi kami sediakan gratis untuk pelajar SMK/SMA dan mahasiswa kampus lokal.
-      icon: i-lucide-graduation-cap
-    - title: Siap Kolaborasi dengan AI
-      description: Dokumentasi rapi dengan format markdown terstruktur dan standar OKF agar gampang dibaca agen AI otonom.
-      icon: i-lucide-cpu
-    - title: Dekat dengan Budaya Lokal
-      description: Kami menyiapkan opsi Basa Sunda halus dan info sejarah lokal yang akurat di aplikasi wisata dan panduan warga.
-      icon: i-lucide-heart
-    - title: Terbuka untuk Kolaborasi
-      description: Siap ngobrol dan bekerja sama dengan kelompok tani, mahasiswa, dinas terkait, maupun developer luar daerah.
-      icon: i-lucide-users
-cta:
-  title: Mau Ikut Merancang atau Ngobrol Bareng?
-  description: Karena inisiatif ini baru dimulai, setiap ide, masukan, dan baris kode yang kamu sumbangkan bakal berdampak besar bagi arah komunitas Majalengka Tech.
-  links:
-    - label: Buka GitHub Majalengka Tech
-      to: https://github.com/majalengka-tech
-      target: _blank
-      trailing: true
-      icon: i-simple-icons-github
-    - label: Baca Roadmap Dokumentasi
-      to: /docs
-      variant: subtle
-      icon: i-lucide-book-open

@@ -64,15 +64,18 @@ const userMenuItems = computed(() => [
 ])
 
 const items = computed(() => [{
-	label: 'Dokumentasi',
-	to: '/docs',
-	active: isDocs.value
+	label: 'Showcase',
+	to: '/projek'
+}, {
+	label: 'Tentang',
+	to: '/tentang'
 }, {
 	label: 'Blog',
 	to: '/blog'
 }, {
-	label: 'Showcase',
-	to: '/projek'
+	label: 'Dokumentasi',
+	to: '/docs',
+	active: isDocs.value
 }])
 </script>
 
@@ -106,7 +109,7 @@ const items = computed(() => [{
 				icon="i-simple-icons-github"
 				color="neutral"
 				variant="ghost"
-				to="https://github.com/majalengka-tech"
+				to="https://github.com/majalengkatech"
 				target="_blank"
 				aria-label="Majalengka Tech on GitHub"
 				class="hidden sm:inline-flex"
@@ -205,7 +208,7 @@ const items = computed(() => [{
 					icon="i-simple-icons-github"
 					color="neutral"
 					variant="subtle"
-					to="https://github.com/majalengka-tech"
+					to="https://github.com/majalengkatech"
 					target="_blank"
 					block
 					class="mt-3"

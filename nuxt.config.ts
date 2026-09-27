@@ -202,7 +202,7 @@ export default defineNuxtConfig({
 			url: 'https://majalengka.tech',
 			logo: '/logo-circle.svg',
 			sameAs: [
-				'https://github.com/majalengka-tech'
+				'https://github.com/majalengkatech'
 			]
 		}
 	},

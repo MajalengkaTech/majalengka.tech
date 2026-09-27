@@ -52,7 +52,13 @@ export const collections = {
 		schema: z.object({
 			hero: z.object(({
 				links: z.array(createLinkSchema())
-			})),
+			}))
+		})
+	}),
+	tentang: defineCollection({
+		source: '5.tentang.yml',
+		type: 'page',
+		schema: z.object({
 			sections: z.array(
 				createBaseSchema().extend({
 					id: z.string().nonempty(),
