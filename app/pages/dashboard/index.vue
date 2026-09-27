@@ -22,16 +22,21 @@ const { data: projectsData, refresh: refreshProjects } = await useFetch('/api/pr
 const projects = computed<ProjectItem[]>(() => (projectsData.value?.projects as ProjectItem[]) || [])
 const projectCount = computed(() => projects.value.length)
 
+// Persentase = isian profil kreator yang sudah terisi dari 8 isian penting, tanpa nilai dasar.
 const profileCompletion = computed(() => {
 	const u = profileData.value?.user
-	if (!u) return 50
-	let score = 30
-	if (u.name) score += 20
-	if (u.bio) score += 20
-	if (u.avatarUrl) score += 10
-	if (u.githubUsername) score += 10
-	if (u.websiteUrl) score += 10
-	return Math.min(score, 100)
+	if (!u) return 0
+	const filled = [
+		u.name,
+		u.username,
+		u.creatorRole,
+		u.bio,
+		u.avatarUrl,
+		u.location,
+		u.skills,
+		u.websiteUrl || u.designUrl || u.githubUsername || u.linkedinUrl
+	].filter(Boolean).length
+	return Math.round((filled / 8) * 100)
 })
 
 const toast = useToast()

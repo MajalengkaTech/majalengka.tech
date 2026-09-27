@@ -167,7 +167,16 @@ const actionItems = computed(() => [
 					size="xs"
 				/>
 				<span class="text-xs text-muted truncate">
-					Oleh <strong class="text-highlighted font-medium">{{ project.author.name }}</strong>
+					Oleh
+					<NuxtLink
+						v-if="project.author.username"
+						:to="`/@${project.author.username}`"
+						class="rounded-sm font-medium text-highlighted outline-primary/25 hover:text-primary focus-visible:outline-3"
+					>{{ project.author.name }}</NuxtLink>
+					<strong
+						v-else
+						class="text-highlighted font-medium"
+					>{{ project.author.name }}</strong>
 				</span>
 			</div>
 

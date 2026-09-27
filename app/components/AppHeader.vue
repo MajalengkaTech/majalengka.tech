@@ -30,6 +30,13 @@ const userMenuItems = computed(() => [
 		}
 	],
 	[
+		...((user.value as { username?: string | null } | null)?.username
+			? [{
+					label: 'Profil Publik',
+					icon: 'i-lucide-circle-user',
+					to: `/@${(user.value as { username?: string | null }).username}`
+				}]
+			: []),
 		{
 			label: 'Dashboard',
 			icon: 'i-lucide-layout-dashboard',

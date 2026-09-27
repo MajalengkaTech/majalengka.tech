@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import * as z from 'zod'
 import type { FormSubmitEvent } from '@nuxt/ui'
 
 definePageMeta({
@@ -8,66 +7,74 @@ definePageMeta({
 
 useSeoMeta({
 	title: 'Edit Profil',
-	description: 'Pengaturan dan pembaruan data profil developer'
+	description: 'Atur profil kreator yang tampil di halaman publikmu'
 })
+
+interface PrivateProfile {
+	name: string
+	email: string
+	avatarUrl: string | null
+	username: string | null
+	bio: string | null
+	creatorRole: CreatorRole | null
+	location: string | null
+	skills: string | null
+	openToWork: boolean
+	githubUsername: string | null
+	websiteUrl: string | null
+	designUrl: string | null
+	linkedinUrl: string | null
+}
 
 const toast = useToast()
 const { fetchSession: refreshSession } = useUserSession()
 
-const { data: profileData, refresh: refreshProfile } = await useFetch('/api/user/profile')
+const { data: profileData, refresh: refreshProfile } = await useFetch<{ user: PrivateProfile }>('/api/user/profile')
 
 const loading = ref(false)
+const savedUsername = computed(() => profileData.value?.user?.username || null)
 
-const profileSchema = z.object({
-	name: z.string().min(2, 'Nama minimal 2 karakter').max(100, 'Nama maksimal 100 karakter'),
-	bio: z.string().max(500, 'Bio maksimal 500 karakter').optional().nullable(),
-	avatarUrl: z.string().url('URL avatar tidak valid').or(z.literal('')).optional().nullable(),
-	githubUsername: z.string().max(50, 'Username GitHub maksimal 50 karakter').optional().nullable(),
-	websiteUrl: z.string().url('URL website harus berawalan https:// atau http://').or(z.literal('')).optional().nullable()
-})
-
-type ProfileSchema = z.output<typeof profileSchema>
-
-const state = reactive<{
-	name: string
-	bio: string
-	avatarUrl: string
-	githubUsername: string
-	websiteUrl: string
-}>({
+const state = reactive({
 	name: '',
-	bio: '',
+	username: '',
 	avatarUrl: '',
+	bio: '',
+	creatorRole: undefined as CreatorRole | undefined,
+	location: '',
+	skills: '',
+	openToWork: false,
 	githubUsername: '',
-	websiteUrl: ''
+	websiteUrl: '',
+	designUrl: '',
+	linkedinUrl: ''
 })
 
 watch(() => profileData.value?.user, (u) => {
-	if (u) {
-		state.name = u.name || ''
-		state.bio = u.bio || ''
-		state.avatarUrl = u.avatarUrl || ''
-		state.githubUsername = u.githubUsername || ''
-		state.websiteUrl = u.websiteUrl || ''
-	}
+	if (!u) return
+	state.name = u.name || ''
+	state.username = u.username || ''
+	state.avatarUrl = u.avatarUrl || ''
+	state.bio = u.bio || ''
+	state.creatorRole = u.creatorRole || undefined
+	state.location = u.location || ''
+	state.skills = u.skills || ''
+	state.openToWork = Boolean(u.openToWork)
+	state.githubUsername = u.githubUsername || ''
+	state.websiteUrl = u.websiteUrl || ''
+	state.designUrl = u.designUrl || ''
+	state.linkedinUrl = u.linkedinUrl || ''
 }, { immediate: true })
 
-function generateAvatar() {
-	const seed = encodeURIComponent(state.name || 'developer')
-	state.avatarUrl = `https://api.dicebear.com/7.x/bottts/svg?seed=${seed}`
-}
+const roleItems = Object.entries(CREATOR_ROLES).map(([value, label]) => ({ value, label }))
 
-async function onSubmit(event: FormSubmitEvent<ProfileSchema>) {
+async function onSubmit(event: FormSubmitEvent<ProfileInput>) {
 	try {
 		loading.value = true
 		await $fetch('/api/user/profile', {
 			method: 'PATCH',
 			body: {
-				name: event.data.name,
-				bio: event.data.bio,
-				avatarUrl: event.data.avatarUrl,
-				githubUsername: event.data.githubUsername,
-				websiteUrl: event.data.websiteUrl
+				...event.data,
+				creatorRole: event.data.creatorRole || null
 			}
 		})
 
@@ -75,15 +82,15 @@ async function onSubmit(event: FormSubmitEvent<ProfileSchema>) {
 		await refreshProfile()
 
 		toast.add({
-			title: 'Profil Berhasil Diperbarui',
-			description: 'Data profil Anda telah berhasil disimpan.',
+			title: 'Profil tersimpan',
+			description: savedUsername.value ? `Profil publikmu ada di majalengka.tech/@${savedUsername.value}` : 'Isi username supaya profil publikmu bisa dibuka.',
 			color: 'success'
 		})
 	} catch (err: unknown) {
 		const errorResponse = err as { data?: { statusMessage?: string } }
 		toast.add({
-			title: 'Gagal Menyimpan',
-			description: errorResponse?.data?.statusMessage || 'Terjadi kesalahan saat memperbarui profil.',
+			title: 'Profil belum tersimpan',
+			description: errorResponse?.data?.statusMessage || 'Periksa isian yang ditandai lalu simpan lagi.',
 			color: 'error'
 		})
 	} finally {
@@ -95,170 +102,253 @@ async function onSubmit(event: FormSubmitEvent<ProfileSchema>) {
 <template>
 	<div class="flex flex-col flex-1">
 		<UDashboardNavbar
-			title="Pengaturan Profil"
+			title="Edit Profil"
 			:ui="{ root: 'border-b border-default' }"
 		>
 			<template #leading>
 				<UDashboardSidebarCollapse />
 			</template>
+
+			<template #right>
+				<UButton
+					v-if="savedUsername"
+					:to="`/@${savedUsername}`"
+					label="Lihat Profil Publik"
+					icon="i-lucide-external-link"
+					color="neutral"
+					variant="outline"
+					size="sm"
+				/>
+			</template>
 		</UDashboardNavbar>
 
-		<div class="p-4 sm:p-6 lg:p-8 max-w-4xl w-full mx-auto flex flex-col gap-6">
+		<UForm
+			:schema="profileInputSchema"
+			:state="state"
+			class="p-4 sm:p-6 lg:p-8 max-w-3xl w-full mx-auto flex flex-col gap-6"
+			@submit="onSubmit"
+		>
 			<UCard>
 				<template #header>
-					<div>
-						<h2 class="text-base font-bold text-highlighted">
-							Data Profil Pengembang
-						</h2>
-						<p class="text-xs text-muted">
-							Informasi ini akan ditampilkan pada karya showcase dan direktori komunitas Majalengka Tech.
-						</p>
-					</div>
+					<h2 class="text-base font-bold text-highlighted">
+						Identitas
+					</h2>
+					<p class="text-sm text-muted">
+						Nama dan username tampil di setiap karyamu.
+					</p>
 				</template>
 
-				<UForm
-					:schema="profileSchema"
-					:state="state"
-					class="space-y-6"
-					@submit="onSubmit"
-				>
-					<!-- Avatar preview & field -->
-					<div class="flex flex-col sm:flex-row items-start sm:items-center gap-5 p-4 rounded-xl bg-muted border border-default">
+				<div class="flex flex-col gap-5">
+					<div class="flex items-center gap-4">
 						<UAvatar
-							:src="state.avatarUrl || profileData?.user?.avatarUrl || undefined"
-							:alt="state.name || 'User'"
+							:src="state.avatarUrl || undefined"
+							:alt="state.name || 'Kreator'"
 							size="3xl"
-							class="ring-2 ring-primary/40 shadow-sm"
 						/>
-						<div class="flex flex-col gap-2 flex-1">
-							<div class="flex items-center gap-2">
-								<span class="text-sm font-semibold text-highlighted">Foto Profil / Avatar</span>
-								<UBadge
-									v-if="profileData?.user?.role"
-									color="primary"
-									variant="subtle"
-									size="xs"
-								>
-									Role: {{ profileData.user.role }}
-								</UBadge>
-							</div>
-							<p class="text-xs text-muted">
-								Gunakan URL foto Anda sendiri atau buat avatar acak dengan satu klik.
-							</p>
-							<div class="flex items-center gap-2 mt-1">
-								<UButton
-									label="Acak Avatar"
-									icon="i-lucide-shuffle"
-									color="neutral"
-									variant="outline"
-									size="xs"
-									@click="generateAvatar"
-								/>
-								<UButton
-									v-if="state.avatarUrl"
-									label="Reset"
-									color="neutral"
-									variant="ghost"
-									size="xs"
-									@click="state.avatarUrl = ''"
-								/>
-							</div>
-						</div>
+						<p class="text-sm text-muted">
+							Tanpa foto, avatarmu memakai inisial nama. Login lewat Google atau GitHub otomatis memakai foto akunnya.
+						</p>
 					</div>
 
-					<UFormField
-						label="URL Avatar Kustom"
-						name="avatarUrl"
-						description="Tautan langsung ke gambar avatar (opsional)."
-					>
-						<UInput
-							v-model="state.avatarUrl"
-							placeholder="https://example.com/foto-profil.jpg"
-							icon="i-lucide-image"
-							class="w-full"
-						/>
-					</UFormField>
-
-					<div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+					<div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
 						<UFormField
-							label="Nama Lengkap / Panggilan"
+							label="Nama"
 							name="name"
 							required
 						>
 							<UInput
 								v-model="state.name"
-								placeholder="Nama Anda"
-								icon="i-lucide-user"
+								placeholder="Nama yang ingin ditampilkan"
 								class="w-full"
 							/>
 						</UFormField>
 
 						<UFormField
-							label="Email Akun"
-							name="email"
-							description="Email yang terhubung dengan akun Anda."
+							label="Username"
+							name="username"
+							:description="state.username ? `Profilmu: majalengka.tech/@${state.username.toLowerCase()}` : 'Dipakai untuk alamat profil publikmu.'"
 						>
 							<UInput
-								:model-value="profileData?.user?.email || ''"
-								disabled
-								icon="i-lucide-mail"
-								class="w-full opacity-75"
+								v-model="state.username"
+								placeholder="nama-kamu"
+								class="w-full"
+								:ui="{ leading: 'pointer-events-none' }"
+							>
+								<template #leading>
+									<span class="text-sm text-muted">@</span>
+								</template>
+							</UInput>
+						</UFormField>
+					</div>
+
+					<UFormField
+						label="URL foto profil"
+						name="avatarUrl"
+						description="Opsional. Tautan langsung ke gambar, diawali https://"
+					>
+						<UInput
+							v-model="state.avatarUrl"
+							placeholder="https://..."
+							icon="i-lucide-image"
+							class="w-full"
+						/>
+					</UFormField>
+
+					<UFormField
+						label="Email akun"
+						description="Tidak ditampilkan di profil publik."
+					>
+						<UInput
+							:model-value="profileData?.user?.email || ''"
+							disabled
+							icon="i-lucide-mail"
+							class="w-full"
+						/>
+					</UFormField>
+				</div>
+			</UCard>
+
+			<UCard>
+				<template #header>
+					<h2 class="text-base font-bold text-highlighted">
+						Tentang kamu
+					</h2>
+					<p class="text-sm text-muted">
+						Bantu pengunjung, UMKM, dan perekrut mengenal keahlianmu.
+					</p>
+				</template>
+
+				<div class="flex flex-col gap-5">
+					<div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
+						<UFormField
+							label="Peran"
+							name="creatorRole"
+						>
+							<USelect
+								v-model="state.creatorRole"
+								:items="roleItems"
+								placeholder="Pilih peranmu"
+								class="w-full"
+							/>
+						</UFormField>
+
+						<UFormField
+							label="Lokasi atau kampus"
+							name="location"
+						>
+							<UInput
+								v-model="state.location"
+								placeholder="Contoh: Kec. Talaga atau UNMA"
+								icon="i-lucide-map-pin"
+								class="w-full"
 							/>
 						</UFormField>
 					</div>
 
 					<UFormField
-						label="Bio Singkat / Tentang Anda"
+						label="Bio"
 						name="bio"
-						description="Tulis ringkasan singkat tentang keahlian, teknologi favorit, atau ketertarikan Anda."
+						description="Maksimal 500 karakter."
 					>
 						<UTextarea
 							v-model="state.bio"
-							placeholder="Contoh: Frontend Developer yang menyukai Vue, Nuxt, dan UI/UX design. Berbasis di Majalengka."
+							placeholder="Ceritakan singkat apa yang kamu kerjakan dan apa yang sedang kamu pelajari."
 							:rows="3"
+							autoresize
 							class="w-full"
 						/>
 					</UFormField>
 
-					<div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
-						<UFormField
-							label="Username GitHub"
-							name="githubUsername"
-							description="Tanpa tanda @, contoh: 'narr07'."
-						>
-							<UInput
-								v-model="state.githubUsername"
-								placeholder="username-github"
-								icon="i-simple-icons-github"
-								class="w-full"
-							/>
-						</UFormField>
-
-						<UFormField
-							label="Website / Portofolio Pribadi"
-							name="websiteUrl"
-							description="Tautan lengkap dengan https://"
-						>
-							<UInput
-								v-model="state.websiteUrl"
-								placeholder="https://portfolio-anda.com"
-								icon="i-lucide-globe"
-								class="w-full"
-							/>
-						</UFormField>
-					</div>
-
-					<div class="flex items-center justify-end gap-3 pt-4 border-t border-default">
-						<UButton
-							label="Simpan Perubahan"
-							type="submit"
-							color="primary"
-							icon="i-lucide-save"
-							:loading="loading"
+					<UFormField
+						label="Skill"
+						name="skills"
+						description="Pisahkan dengan koma."
+					>
+						<UInput
+							v-model="state.skills"
+							placeholder="Figma, Nuxt, Laravel, Ilustrasi"
+							icon="i-lucide-wrench"
+							class="w-full"
 						/>
-					</div>
-				</UForm>
+					</UFormField>
+
+					<USwitch
+						v-model="state.openToWork"
+						label="Terbuka untuk project"
+						description="Tampilkan badge di profil supaya UMKM atau perekrut tahu kamu bisa diajak kerja sama."
+					/>
+				</div>
 			</UCard>
-		</div>
+
+			<UCard>
+				<template #header>
+					<h2 class="text-base font-bold text-highlighted">
+						Tautan
+					</h2>
+					<p class="text-sm text-muted">
+						Semua opsional. Isi yang memang kamu pakai.
+					</p>
+				</template>
+
+				<div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
+					<UFormField
+						label="Website atau portofolio"
+						name="websiteUrl"
+					>
+						<UInput
+							v-model="state.websiteUrl"
+							placeholder="https://..."
+							icon="i-lucide-globe"
+							class="w-full"
+						/>
+					</UFormField>
+
+					<UFormField
+						label="Dribbble atau Behance"
+						name="designUrl"
+					>
+						<UInput
+							v-model="state.designUrl"
+							placeholder="https://dribbble.com/..."
+							icon="i-lucide-pen-tool"
+							class="w-full"
+						/>
+					</UFormField>
+
+					<UFormField
+						label="Username GitHub"
+						name="githubUsername"
+					>
+						<UInput
+							v-model="state.githubUsername"
+							placeholder="tanpa @"
+							icon="i-simple-icons-github"
+							class="w-full"
+						/>
+					</UFormField>
+
+					<UFormField
+						label="LinkedIn"
+						name="linkedinUrl"
+					>
+						<UInput
+							v-model="state.linkedinUrl"
+							placeholder="https://linkedin.com/in/..."
+							icon="i-simple-icons-linkedin"
+							class="w-full"
+						/>
+					</UFormField>
+				</div>
+			</UCard>
+
+			<div class="flex justify-end">
+				<UButton
+					label="Simpan Profil"
+					type="submit"
+					icon="i-lucide-save"
+					:loading="loading"
+				/>
+			</div>
+		</UForm>
 	</div>
 </template>

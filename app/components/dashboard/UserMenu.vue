@@ -20,7 +20,15 @@ const isAdmin = computed(() => {
 })
 
 const items = computed(() => {
+	const username = (user.value as { username?: string | null } | null)?.username
 	const secondSection = [
+		...(username
+			? [{
+					label: 'Profil Publik',
+					icon: 'i-lucide-circle-user',
+					to: `/@${username}`
+				}]
+			: []),
 		{
 			label: 'Edit Profil',
 			icon: 'i-lucide-user-cog',

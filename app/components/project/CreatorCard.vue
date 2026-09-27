@@ -75,6 +75,15 @@ const links = computed(() => [
 			{{ author.bio }}
 		</p>
 
+		<UButton
+			v-if="author.username"
+			:to="`/@${author.username}`"
+			label="Lihat Profil & Karya Lain"
+			color="neutral"
+			variant="outline"
+			block
+		/>
+
 		<div
 			v-if="links.length"
 			class="flex flex-col gap-1"

@@ -2,7 +2,6 @@
 import type { ProjectDetail, ProjectItem } from '~/types/project'
 
 const route = useRoute()
-const toast = useToast()
 const slug = computed(() => String(route.params.slug))
 
 const { data, error } = await useFetch<{ project: ProjectDetail }>(() => `/api/projects/slug/${slug.value}`, {
@@ -50,18 +49,15 @@ const { data: otherData } = await useFetch<{ projects: ProjectItem[] }>('/api/pr
 })
 const otherProjects = computed(() => (otherData.value?.projects || []).filter(p => p.id !== project.value.id).slice(0, 4))
 
-const shareUrl = computed(() => useRequestURL().origin + route.path)
-const { share, isSupported: canShare } = useShare()
-const { copy } = useClipboard()
+const shareUrl = useRequestURL().origin + route.path
+const { shareLink } = useShareLink()
 
-async function shareProject() {
-	const payload = { title: project.value.title, text: project.value.tagline || `Karya ${project.value.author.name} di Majalengka Tech`, url: shareUrl.value }
-	if (canShare.value) {
-		await share(payload).catch(() => {})
-		return
-	}
-	await copy(shareUrl.value)
-	toast.add({ title: 'Link disalin', description: 'Tempel di WhatsApp, Instagram, atau LinkedIn.', color: 'success' })
+function shareProject() {
+	return shareLink({
+		title: project.value.title,
+		text: project.value.tagline || `Karya ${project.value.author.name} di Majalengka Tech`,
+		url: shareUrl
+	})
 }
 
 const breadcrumb = computed(() => [
@@ -138,7 +134,16 @@ defineOgImage('Saas', {
 						size="md"
 					/>
 					<p class="text-sm text-muted">
-						oleh <span class="font-semibold text-highlighted">{{ project.author.name }}</span>
+						oleh
+						<NuxtLink
+							v-if="project.author.username"
+							:to="`/@${project.author.username}`"
+							class="rounded-sm font-semibold text-highlighted outline-primary/25 hover:text-primary focus-visible:outline-3"
+						>{{ project.author.name }}</NuxtLink>
+						<span
+							v-else
+							class="font-semibold text-highlighted"
+						>{{ project.author.name }}</span>
 						<span aria-hidden="true"> · </span>
 						<time :datetime="new Date(project.createdAt).toISOString()">{{ formatTanggal(project.createdAt) }}</time>
 					</p>
