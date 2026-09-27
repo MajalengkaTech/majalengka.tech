@@ -78,35 +78,6 @@ features:
     - title: Terbuka untuk Kolaborasi
       description: Siap ngobrol dan bekerja sama dengan kelompok tani, mahasiswa, dinas terkait, maupun developer luar daerah.
       icon: i-lucide-users
-testimonials:
-  headline: Aspirasi Komunitas
-  title: Harapan & Semangat Kolaborasi
-  description: Pandangan dari teman-teman pengembang, pegiat agritech, akademisi, dan pelaku usaha lokal menyambut inisiatif ini.
-  items:
-    - quote: Keren banget kalau ada wadah buat anak-anak teknik Majalengka bisa langsung ngoprek sensor IoT bareng petani di lapangan lereng Ciremai. Semoga cepat terealisasi riset pertamanya!
-      user:
-        name: Rian Kurniawan
-        description: Pegiat IoT & Mahasiswa UNMA
-        to: /docs/inisiatif
-        target: _self
-        avatar:
-          src: https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&h=120&q=80
-    - quote: Semoga perkakas katalog online dan kasir gratisnya segera rilis. Pedagang kecil kayak kami sangat butuh solusi digital yang praktis tanpa beban biaya langganan bulanan.
-      user:
-        name: Siti Nurhaliza
-        description: Pelaku UMKM Kuliner Majalengka
-        to: /docs/inisiatif
-        target: _self
-        avatar:
-          src: https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=120&h=120&q=80
-    - quote: Rintisan standar desain lokal ini ide yang sangat bagus. Siap ikut urun tenaga biar ke depannya portal informasi dan layanan publik di daerah kita tampilannya seragam, rapi, dan enteng.
-      user:
-        name: Asep Hidayat
-        description: Frontend Developer & Kontributor Komunitas
-        to: /docs/design-system
-        target: _self
-        avatar:
-          src: https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=120&h=120&q=80
 cta:
   title: Mau Ikut Merancang atau Ngobrol Bareng?
   description: Karena inisiatif ini baru dimulai, setiap ide, masukan, dan baris kode yang kamu sumbangkan bakal berdampak besar bagi arah komunitas Majalengka Tech.

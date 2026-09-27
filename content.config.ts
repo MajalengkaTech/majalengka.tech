@@ -72,21 +72,6 @@ export const collections = {
 			features: createBaseSchema().extend({
 				items: z.array(createFeatureItemSchema())
 			}),
-			testimonials: createBaseSchema().extend({
-				headline: z.string().optional(),
-				items: z.array(
-					z.object({
-						quote: z.string().nonempty(),
-						user: z.object({
-							name: z.string().nonempty(),
-							description: z.string().nonempty(),
-							to: z.string().nonempty(),
-							target: z.string().nonempty(),
-							avatar: createImageSchema()
-						})
-					})
-				)
-			}),
 			cta: createBaseSchema().extend({
 				links: z.array(createLinkSchema())
 			})
