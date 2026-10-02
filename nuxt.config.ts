@@ -21,7 +21,7 @@ export default defineNuxtConfig({
 	site: {
 		url: process.env.NUXT_SITE_URL || 'https://majalengka.tech',
 		name: 'Majalengka Tech',
-		description: 'Komunitas Open Source, Riset Teknologi Lokal & Talenta Digital Majalengka',
+		description: 'Etalase karya developer dan desainer Majalengka',
 		defaultLocale: 'id',
 		indexable: true
 	},
@@ -151,24 +151,24 @@ export default defineNuxtConfig({
 	llms: {
 		domain: 'https://majalengka.tech',
 		title: 'Majalengka Tech',
-		description: 'Komunitas Open Source, Riset Teknologi Lokal & Talenta Digital Majalengka',
+		description: 'Etalase karya developer dan desainer Majalengka',
 		notes: [
 			'Dibangun dengan Nuxt 4, Nuxt Content v3, Nuxt UI v4, Cloudflare D1, Cloudflare R2, dan Better Auth.',
-			'Menyediakan dokumentasi terbuka, artikel teknis, direktori proyek, dan informasi ekosistem teknologi lokal.'
+			'Menyediakan showcase karya, profil kreator di /@username, panduan pemakaian, dan catatan rilis.'
 		],
 		full: {
 			title: 'Majalengka Tech Full Content',
-			description: 'Kumpulan lengkap dokumentasi terbuka, artikel teknis mendalam, dan catatan rilis portal Majalengka Tech.'
+			description: 'Panduan pemakaian, panduan kontribusi kode, dan catatan rilis Majalengka Tech.'
 		},
 		sections: [
 			{
-				title: 'Dokumentasi',
-				description: 'Panduan teknis, dokumentasi, dan getting started Majalengka Tech',
+				title: 'Panduan',
+				description: 'Cara memamerkan karya, mengatur profil kreator, apresiasi dan komentar, serta berkontribusi pada kode Majalengka Tech',
 				contentCollection: 'docs'
 			},
 			{
 				title: 'Blog',
-				description: 'Artikel, riset, dan tutorial seputar Nuxt, Cloudflare, dan rekayasa perangkat lunak modern',
+				description: 'Tulisan dari komunitas Majalengka Tech',
 				contentCollection: 'posts'
 			},
 			{

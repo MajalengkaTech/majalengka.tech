@@ -1,54 +1,38 @@
 <script setup lang="ts">
 const columns = [{
-	label: 'Inisiatif Unggulan',
+	label: 'Jelajahi',
 	children: [{
-		label: 'AgriTech Smart Farming',
-		to: '/docs/inisiatif'
+		label: 'Showcase',
+		to: '/projek'
 	}, {
-		label: 'Tourism & Local Guide',
-		to: '/docs/inisiatif'
+		label: 'Pamerkan Karyamu',
+		to: '/dashboard/projects/new'
 	}, {
-		label: 'Digitalisasi UMKM',
-		to: '/docs/inisiatif'
-	}, {
-		label: 'Open Educational Resources',
-		to: '/docs/inisiatif'
-	}, {
-		label: 'Open Data Majalengka',
-		to: '/docs/inisiatif'
-	}]
-}, {
-	label: 'Standar & Desain',
-	children: [{
-		label: 'Majalengka Design System',
-		to: '/docs/design-system'
-	}, {
-		label: 'Design Tokens',
-		to: '/docs/design-system'
-	}, {
-		label: 'Aksesibilitas WCAG AA',
-		to: '/docs/design-system'
-	}, {
-		label: 'Open Knowledge Format (OKF)',
-		to: '/docs/open-knowledge-format'
-	}]
-}, {
-	label: 'Komunitas',
-	children: [{
-		label: 'Tentang Kami',
+		label: 'Tentang',
 		to: '/tentang'
+	}]
+}, {
+	label: 'Panduan',
+	children: [{
+		label: 'Mengenal Majalengka Tech',
+		to: '/docs/getting-started'
 	}, {
-		label: 'Panduan Kontribusi',
-		to: 'https://github.com/majalengkatech',
-		target: '_blank'
+		label: 'Pamerkan karya',
+		to: '/docs/getting-started/pamerkan-karya'
 	}, {
-		label: 'Blog & Update',
-		to: '/blog'
+		label: 'Profil kreator',
+		to: '/docs/getting-started/profil-kreator'
 	}, {
+		label: 'Kontribusi kode',
+		to: '/docs/kontribusi'
+	}]
+}, {
+	label: 'Ikuti',
+	children: [{
 		label: 'Changelog',
 		to: '/changelog'
 	}, {
-		label: 'GitHub Organization',
+		label: 'GitHub',
 		to: 'https://github.com/majalengkatech',
 		target: '_blank'
 	}]
@@ -69,7 +53,7 @@ const columns = [{
 
 		<template #left>
 			<p class="text-muted text-sm">
-				Majalengka Tech • Dari Majalengka untuk Open Source • © {{ new Date().getFullYear() }}
+				Majalengka Tech · Etalase karya kreator Majalengka · Kode terbuka berlisensi MIT · © {{ new Date().getFullYear() }}
 			</p>
 		</template>
 

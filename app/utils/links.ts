@@ -9,11 +9,11 @@ export const navLinks: NavigationMenuItem[] = [{
 	icon: 'i-lucide-info',
 	to: '/tentang'
 }, {
-	label: 'Blog',
-	icon: 'i-lucide-newspaper',
-	to: '/blog'
-}, {
-	label: 'Dokumentasi',
+	label: 'Panduan',
 	icon: 'i-lucide-book-open',
 	to: '/docs'
+}, {
+	label: 'Changelog',
+	icon: 'i-lucide-history',
+	to: '/changelog'
 }]

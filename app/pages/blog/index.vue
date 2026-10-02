@@ -23,7 +23,14 @@ defineOgImage('Saas', { title, description })
 		/>
 
 		<UPageBody>
-			<UBlogPosts>
+			<UEmpty
+				v-if="!posts?.length"
+				icon="i-lucide-newspaper"
+				title="Belum ada tulisan"
+				description="Belum ada tulisan yang terbit. Sementara itu, lihat karya-karya di showcase."
+				:actions="[{ label: 'Lihat Showcase', icon: 'i-lucide-layout-grid', to: '/projek' }]"
+			/>
+			<UBlogPosts v-else>
 				<UBlogPost
 					v-for="(post, index) in posts"
 					:key="index"
@@ -31,7 +38,7 @@ defineOgImage('Saas', { title, description })
 					:title="post.title"
 					:description="post.description"
 					:image="post.image"
-					:date="new Date(post.date).toLocaleDateString('en', { year: 'numeric', month: 'short', day: 'numeric' })"
+					:date="new Date(post.date).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' })"
 					:authors="post.authors"
 					:badge="post.badge"
 					:orientation="index === 0 ? 'horizontal' : 'vertical'"

@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { id } from '@nuxt/ui/locale'
+
 const colorMode = useColorMode()
 
 const color = computed(() => colorMode.value === 'dark' ? '#020618' : 'white')
@@ -141,7 +143,7 @@ provide('navigation', navigation)
 </script>
 
 <template>
-	<UApp>
+	<UApp :locale="id">
 		<NuxtLoadingIndicator :color="'var(--color-primary)'" />
 
 		<NuxtLayout>
@@ -155,7 +157,7 @@ provide('navigation', navigation)
 				:groups="searchGroups"
 				:links="navLinks"
 				:fuse="{ resultLimit: 42 }"
-				placeholder="Cari dokumentasi, artikel blog, dan showcase projek..."
+				placeholder="Cari panduan dan halaman..."
 			/>
 		</ClientOnly>
 	</UApp>

@@ -16,7 +16,6 @@ const seoFields = {
 const variantEnum = z.enum(['solid', 'outline', 'subtle', 'soft', 'ghost', 'link'])
 const colorEnum = z.enum(['primary', 'secondary', 'neutral', 'error', 'warning', 'success', 'info'])
 const sizeEnum = z.enum(['xs', 'sm', 'md', 'lg', 'xl'])
-const orientationEnum = z.enum(['vertical', 'horizontal'])
 
 const createBaseSchema = () => z.object({
 	title: z.string().nonempty(),
@@ -38,13 +37,6 @@ const createLinkSchema = () => z.object({
 	variant: variantEnum.optional()
 })
 
-const createImageSchema = () => z.object({
-	src: z.string().nonempty().editor({ input: 'media' }),
-	alt: z.string().optional(),
-	loading: z.enum(['lazy', 'eager']).optional(),
-	srcset: z.string().optional()
-})
-
 export const collections = {
 	index: defineCollection({
 		source: '0.index.yml',
@@ -59,22 +51,6 @@ export const collections = {
 		source: '5.tentang.yml',
 		type: 'page',
 		schema: z.object({
-			sections: z.array(
-				createBaseSchema().extend({
-					id: z.string().nonempty(),
-					headline: z.string().optional(),
-					orientation: orientationEnum.optional(),
-					reverse: z.boolean().optional(),
-					image: z.union([
-						z.string().nonempty(),
-						createImageSchema()
-					]).optional(),
-					features: z.array(createFeatureItemSchema().extend({
-						badge: z.string().optional(),
-						status: z.string().optional()
-					}))
-				})
-			),
 			features: createBaseSchema().extend({
 				items: z.array(createFeatureItemSchema())
 			}),
@@ -87,39 +63,6 @@ export const collections = {
 		source: '1.docs/**/*',
 		type: 'page',
 		schema: z.object(seoFields)
-	}),
-	pricing: defineCollection({
-		source: '2.pricing.yml',
-		type: 'page',
-		schema: z.object({
-			plans: z.array(
-				z.object({
-					title: z.string().nonempty(),
-					description: z.string().nonempty(),
-					price: z.object({
-						month: z.string().nonempty(),
-						year: z.string().nonempty()
-					}),
-					billing_period: z.string().nonempty(),
-					billing_cycle: z.string().nonempty(),
-					button: createLinkSchema(),
-					features: z.array(z.string().nonempty()),
-					highlight: z.boolean().optional()
-				})
-			),
-			logos: z.object({
-				title: z.string().nonempty(),
-				icons: z.array(z.string())
-			}),
-			faq: createBaseSchema().extend({
-				items: z.array(
-					z.object({
-						label: z.string().nonempty(),
-						content: z.string().nonempty()
-					})
-				)
-			})
-		})
 	}),
 	blog: defineCollection({
 		source: '3.blog.yml',

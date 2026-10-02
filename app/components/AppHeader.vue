@@ -70,10 +70,7 @@ const items = computed(() => [{
 	label: 'Tentang',
 	to: '/tentang'
 }, {
-	label: 'Blog',
-	to: '/blog'
-}, {
-	label: 'Dokumentasi',
+	label: 'Panduan',
 	to: '/docs',
 	active: isDocs.value
 }])
