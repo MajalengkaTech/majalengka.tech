@@ -43,10 +43,11 @@ function step(delta: number) {
 				:src="activeImage.url"
 				:alt="activeImage.alt || `Tampilan ${title}`"
 				class="aspect-video w-full object-contain"
-				sizes="100vw lg:960px"
-				format="webp"
+				sizes="640px md:100vw lg:960px"
+				preset="galeri"
 				:loading="activeIndex === 0 ? 'eager' : 'lazy'"
 				:fetchpriority="activeIndex === 0 ? 'high' : 'auto'"
+				:preload="activeIndex === 0 ? { fetchPriority: 'high' } : false"
 			/>
 
 			<template v-if="images.length > 1">
@@ -80,7 +81,7 @@ function step(delta: number) {
 		>
 			<UIcon
 				name="i-lucide-image-off"
-				class="size-8 text-dimmed"
+				class="size-8 text-muted"
 			/>
 			<p class="text-sm text-muted">
 				Kreatornya belum menambahkan gambar untuk karya ini.
@@ -106,7 +107,7 @@ function step(delta: number) {
 					alt=""
 					class="size-full object-cover"
 					sizes="112px"
-					format="webp"
+					preset="sampul"
 					loading="lazy"
 				/>
 			</button>

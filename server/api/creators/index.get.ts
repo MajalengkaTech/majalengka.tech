@@ -9,7 +9,7 @@ const querySchema = z.object({
 
 // Hanya kreator yang punya username dan minimal satu karya terbit, urut dari yang terakhir menerbitkan.
 export default defineEventHandler(async (event) => {
-	const query = await getValidatedQuery(event, querySchema.parse)
+	const query = await getQueryWith(event, querySchema)
 	const { user } = schema
 	// Kolom user ditulis lengkap: query satu tabel membuat drizzle menulis "id" polos, yang di subquery terbaca sebagai p.id.
 

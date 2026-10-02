@@ -12,7 +12,7 @@ const changePasswordSchema = z.object({
 export default defineEventHandler(async (event) => {
 	await requireAdminSession(event)
 
-	const body = await readValidatedBody(event, changePasswordSchema.parse)
+	const body = await readBodyWith(event, changePasswordSchema)
 
 	// Verify target user exists
 	const [targetUser] = await db

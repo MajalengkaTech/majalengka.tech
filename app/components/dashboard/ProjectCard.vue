@@ -58,12 +58,12 @@ const actionItems = computed(() => [
 					alt=""
 					class="absolute inset-0 size-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.03] motion-reduce:transition-none"
 					loading="lazy"
-					format="webp"
-					sizes="100vw sm:50vw lg:33vw"
+					preset="sampul"
+					sizes="640px sm:50vw lg:33vw"
 				/>
 				<span
 					v-else
-					class="flex size-full items-center justify-center px-6 text-center text-sm text-dimmed"
+					class="flex size-full items-center justify-center px-6 text-center text-sm text-muted"
 				>
 					{{ category }}
 				</span>
@@ -140,7 +140,7 @@ const actionItems = computed(() => [
 					/>
 					<NuxtLink
 						v-if="project.author.username"
-						:to="`/@${project.author.username}`"
+						:to="`/${project.author.username}`"
 						class="truncate rounded-sm text-sm font-medium text-default underline decoration-(--ui-border-accented) underline-offset-4 outline-primary/25 hover:text-primary hover:decoration-primary focus-visible:outline-3"
 					>
 						{{ project.author.name }}

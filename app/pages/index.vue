@@ -21,17 +21,27 @@ interface ShowcaseStats {
 
 const { data: page } = await useAsyncData('index', () => queryCollection('index').first())
 
-const [{ data: statsData }, { data: featuredData }, { data: latestData }, { data: creatorsData }] = await Promise.all([
+const [stats$, featured$, latest$, creators$] = await Promise.all([
 	useFetch<ShowcaseStats>('/api/projects/stats', { key: 'home-stats' }),
 	useFetch<{ projects: ProjectItem[] }>('/api/projects', { key: 'home-featured', query: { featured: 1, limit: 4 } }),
 	useFetch<{ projects: ProjectItem[] }>('/api/projects', { key: 'home-latest', query: { limit: 6 } }),
 	useFetch<{ creators: CreatorSummary[] }>('/api/creators', { key: 'home-creators', query: { limit: 8 } })
 ])
 
-const featured = computed(() => featuredData.value?.projects || [])
-const latest = computed(() => latestData.value?.projects || [])
-const creators = computed(() => creatorsData.value?.creators || [])
-const stats = computed(() => statsData.value || { totalProjects: 0, totalCreators: 0, categories: {} })
+const featured = computed(() => featured$.data.value?.projects || [])
+const latest = computed(() => latest$.data.value?.projects || [])
+const creators = computed(() => creators$.data.value?.creators || [])
+const stats = computed(() => stats$.data.value || { totalProjects: 0, totalCreators: 0, categories: {} })
+
+// Satu fetch gagal sudah cukup membuat beranda tidak lengkap, jadi pengunjung perlu tahu bahwa ini error, bukan etalase kosong.
+const loadFailed = computed(() => [stats$, featured$, latest$, creators$].some(request => request.error.value))
+const retrying = ref(false)
+
+async function retryLoad() {
+	retrying.value = true
+	await Promise.all([stats$, featured$, latest$, creators$].map(request => request.refresh()))
+	retrying.value = false
+}
 
 // Mozaik hero hanya dari karya asli yang punya gambar; kurang dari 3 berarti hero tampil tanpa mozaik.
 const mosaic = computed(() => {
@@ -115,9 +125,10 @@ defineOgImage('Saas', {
 						:src="project.thumbnailUrl!"
 						alt=""
 						class="absolute inset-0 size-full object-cover transition-transform duration-500 group-hover:scale-[1.03] motion-reduce:transition-none"
-						sizes="50vw lg:320px"
-						format="webp"
+						sizes="320px"
+						preset="sampul"
 						:loading="index === 0 ? 'eager' : 'lazy'"
+						:preload="index === 0 ? { fetchPriority: 'high' } : false"
 					/>
 				</NuxtLink>
 			</div>
@@ -183,6 +194,16 @@ defineOgImage('Saas', {
 				/>
 			</template>
 
+			<UAlert
+				v-if="loadFailed"
+				color="error"
+				variant="subtle"
+				icon="i-lucide-cloud-off"
+				title="Sebagian isi beranda gagal dimuat"
+				description="Server belum merespons, jadi karya atau kreator di halaman ini mungkin belum lengkap. Coba muat ulang sebentar lagi."
+				:actions="[{ label: 'Muat Ulang', icon: 'i-lucide-refresh-cw', color: 'error', variant: 'outline', loading: retrying, onClick: retryLoad }]"
+				:class="{ 'mb-10': latest.length }"
+			/>
 			<div
 				v-if="latest.length"
 				class="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3"
@@ -194,7 +215,7 @@ defineOgImage('Saas', {
 				/>
 			</div>
 			<UEmpty
-				v-else
+				v-else-if="!loadFailed"
 				icon="i-lucide-folder-open"
 				title="Belum ada karya yang terbit"
 				description="Etalase ini baru dibuka. Karyamu bisa jadi yang pertama tampil di sini."
@@ -246,7 +267,7 @@ defineOgImage('Saas', {
 					class="w-full sm:w-[calc(50%-0.5rem)] lg:w-[calc(25%-0.75rem)]"
 				>
 					<NuxtLink
-						:to="`/@${creator.username}`"
+						:to="`/${creator.username}`"
 						class="flex h-full items-center gap-3 rounded-md border border-default p-4 outline-primary/25 transition-colors hover:border-primary/40 focus-visible:outline-3"
 					>
 						<UAvatar

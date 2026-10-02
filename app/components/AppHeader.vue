@@ -23,7 +23,7 @@ async function handleLogout() {
 const userMenuItems = computed(() => [
 	[
 		{
-			label: user.value?.name || 'Developer',
+			label: user.value?.name || 'Kreator',
 			avatar: {
 				src: (user.value as { image?: string })?.image
 			}
@@ -34,7 +34,7 @@ const userMenuItems = computed(() => [
 			? [{
 					label: 'Profil Publik',
 					icon: 'i-lucide-circle-user',
-					to: `/@${(user.value as { username?: string | null }).username}`
+					to: `/${(user.value as { username?: string | null }).username}`
 				}]
 			: []),
 		{
@@ -43,7 +43,7 @@ const userMenuItems = computed(() => [
 			to: '/dashboard'
 		},
 		{
-			label: 'Projek Saya',
+			label: 'Karya Saya',
 			icon: 'i-lucide-folder-git-2',
 			to: '/dashboard/projects'
 		},
@@ -55,7 +55,7 @@ const userMenuItems = computed(() => [
 	],
 	[
 		{
-			label: 'Keluar (Logout)',
+			label: 'Keluar',
 			icon: 'i-lucide-log-out',
 			color: 'error' as const,
 			onSelect: () => handleLogout()
@@ -108,7 +108,7 @@ const items = computed(() => [{
 				variant="ghost"
 				to="https://github.com/majalengkatech"
 				target="_blank"
-				aria-label="Majalengka Tech on GitHub"
+				aria-label="Majalengka Tech di GitHub"
 				class="hidden sm:inline-flex"
 			/>
 
@@ -135,8 +135,8 @@ const items = computed(() => [{
 					color="neutral"
 					variant="ghost"
 					to="/login"
-					aria-label="Masuk (Login)"
-					title="Masuk (Login)"
+					aria-label="Masuk"
+					title="Masuk"
 					class="hidden sm:inline-flex"
 				/>
 			</template>
@@ -177,7 +177,7 @@ const items = computed(() => [{
 					</div>
 				</div>
 				<UButton
-					label="Keluar (Logout)"
+					label="Keluar"
 					color="error"
 					variant="subtle"
 					block
@@ -195,7 +195,7 @@ const items = computed(() => [{
 					class="mb-3"
 				/>
 				<UButton
-					label="Daftar Developer"
+					label="Daftar sebagai Kreator"
 					color="primary"
 					to="/signup"
 					block

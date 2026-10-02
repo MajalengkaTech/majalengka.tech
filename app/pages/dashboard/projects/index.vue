@@ -6,8 +6,8 @@ definePageMeta({
 })
 
 useSeoMeta({
-	title: 'Projek Saya',
-	description: 'Kelola portofolio dan karya teknologi Anda di Majalengka Tech'
+	title: 'Karya Saya',
+	description: 'Kelola karya yang kamu pamerkan di Majalengka Tech'
 })
 
 const toast = useToast()
@@ -45,7 +45,7 @@ async function executeDelete() {
 			method: 'DELETE'
 		})
 		toast.add({
-			title: 'Projek Dihapus',
+			title: 'Karya dihapus',
 			description: 'Karya sudah dihapus dari portofoliomu.',
 			color: 'success'
 		})
@@ -68,7 +68,7 @@ async function executeDelete() {
 <template>
 	<div class="flex flex-col flex-1">
 		<UDashboardNavbar
-			title="Projek Saya"
+			title="Karya Saya"
 			:ui="{ root: 'border-b border-default' }"
 		>
 			<template #leading>
@@ -80,10 +80,10 @@ async function executeDelete() {
 					icon="i-lucide-plus"
 					color="primary"
 					size="sm"
-					aria-label="Tambah Projek Baru"
+					aria-label="Pamerkan Karya Baru"
 					to="/dashboard/projects/new"
 				>
-					<span class="hidden sm:inline">Tambah Projek Baru</span>
+					<span class="hidden sm:inline">Pamerkan Karya Baru</span>
 				</UButton>
 			</template>
 		</UDashboardNavbar>
@@ -92,10 +92,10 @@ async function executeDelete() {
 			<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
 				<div>
 					<h1 class="text-xl font-bold text-highlighted">
-						Koleksi Projek & Portofolio
+						Semua karyamu
 					</h1>
 					<p class="text-xs text-muted">
-						Kelola seluruh karya aplikasi, pustaka open-source, atau tools yang Anda bangun.
+						Kelola semua karya yang kamu buat: aplikasi, desain, library open-source, atau tool.
 					</p>
 				</div>
 
@@ -133,14 +133,14 @@ async function executeDelete() {
 					/>
 				</div>
 				<h3 class="text-lg font-bold text-highlighted">
-					{{ search ? 'Tidak Ada Projek yang Cocok' : 'Belum Ada Projek Terdaftar' }}
+					{{ search ? 'Tidak ada karya yang cocok' : 'Belum ada karya' }}
 				</h3>
 				<p class="text-sm text-muted max-w-md">
-					{{ search ? 'Coba ubah kata kunci pencarian Anda.' : 'Mulailah dengan menambahkan projek pertama Anda agar bisa dilihat oleh komunitas teknologi Majalengka.' }}
+					{{ search ? 'Coba kata kunci lain.' : 'Unggah karya pertamamu supaya bisa dilihat kreator Majalengka lainnya.' }}
 				</p>
 				<UButton
 					v-if="!search"
-					label="Tambah Projek Baru"
+					label="Pamerkan Karya Baru"
 					icon="i-lucide-plus"
 					color="primary"
 					class="mt-3"

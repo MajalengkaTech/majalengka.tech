@@ -7,8 +7,8 @@ definePageMeta({
 })
 
 useSeoMeta({
-	title: 'Daftar Developer',
-	description: 'Bergabung dengan ekosistem open-source dan komunitas teknologi Majalengka'
+	title: 'Daftar sebagai Kreator',
+	description: 'Buat akun untuk memamerkan karya dan profilmu sebagai developer atau desainer Majalengka.'
 })
 
 const { loggedIn } = useUserSession()
@@ -25,8 +25,8 @@ watchEffect(() => {
 const fields = [{
 	name: 'name',
 	type: 'text' as const,
-	label: 'Nama Lengkap / Username',
-	placeholder: 'Masukkan nama Anda',
+	label: 'Nama',
+	placeholder: 'Masukkan nama kamu',
 	required: true
 }, {
 	name: 'email',
@@ -116,6 +116,7 @@ async function onSubmit(payload: FormSubmitEvent<Schema>) {
 		:schema="schema"
 		:providers="providers"
 		:loading="loading"
+		separator="atau"
 		title="Bergabung ke Majalengka Tech"
 		:submit="{ label: 'Daftar Sekarang' }"
 		@submit="onSubmit"
@@ -128,10 +129,10 @@ async function onSubmit(payload: FormSubmitEvent<Schema>) {
 		</template>
 
 		<template #footer>
-			Dengan mendaftar, Anda menyetujui <ULink
+			Sebelum mengunggah, baca <ULink
 				to="/docs"
 				class="text-primary font-medium"
-			>Ketentuan & Pedoman Komunitas</ULink>.
+			>panduan memamerkan karya</ULink>.
 		</template>
 	</UAuthForm>
 </template>

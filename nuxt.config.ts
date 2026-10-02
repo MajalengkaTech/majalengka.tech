@@ -140,7 +140,23 @@ export default defineNuxtConfig({
 			baseURL: 'https://majalengka.tech'
 		},
 		quality: 80,
-		format: ['webp', 'avif'],
+		format: ['avif', 'webp'],
+		// Nuxt Image v2 tidak punya breakpoint xs, jadi ukuran default di prop sizes ditulis dalam px (vw tanpa prefix dihitung jadi 1px).
+		// Cloudflare memilih AVIF atau WebP sendiri dari header Accept (f=auto); IPX di lokal tidak mengenal 'auto'.
+		presets: {
+			sampul: {
+				modifiers: {
+					format: process.env.NODE_ENV === 'production' ? 'auto' : 'webp',
+					fit: 'cover'
+				}
+			},
+			galeri: {
+				modifiers: {
+					format: process.env.NODE_ENV === 'production' ? 'auto' : 'webp',
+					fit: 'contain'
+				}
+			}
+		},
 		domains: [
 			'images.unsplash.com',
 			'avatars.githubusercontent.com',
@@ -154,7 +170,7 @@ export default defineNuxtConfig({
 		description: 'Etalase karya developer dan desainer Majalengka',
 		notes: [
 			'Dibangun dengan Nuxt 4, Nuxt Content v3, Nuxt UI v4, Cloudflare D1, Cloudflare R2, dan Better Auth.',
-			'Menyediakan showcase karya, profil kreator di /@username, panduan pemakaian, dan catatan rilis.'
+			'Menyediakan showcase karya, profil kreator di /username, panduan pemakaian, dan catatan rilis.'
 		],
 		full: {
 			title: 'Majalengka Tech Full Content',

@@ -11,7 +11,7 @@ const setRoleSchema = z.object({
 export default defineEventHandler(async (event) => {
 	await requireAdminSession(event)
 
-	const body = await readValidatedBody(event, setRoleSchema.parse)
+	const body = await readBodyWith(event, setRoleSchema)
 
 	const [targetUser] = await db
 		.select()

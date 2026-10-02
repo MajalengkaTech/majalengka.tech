@@ -13,7 +13,7 @@ const querySchema = z.object({
 })
 
 export default defineEventHandler(async (event) => {
-	const query = await getValidatedQuery(event, querySchema.parse)
+	const query = await getQueryWith(event, querySchema)
 	const session = await getUserSession(event).catch(() => null)
 	const currentUserId = session?.user?.id ? String(session.user.id) : null
 

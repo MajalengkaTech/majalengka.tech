@@ -77,7 +77,7 @@ const links = computed(() => [
 
 		<UButton
 			v-if="author.username"
-			:to="`/@${author.username}`"
+			:to="`/${author.username}`"
 			label="Lihat Profil & Karya Lain"
 			color="neutral"
 			variant="outline"

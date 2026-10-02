@@ -12,7 +12,7 @@ export default defineEventHandler(async (event) => {
 	await requireAdminSession(event)
 	const projectId = parseProjectId(event)
 	await requirePublishedProject(projectId)
-	const body = await readValidatedBody(event, featureSchema.parse)
+	const body = await readBodyWith(event, featureSchema)
 
 	const [updated] = await db.update(schema.projects).set({
 		isFeatured: body.featured,

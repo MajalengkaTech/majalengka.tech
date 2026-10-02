@@ -35,7 +35,7 @@ export default defineEventHandler(async (event) => {
 		})
 	}
 
-	const body = await readValidatedBody(event, gallerySchema.parse)
+	const body = await readBodyWith(event, gallerySchema)
 	const current = await db
 		.select()
 		.from(schema.projectImages)

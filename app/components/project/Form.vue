@@ -252,6 +252,7 @@ async function onSubmit(event: FormSubmitEvent<ProjectInput>) {
 									alt="Pratinjau gambar sampul"
 									class="size-full object-cover"
 									sizes="448px"
+									preset="sampul"
 								/>
 							</div>
 							<div class="flex flex-col gap-2 sm:flex-row">
@@ -308,6 +309,7 @@ async function onSubmit(event: FormSubmitEvent<ProjectInput>) {
 									:alt="image.alt || `Gambar galeri ${index + 1}`"
 									class="aspect-video w-full rounded-sm object-cover sm:w-32"
 									sizes="128px"
+									preset="sampul"
 								/>
 								<UInput
 									v-model="image.alt"

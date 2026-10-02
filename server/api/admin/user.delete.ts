@@ -12,12 +12,12 @@ const deleteUserSchema = z.object({
 export default defineEventHandler(async (event) => {
 	const session = await requireAdminSession(event)
 
-	const body = await readValidatedBody(event, deleteUserSchema.parse)
+	const body = await readBodyWith(event, deleteUserSchema)
 
 	if (session.user.id === body.userId) {
 		throw createError({
 			statusCode: 400,
-			statusMessage: 'Anda tidak dapat menghapus akun Anda sendiri saat sedang login'
+			statusMessage: 'Kamu tidak bisa menghapus akunmu sendiri dari panel admin. Minta admin lain bila perlu.'
 		})
 	}
 

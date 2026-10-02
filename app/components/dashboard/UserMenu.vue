@@ -26,7 +26,7 @@ const items = computed(() => {
 			? [{
 					label: 'Profil Publik',
 					icon: 'i-lucide-circle-user',
-					to: `/@${username}`
+					to: `/${username}`
 				}]
 			: []),
 		{
@@ -35,13 +35,13 @@ const items = computed(() => {
 			to: '/dashboard/settings'
 		},
 		{
-			label: 'Projek Saya',
+			label: 'Karya Saya',
 			icon: 'i-lucide-folder-git-2',
 			to: '/dashboard/projects'
 		},
 		{
 			label: 'Showcase Publik',
-			icon: 'i-lucide-sparkles',
+			icon: 'i-lucide-layout-grid',
 			to: '/projek'
 		}
 	]
@@ -57,7 +57,7 @@ const items = computed(() => {
 	return [
 		[
 			{
-				label: user.value?.name || 'Developer',
+				label: user.value?.name || 'Kreator',
 				avatar: {
 					src: (user.value as { image?: string })?.image
 				}
@@ -78,7 +78,7 @@ const items = computed(() => {
 		],
 		[
 			{
-				label: 'Keluar (Logout)',
+				label: 'Keluar',
 				icon: 'i-lucide-log-out',
 				color: 'error' as const,
 				onSelect: () => handleLogout()
@@ -109,7 +109,7 @@ const items = computed(() => {
 				v-if="!collapsed"
 				class="flex flex-col text-left overflow-hidden leading-tight flex-1"
 			>
-				<span class="text-sm font-semibold truncate">{{ user?.name || 'Developer' }}</span>
+				<span class="text-sm font-semibold truncate">{{ user?.name || 'Kreator' }}</span>
 				<span class="text-xs text-muted truncate">{{ user?.email || 'Majalengka Tech' }}</span>
 			</div>
 			<UIcon

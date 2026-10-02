@@ -137,7 +137,7 @@ async function drawCard(data: CreatorCardData) {
 
 	ctx.fillStyle = COLORS.link
 	ctx.font = `400 26px ${BODY_FONT}`
-	ctx.fillText(`majalengka.tech/@${data.username}`, 64, 566)
+	ctx.fillText(`majalengka.tech/${data.username}`, 64, 566)
 	ctx.fillStyle = COLORS.muted
 	ctx.textAlign = 'right'
 	ctx.fillText(`Data per ${formatTanggal(new Date())}`, WIDTH - 64, 566)

@@ -6,7 +6,7 @@ import { toPrivateProfile } from '../../utils/profile'
 export default defineEventHandler(async (event) => {
 	const session = await requireSignedIn(event)
 	const userId = String(session.user.id)
-	const body = await readValidatedBody(event, profileInputSchema.parse)
+	const body = await readBodyWith(event, profileInputSchema)
 	const username = body.username || null
 
 	if (username) {

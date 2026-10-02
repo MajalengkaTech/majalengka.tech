@@ -10,10 +10,17 @@ export type CreatorRole = keyof typeof CREATOR_ROLES
 
 const creatorRoleValues = Object.keys(CREATOR_ROLES) as [CreatorRole, ...CreatorRole[]]
 
-// Username dipakai di URL /@username, jadi nama yang bentrok dengan rute situs ditolak.
+// Username menjadi alamat profil di level teratas (/username), jadi nama yang bentrok atau mungkin dipakai rute situs ditolak.
 const RESERVED_USERNAMES = new Set([
-	'admin', 'api', 'auth', 'blog', 'changelog', 'dashboard', 'docs', 'dukung', 'kelola',
-	'login', 'logout', 'majalengka', 'majalengkatech', 'pricing', 'projek', 'settings', 'signup', 'tentang'
+	// Rute yang sudah ada
+	'api', 'auth', 'blog', 'changelog', 'dashboard', 'docs', 'kelola', 'login', 'logout', 'projek', 'signup', 'tentang',
+	// Nama yang wajar dipakai halaman situs nanti
+	'about', 'acara', 'admin', 'assets', 'bantuan', 'cari', 'daftar', 'dukung', 'edit', 'event', 'feed', 'files', 'galeri',
+	'help', 'kartu', 'karya', 'kategori', 'kebijakan', 'keluar', 'komunitas', 'kontribusi', 'kreator', 'lowongan', 'masuk',
+	'me', 'new', 'og', 'panduan', 'pricing', 'privacy', 'privasi', 'profil', 'profile', 'public', 'raw', 'register', 'rss',
+	'search', 'settings', 'showcase', 'sitemap', 'static', 'status', 'syarat', 'tag', 'terms', 'user', 'users', 'www',
+	// Identitas situs
+	'majalengka', 'majalengkatech'
 ])
 
 export const usernameSchema = z.string()

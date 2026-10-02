@@ -6,7 +6,7 @@ export default defineEventHandler(async (event) => {
 	const projectId = parseProjectId(event)
 	await requirePublishedProject(projectId)
 
-	const body = await readValidatedBody(event, projectCommentSchema.parse)
+	const body = await readBodyWith(event, projectCommentSchema)
 	const now = new Date()
 
 	const [comment] = await db.insert(schema.projectComments).values({

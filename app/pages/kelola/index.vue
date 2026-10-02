@@ -365,7 +365,7 @@ function formatDate(dateVal: string | number | Date) {
 				</div>
 
 				<div class="p-4 rounded-xl border border-default bg-muted flex flex-col gap-1">
-					<span class="text-xs font-semibold text-muted">Total Projek Komunitas</span>
+					<span class="text-xs font-semibold text-muted">Total Karya Komunitas</span>
 					<div class="flex items-baseline justify-between">
 						<span class="text-2xl font-black text-highlighted">{{ totalProjects }}</span>
 						<UIcon
@@ -394,7 +394,7 @@ function formatDate(dateVal: string | number | Date) {
 						@click="selectedRoleFilter = 'admin'"
 					/>
 					<UButton
-						label="Developer Biasa"
+						label="Kreator"
 						size="xs"
 						:variant="selectedRoleFilter === 'user' ? 'solid' : 'ghost'"
 						:color="selectedRoleFilter === 'user' ? 'primary' : 'neutral'"
@@ -462,7 +462,7 @@ function formatDate(dateVal: string | number | Date) {
 													variant="subtle"
 													size="xs"
 												>
-													Anda
+													Kamu
 												</UBadge>
 											</div>
 											<span class="text-xs text-muted truncate max-w-xs">{{ u.email }}</span>
@@ -753,18 +753,13 @@ function formatDate(dateVal: string | number | Date) {
 			description="Tindakan ini permanen dan tidak dapat dibatalkan."
 		>
 			<template #body>
-				<div class="flex flex-col gap-3 py-2">
-					<div class="p-3 rounded-lg bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900 text-xs text-red-600 dark:text-red-400 flex items-start gap-2.5">
-						<UIcon
-							name="i-lucide-alert-triangle"
-							class="w-5 h-5 shrink-0 mt-0.5"
-						/>
-						<div>
-							Apakah Anda yakin ingin menghapus akun <strong>{{ selectedUserForDelete?.name || selectedUserForDelete?.email }}</strong>?
-							Seluruh data portofolio projek miliknya ({{ selectedUserForDelete?.projectCount || 0 }} projek) dan riwayat sesi akan dihapus secara permanen dari basis data.
-						</div>
-					</div>
-				</div>
+				<UAlert
+					color="error"
+					variant="subtle"
+					icon="i-lucide-triangle-alert"
+					:title="`Hapus akun ${selectedUserForDelete?.name || selectedUserForDelete?.email}?`"
+					:description="`${selectedUserForDelete?.projectCount || 0} karya miliknya ikut terhapus, beserta gambar, komentar, apresiasi, kartu kreator, dan sesi login. Data ini tidak bisa dikembalikan.`"
+				/>
 			</template>
 
 			<template #footer>

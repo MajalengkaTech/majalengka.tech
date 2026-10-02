@@ -21,7 +21,7 @@ defineProps<{
 			majalengka.tech
 		</div>
 
-		<div class="mt-6 grid gap-6 md:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)] md:items-center">
+		<div class="mt-6 grid grid-cols-1 gap-6 md:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)] md:items-center">
 			<div class="flex items-center gap-4 md:flex-col md:items-start">
 				<UAvatar
 					:src="data.avatarUrl || undefined"
@@ -69,7 +69,7 @@ defineProps<{
 		</div>
 
 		<figcaption class="mt-6 text-sm text-[#6293FF]">
-			majalengka.tech/@{{ data.username }}
+			majalengka.tech/{{ data.username }}
 		</figcaption>
 	</figure>
 </template>

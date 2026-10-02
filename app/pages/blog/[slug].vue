@@ -6,7 +6,7 @@ const routePath = computed(() => withoutTrailingSlash(route.path))
 
 const { data: post } = await useAsyncData(routePath.value, () => queryCollection('posts').path(routePath.value).first())
 if (!post.value) {
-	throw createError({ statusCode: 404, statusMessage: 'Post not found', fatal: true })
+	throw createError({ statusCode: 404, statusMessage: 'Tulisan tidak ditemukan', fatal: true })
 }
 
 const { data: surround } = await useAsyncData(`${routePath.value}-surround`, () => {

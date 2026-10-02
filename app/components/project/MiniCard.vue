@@ -17,13 +17,13 @@ defineProps<{
 				:src="project.thumbnailUrl"
 				:alt="project.title"
 				class="size-full object-cover transition-transform duration-300 group-hover:scale-[1.03] motion-reduce:transition-none"
-				sizes="50vw sm:33vw lg:280px"
-				format="webp"
+				sizes="320px sm:33vw lg:280px"
+				preset="sampul"
 				loading="lazy"
 			/>
 			<div
 				v-else
-				class="flex size-full items-center justify-center text-sm text-dimmed"
+				class="flex size-full items-center justify-center text-sm text-muted"
 			>
 				{{ categoryLabel(project.category) }}
 			</div>

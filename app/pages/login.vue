@@ -8,7 +8,7 @@ definePageMeta({
 
 useSeoMeta({
 	title: 'Masuk',
-	description: 'Masuk ke portal komunitas developer Majalengka Tech'
+	description: 'Masuk untuk mengelola karya dan profil kreatormu di Majalengka Tech.'
 })
 
 const { loggedIn } = useUserSession()
@@ -29,7 +29,7 @@ const fields = [{
 	name: 'email',
 	type: 'text' as const,
 	label: 'Email',
-	placeholder: 'Masukkan email Anda',
+	placeholder: 'Masukkan email kamu',
 	required: true
 }, {
 	name: 'password',
@@ -116,6 +116,7 @@ async function onSubmit(payload: FormSubmitEvent<Schema>) {
 		:schema="schema"
 		:providers="providers"
 		:loading="loading"
+		separator="atau"
 		title="Selamat Datang Kembali"
 		icon="i-lucide-lock"
 		:submit="{ label: 'Masuk' }"
@@ -128,14 +129,6 @@ async function onSubmit(payload: FormSubmitEvent<Schema>) {
 			>Daftar sekarang</ULink>.
 		</template>
 
-		<template #password-hint>
-			<ULink
-				to="/"
-				class="text-primary font-medium"
-				tabindex="-1"
-			>Lupa kata sandi?</ULink>
-		</template>
-
 		<template #remember-field="{ state }">
 			<UCheckbox
 				v-model="state.remember"
@@ -145,10 +138,10 @@ async function onSubmit(payload: FormSubmitEvent<Schema>) {
 		</template>
 
 		<template #footer>
-			Dengan masuk, Anda menyetujui <ULink
-				to="/docs"
+			Baru di sini? Baca <ULink
+				to="/tentang"
 				class="text-primary font-medium"
-			>Kode Etik Komunitas</ULink> Majalengka Tech.
+			>tentang Majalengka Tech</ULink> dulu.
 		</template>
 	</UAuthForm>
 </template>

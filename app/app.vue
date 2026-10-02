@@ -19,9 +19,13 @@ useHead({
 	}
 })
 
+const site = useSiteConfig()
+
+// defineOgImage tidak menghasilkan gambar di produksi (zeroRuntime), jadi halaman tanpa gambar sendiri memakai kartu statis ini.
 useSeoMeta({
 	titleTemplate: '%s · Majalengka Tech',
-	twitterCard: 'summary_large_image'
+	twitterCard: 'summary_large_image',
+	ogImage: new URL('/og-default.png', site.url).href
 })
 interface ContentNavItem {
 	title: string
@@ -43,9 +47,7 @@ function stripChildIcons(children?: ContentNavItem[]): ContentNavItem[] | undefi
 
 const CATEGORY_ICONS: Record<string, string> = {
 	'getting-started': 'i-lucide-compass',
-	'inisiatif': 'i-lucide-rocket',
-	'design-system': 'i-lucide-palette',
-	'open-knowledge-format': 'i-lucide-brain'
+	'kontribusi': 'i-lucide-git-pull-request'
 }
 
 const { data: navigation } = await useAsyncData('navigation', () => queryCollectionNavigation('docs'), {
@@ -115,6 +117,7 @@ const searchGroups = computed<SearchGroup[]>(() => {
 
 	const projects = (projectsData.value?.projects as Array<{
 		id: number
+		slug: string
 		title: string
 		description: string
 		tags?: string | null
@@ -124,14 +127,14 @@ const searchGroups = computed<SearchGroup[]>(() => {
 	if (projects.length > 0) {
 		groups.push({
 			id: 'projects',
-			label: 'Showcase Projek Developer',
+			label: 'Karya',
 			items: projects.map(p => ({
 				id: `project-${p.id}`,
 				label: p.title,
 				description: p.description,
 				icon: 'i-lucide-folder-git-2',
-				to: `/projek#project-${p.id}`,
-				suffix: p.tags?.split(',')[0]?.trim() || p.author?.name || 'Showcase'
+				to: `/projek/${p.slug}`,
+				suffix: p.tags?.split(',')[0]?.trim() || p.author?.name || 'Karya'
 			}))
 		})
 	}

@@ -33,7 +33,7 @@ export default defineEventHandler(async (event) => {
 		})
 	}
 
-	const body = await readValidatedBody(event, projectInputSchema.parse)
+	const body = await readBodyWith(event, projectInputSchema)
 	const thumbnailUrl = body.thumbnailUrl?.trim() || null
 	assertThumbnailAllowed(thumbnailUrl, session.user.id)
 

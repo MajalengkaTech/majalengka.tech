@@ -63,7 +63,7 @@ function onSaved(saved: { slug: string, isPublished: boolean }) {
 				icon="i-lucide-lock"
 				title="Kamu tidak bisa mengedit karya ini"
 				description="Hanya pemilik karya atau admin yang boleh mengubahnya."
-				:actions="[{ label: 'Kembali ke Projek Saya', to: '/dashboard/projects', color: 'neutral', variant: 'outline' }]"
+				:actions="[{ label: 'Kembali ke Karya Saya', to: '/dashboard/projects', color: 'neutral', variant: 'outline' }]"
 			/>
 			<ProjectForm
 				v-else

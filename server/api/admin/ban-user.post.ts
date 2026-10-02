@@ -12,12 +12,12 @@ const banUserSchema = z.object({
 export default defineEventHandler(async (event) => {
 	const session = await requireAdminSession(event)
 
-	const body = await readValidatedBody(event, banUserSchema.parse)
+	const body = await readBodyWith(event, banUserSchema)
 
 	if (session.user.id === body.userId && body.banned) {
 		throw createError({
 			statusCode: 400,
-			statusMessage: 'Anda tidak dapat memblokir akun Anda sendiri'
+			statusMessage: 'Kamu tidak bisa memblokir akunmu sendiri. Minta admin lain bila perlu.'
 		})
 	}
 

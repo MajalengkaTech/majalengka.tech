@@ -21,7 +21,7 @@ const navLinks = computed<NavigationMenuItem[][]>(() => {
 			}
 		},
 		{
-			label: 'Projek Saya',
+			label: 'Karya Saya',
 			icon: 'i-lucide-folder-git-2',
 			to: '/dashboard/projects',
 			onSelect: () => {
@@ -54,12 +54,12 @@ const navLinks = computed<NavigationMenuItem[][]>(() => {
 		[
 			{
 				label: 'Showcase Publik',
-				icon: 'i-lucide-sparkles',
+				icon: 'i-lucide-layout-grid',
 				to: '/projek',
 				target: '_blank'
 			},
 			{
-				label: 'Dokumentasi',
+				label: 'Panduan',
 				icon: 'i-lucide-book-open',
 				to: '/docs'
 			},
@@ -104,7 +104,7 @@ const navLinks = computed<NavigationMenuItem[][]>(() => {
 								majalengka<span class="text-primary font-bold">.tech</span>
 							</span>
 							<span class="text-[10px] font-semibold uppercase tracking-wider text-muted truncate">
-								Developer Hub
+								Ruang Kreator
 							</span>
 						</div>
 					</NuxtLink>

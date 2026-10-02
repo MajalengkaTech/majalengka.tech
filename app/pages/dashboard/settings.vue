@@ -67,6 +67,34 @@ watch(() => profileData.value?.user, (u) => {
 
 const roleItems = Object.entries(CREATOR_ROLES).map(([value, label]) => ({ value, label }))
 
+interface UsernameStatus {
+	available: boolean
+	username: string
+	message: string
+}
+
+const usernameStatus = ref<UsernameStatus | null>(null)
+const checkingUsername = ref(false)
+
+// Dicek saat berhenti mengetik; server tetap memeriksa ulang saat profil disimpan.
+watchDebounced(() => state.username, async (value) => {
+	const username = value.trim().toLowerCase()
+	if (!username || username === savedUsername.value) {
+		usernameStatus.value = null
+		return
+	}
+	checkingUsername.value = true
+	try {
+		usernameStatus.value = await $fetch<UsernameStatus>('/api/user/username-check', { query: { username } })
+	} catch {
+		usernameStatus.value = null
+	} finally {
+		checkingUsername.value = false
+	}
+}, { debounce: 400 })
+
+const usernameBlocked = computed(() => usernameStatus.value?.available === false)
+
 async function onSubmit(event: FormSubmitEvent<ProfileInput>) {
 	try {
 		loading.value = true
@@ -83,7 +111,7 @@ async function onSubmit(event: FormSubmitEvent<ProfileInput>) {
 
 		toast.add({
 			title: 'Profil tersimpan',
-			description: savedUsername.value ? `Profil publikmu ada di majalengka.tech/@${savedUsername.value}` : 'Isi username supaya profil publikmu bisa dibuka.',
+			description: savedUsername.value ? `Profil publikmu ada di majalengka.tech/${savedUsername.value}` : 'Isi username supaya profil publikmu bisa dibuka.',
 			color: 'success'
 		})
 	} catch (err: unknown) {
@@ -112,7 +140,7 @@ async function onSubmit(event: FormSubmitEvent<ProfileInput>) {
 			<template #right>
 				<UButton
 					v-if="savedUsername"
-					:to="`/@${savedUsername}`"
+					:to="`/${savedUsername}`"
 					label="Lihat Profil Publik"
 					icon="i-lucide-external-link"
 					color="neutral"
@@ -166,18 +194,34 @@ async function onSubmit(event: FormSubmitEvent<ProfileInput>) {
 						<UFormField
 							label="Username"
 							name="username"
-							:description="state.username ? `Profilmu: majalengka.tech/@${state.username.toLowerCase()}` : 'Dipakai untuk alamat profil publikmu.'"
+							:description="state.username ? `Profilmu: majalengka.tech/${state.username.toLowerCase()}` : 'Dipakai untuk alamat profil publikmu.'"
 						>
 							<UInput
 								v-model="state.username"
 								placeholder="nama-kamu"
 								class="w-full"
+								:loading="checkingUsername"
 								:ui="{ leading: 'pointer-events-none' }"
+								aria-describedby="status-username"
 							>
 								<template #leading>
 									<span class="text-sm text-muted">@</span>
 								</template>
 							</UInput>
+							<p
+								id="status-username"
+								class="mt-1.5 flex items-center gap-1 text-sm"
+								:class="usernameStatus?.available ? 'text-success' : 'text-error'"
+								aria-live="polite"
+							>
+								<template v-if="usernameStatus">
+									<UIcon
+										:name="usernameStatus.available ? 'i-lucide-circle-check' : 'i-lucide-circle-x'"
+										class="size-4 shrink-0"
+									/>
+									{{ usernameStatus.message }}
+								</template>
+							</p>
 						</UFormField>
 					</div>
 
@@ -347,6 +391,7 @@ async function onSubmit(event: FormSubmitEvent<ProfileInput>) {
 					type="submit"
 					icon="i-lucide-save"
 					:loading="loading"
+					:disabled="usernameBlocked || checkingUsername"
 				/>
 			</div>
 		</UForm>

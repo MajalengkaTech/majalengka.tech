@@ -6,14 +6,14 @@ definePageMeta({
 })
 
 useSeoMeta({
-	title: 'Dashboard Developer',
-	description: 'Kelola profil developer dan showcase projek Majalengka Tech'
+	title: 'Dashboard Kreator',
+	description: 'Ringkasan profil dan karyamu di Majalengka Tech'
 })
 
 const { user } = useUserSession()
 
 const { data: profileData, refresh: refreshProfile } = await useFetch('/api/user/profile')
-const { data: projectsData } = await useFetch('/api/projects?mine=true', {
+const { data: projectsData, error: projectsError, refresh: refreshProjects, status: projectsStatus } = await useFetch('/api/projects?mine=true', {
 	key: 'user-projects'
 })
 
@@ -55,8 +55,8 @@ async function executeDelete() {
 			method: 'DELETE'
 		})
 		toast.add({
-			title: 'Projek Dihapus',
-			description: 'Projek sudah dihapus dari portofoliomu.',
+			title: 'Karya dihapus',
+			description: 'Karya sudah dihapus dari portofoliomu.',
 			color: 'success'
 		})
 		deleteModalOpen.value = false
@@ -79,7 +79,7 @@ async function executeDelete() {
 <template>
 	<div class="flex flex-col flex-1">
 		<UDashboardNavbar
-			title="Ringkasan Developer"
+			title="Ringkasan Kreator"
 			:ui="{ root: 'border-b border-default' }"
 		>
 			<template #leading>
@@ -91,10 +91,10 @@ async function executeDelete() {
 					icon="i-lucide-plus"
 					color="primary"
 					size="sm"
-					aria-label="Tambah Projek"
+					aria-label="Pamerkan Karya"
 					to="/dashboard/projects/new"
 				>
-					<span class="hidden sm:inline">Tambah Projek</span>
+					<span class="hidden sm:inline">Pamerkan Karya</span>
 				</UButton>
 			</template>
 		</UDashboardNavbar>
@@ -106,25 +106,25 @@ async function executeDelete() {
 					<div class="flex items-center gap-4">
 						<UAvatar
 							:src="profileData?.user?.avatarUrl || (user as { image?: string })?.image || undefined"
-							:alt="user?.name || 'Developer'"
+							:alt="user?.name || 'Kreator'"
 							size="3xl"
 							class="ring-2 ring-primary/40 shadow-md"
 						/>
 						<div>
 							<div class="flex items-center gap-2">
 								<h1 class="text-xl sm:text-2xl font-bold text-highlighted">
-									Halo, {{ profileData?.user?.name || user?.name || 'Developer' }}! 👋
+									Halo, {{ profileData?.user?.name || user?.name || 'Kreator' }}
 								</h1>
 								<UBadge
 									color="primary"
 									variant="subtle"
 									size="xs"
 								>
-									{{ profileData?.user?.role || 'Member' }}
+									{{ profileData?.user?.role === 'admin' ? 'Admin' : 'Kreator' }}
 								</UBadge>
 							</div>
 							<p class="text-sm text-muted mt-1 max-w-xl">
-								{{ profileData?.user?.bio || 'Selamat datang di ekosistem Majalengka Tech. Bangun inovasi, unggah portofolio karyamu, dan berkolaborasi bersama developer lainnya.' }}
+								{{ profileData?.user?.bio || 'Bio kamu belum diisi. Tulis satu atau dua kalimat tentang apa yang kamu buat lewat Edit Profil.' }}
 							</p>
 						</div>
 					</div>
@@ -139,7 +139,7 @@ async function executeDelete() {
 						/>
 						<UButton
 							label="Lihat Showcase"
-							icon="i-lucide-sparkles"
+							icon="i-lucide-layout-grid"
 							color="primary"
 							variant="solid"
 							to="/projek"
@@ -152,7 +152,7 @@ async function executeDelete() {
 			<div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
 				<UCard class="p-4">
 					<div class="flex items-center justify-between">
-						<span class="text-sm font-medium text-muted">Total Projek</span>
+						<span class="text-sm font-medium text-muted">Total Karya</span>
 						<UIcon
 							name="i-lucide-folder-git-2"
 							class="w-5 h-5 text-primary"
@@ -161,7 +161,7 @@ async function executeDelete() {
 					<div class="mt-2 text-3xl font-bold text-highlighted">
 						{{ projectCount }}
 					</div>
-					<span class="text-xs text-muted mt-1 block">Projek yang telah diunggah</span>
+					<span class="text-xs text-muted mt-1 block">Termasuk yang masih draf</span>
 				</UCard>
 
 				<UCard class="p-4">
@@ -208,16 +208,16 @@ async function executeDelete() {
 				<div class="flex items-center justify-between">
 					<div>
 						<h2 class="text-lg font-bold text-highlighted">
-							Projek Terbaru Saya
+							Karya terbarumu
 						</h2>
 						<p class="text-xs text-muted">
-							Daftar karya dan portofolio teknologi yang telah Anda publikasikan
+							Karya yang sudah kamu unggah, baik yang terbit maupun yang masih draf
 						</p>
 					</div>
 
 					<UButton
 						v-if="projects.length > 0"
-						label="Lihat Semua"
+						label="Kelola Semua Karya"
 						trailing-icon="i-lucide-arrow-right"
 						color="neutral"
 						variant="ghost"
@@ -226,30 +226,23 @@ async function executeDelete() {
 					/>
 				</div>
 
-				<div
-					v-if="projects.length === 0"
-					class="rounded-xl border border-dashed border-default p-8 text-center flex flex-col items-center justify-center gap-3 bg-muted/50"
-				>
-					<div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary">
-						<UIcon
-							name="i-lucide-folder-plus"
-							class="w-6 h-6"
-						/>
-					</div>
-					<h3 class="font-semibold text-highlighted">
-						Belum Ada Projek
-					</h3>
-					<p class="text-sm text-muted max-w-md">
-						Anda belum mengunggah projek apapun ke ekosistem Majalengka Tech. Bagikan aplikasi atau tool buatan Anda kepada komunitas!
-					</p>
-					<UButton
-						label="Unggah Projek Pertama"
-						icon="i-lucide-plus"
-						color="primary"
-						class="mt-2"
-						to="/dashboard/projects/new"
-					/>
-				</div>
+				<UAlert
+					v-if="projectsError"
+					color="error"
+					variant="subtle"
+					icon="i-lucide-cloud-off"
+					title="Daftar karyamu gagal dimuat"
+					description="Server belum merespons. Karyamu tetap aman, coba muat ulang sebentar lagi."
+					:actions="[{ label: 'Muat Ulang', icon: 'i-lucide-refresh-cw', color: 'error', variant: 'outline', loading: projectsStatus === 'pending', onClick: () => refreshProjects() }]"
+				/>
+				<UEmpty
+					v-else-if="projects.length === 0"
+					icon="i-lucide-folder-plus"
+					title="Belum ada karya"
+					description="Kamu belum mengunggah karya. Pamerkan aplikasi, desain, atau tool buatanmu supaya bisa dilihat kreator lain."
+					variant="outline"
+					:actions="[{ label: 'Pamerkan Karyamu', icon: 'i-lucide-plus', to: '/dashboard/projects/new' }]"
+				/>
 
 				<div
 					v-else
@@ -268,8 +261,8 @@ async function executeDelete() {
 
 		<UModal
 			v-model:open="deleteModalOpen"
-			title="Hapus projek ini?"
-			description="Projek, gambar, dan ulasannya akan dihapus permanen."
+			title="Hapus karya ini?"
+			description="Karya, gambar, apresiasi, dan komentarnya akan dihapus permanen."
 		>
 			<template #footer>
 				<div class="flex items-center justify-end gap-3">

@@ -3,6 +3,7 @@
 		<UButton
 			icon="i-lucide-chevron-left"
 			to="/"
+			aria-label="Kembali ke beranda"
 			size="xl"
 			color="neutral"
 			variant="subtle"

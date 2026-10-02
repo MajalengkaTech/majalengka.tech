@@ -138,7 +138,7 @@ useSeoMeta({
 						oleh
 						<NuxtLink
 							v-if="project.author.username"
-							:to="`/@${project.author.username}`"
+							:to="`/${project.author.username}`"
 							class="rounded-sm font-semibold text-highlighted outline-primary/25 hover:text-primary focus-visible:outline-3"
 						>{{ project.author.name }}</NuxtLink>
 						<span
@@ -152,7 +152,7 @@ useSeoMeta({
 
 				<div class="flex flex-wrap items-center gap-2">
 					<UButton
-						v-if="!project.isOwner"
+						v-if="!project.isOwner && project.isPublished"
 						:icon="project.likedByMe ? 'i-tabler-heart-filled' : 'i-tabler-heart'"
 						:label="project.likeCount ? `${project.likeCount} Apresiasi` : 'Beri Apresiasi'"
 						:color="project.likedByMe ? 'primary' : 'neutral'"
@@ -258,10 +258,22 @@ useSeoMeta({
 				</dl>
 
 				<ProjectComments
+					v-if="project.isPublished"
 					:project-id="project.id"
 					:project-owner-id="project.userId"
 					class="border-t border-default pt-8"
 				/>
+				<section
+					v-else
+					class="border-t border-default pt-8"
+				>
+					<h2 class="text-xl font-bold text-highlighted">
+						Komentar
+					</h2>
+					<p class="mt-2 text-sm text-muted">
+						Komentar dibuka setelah karya ini terbit di showcase.
+					</p>
+				</section>
 			</article>
 
 			<aside class="flex flex-col gap-6 lg:sticky lg:top-(--ui-header-height) lg:self-start lg:pt-2">
