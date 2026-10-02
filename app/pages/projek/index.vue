@@ -112,6 +112,7 @@ function resetFilters() {
 					<li>
 						<UButton
 							label="Semua"
+							class="whitespace-nowrap"
 							:color="!category ? 'primary' : 'neutral'"
 							:variant="!category ? 'solid' : 'outline'"
 							:aria-current="!category ? 'page' : undefined"
@@ -123,6 +124,7 @@ function resetFilters() {
 						:key="chip.key"
 					>
 						<UButton
+							class="whitespace-nowrap"
 							:color="category === chip.key ? 'primary' : 'neutral'"
 							:variant="category === chip.key ? 'solid' : 'outline'"
 							:aria-current="category === chip.key ? 'page' : undefined"

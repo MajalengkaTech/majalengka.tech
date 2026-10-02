@@ -131,7 +131,8 @@ defineOgImage('Saas', {
 
 		<UPageSection
 			v-if="featured.length"
-			:ui="{ container: 'py-12 sm:py-16' }"
+			:orientation="featured.length === 1 ? 'horizontal' : 'vertical'"
+			:ui="{ container: 'py-12 sm:py-16 lg:py-20' }"
 		>
 			<template #headline>
 				<span class="inline-flex items-center gap-1.5 rounded-sm bg-mango-100 px-2 py-0.5 text-sm font-semibold text-mango-900">
@@ -149,7 +150,10 @@ defineOgImage('Saas', {
 				Dipilih kurator Majalengka Tech karena ceritanya kuat dan tampilannya rapi.
 			</template>
 
-			<div class="grid grid-cols-1 gap-x-8 gap-y-12 md:grid-cols-2">
+			<div
+				class="grid grid-cols-1 gap-x-8 gap-y-12"
+				:class="{ 'md:grid-cols-2': featured.length > 1 }"
+			>
 				<DashboardProjectCard
 					v-for="project in featured"
 					:key="project.id"
@@ -158,7 +162,7 @@ defineOgImage('Saas', {
 			</div>
 		</UPageSection>
 
-		<UPageSection :ui="{ container: 'py-12 sm:py-16' }">
+		<UPageSection :ui="{ container: 'py-12 sm:py-16 lg:py-20' }">
 			<template #title>
 				Karya terbaru
 			</template>
@@ -200,13 +204,13 @@ defineOgImage('Saas', {
 
 		<UPageSection
 			v-if="categories.length"
-			:ui="{ container: 'py-12 sm:py-16' }"
+			:ui="{ container: 'py-12 sm:py-16 lg:py-20' }"
 		>
 			<template #title>
 				Jelajahi per kategori
 			</template>
 
-			<ul class="flex flex-wrap gap-2">
+			<ul class="flex flex-wrap justify-center gap-2">
 				<li
 					v-for="category in categories"
 					:key="category.key"
@@ -226,7 +230,7 @@ defineOgImage('Saas', {
 
 		<UPageSection
 			v-if="creators.length"
-			:ui="{ container: 'py-12 sm:py-16' }"
+			:ui="{ container: 'py-12 sm:py-16 lg:py-20' }"
 		>
 			<template #title>
 				Kreator di balik karya
@@ -235,10 +239,11 @@ defineOgImage('Saas', {
 				Kenali orangnya, lihat karya lainnya, dan temukan yang terbuka untuk project.
 			</template>
 
-			<ul class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+			<ul class="flex flex-wrap justify-center gap-4">
 				<li
 					v-for="creator in creators"
 					:key="creator.id"
+					class="w-full sm:w-[calc(50%-0.5rem)] lg:w-[calc(25%-0.75rem)]"
 				>
 					<NuxtLink
 						:to="`/@${creator.username}`"
