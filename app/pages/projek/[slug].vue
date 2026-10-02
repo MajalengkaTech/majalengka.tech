@@ -67,17 +67,18 @@ const breadcrumb = computed(() => [
 ])
 
 const seoDescription = computed(() => project.value.tagline || project.value.description.slice(0, 155))
+// Gambar pratinjau link memakai sampul karya; OG image runtime tidak dipakai karena batas CPU Workers Free.
+const coverUrl = images.value[0]?.url
+const ogImage = coverUrl ? (coverUrl.startsWith('/') ? useRequestURL().origin + coverUrl : coverUrl) : undefined
+
 useSeoMeta({
 	title: () => `${project.value.title} oleh ${project.value.author.name}`,
 	ogTitle: () => project.value.title,
 	description: seoDescription,
-	ogDescription: seoDescription
-})
-
-defineOgImage('Saas', {
-	headline: category.value,
-	title: project.value.title,
-	description: `oleh ${project.value.author.name}`
+	ogDescription: seoDescription,
+	ogImage,
+	ogImageAlt: ogImage ? `Tampilan ${project.value.title}` : undefined,
+	twitterCard: ogImage ? 'summary_large_image' : 'summary'
 })
 </script>
 

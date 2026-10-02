@@ -81,4 +81,25 @@ export interface CreatorProfile {
 	createdAt: string | Date
 	projectCount: number
 	likeCount: number
+	rank: number
+	totalCreators: number
+}
+
+export interface CreatorCardInfo {
+	url: string
+	updatedAt: number
+	projectCount: number
+	likeCount: number
+	rank: number
+}
+
+export interface CreatorCardData {
+	name: string
+	username: string
+	avatarUrl: string | null
+	roleLabel: string | null
+	projectCount: number
+	likeCount: number
+	rank: number
+	totalCreators: number
 }

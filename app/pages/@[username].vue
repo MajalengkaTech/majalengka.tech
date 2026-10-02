@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import type { CreatorProfile, ProjectItem } from '~/types/project'
+import type { CreatorCardData, CreatorCardInfo, CreatorProfile, ProjectItem } from '~/types/project'
 
 const route = useRoute()
 const { user } = useUserSession()
 const username = computed(() => String(route.params.username).toLowerCase())
 
-const { data, error } = await useFetch<{ creator: CreatorProfile, projects: ProjectItem[] }>(() => `/api/creators/${username.value}`, {
+const { data, error } = await useFetch<{ creator: CreatorProfile, card: CreatorCardInfo | null, projects: ProjectItem[] }>(() => `/api/creators/${username.value}`, {
 	key: `creator-${username.value}`
 })
 
@@ -30,7 +30,47 @@ const links = computed(() => [
 	creator.value.linkedinUrl && { label: 'LinkedIn', icon: 'i-simple-icons-linkedin', to: creator.value.linkedinUrl }
 ].filter(Boolean) as { label: string, icon: string, to: string }[])
 
-const profileUrl = useRequestURL().origin + route.path
+const cardData = computed<CreatorCardData>(() => ({
+	name: creator.value.name,
+	username: creator.value.username || username.value,
+	avatarUrl: creator.value.avatarUrl,
+	roleLabel: roleLabel.value,
+	projectCount: creator.value.projectCount,
+	likeCount: creator.value.likeCount,
+	rank: creator.value.rank,
+	totalCreators: creator.value.totalCreators
+}))
+
+const { busy: cardBusy, downloadCard, uploadCard } = useCreatorCard()
+const toast = useToast()
+const cardSyncFailed = ref(false)
+
+async function onDownloadCard() {
+	try {
+		await downloadCard(cardData.value)
+	} catch {
+		toast.add({ title: 'Kartu belum bisa diunduh', description: 'Coba muat ulang halaman lalu unduh lagi.', color: 'error' })
+	}
+}
+
+// Gambar pratinjau link dibuat di browser pemilik dan hanya diperbarui kalau angkanya berubah.
+onMounted(async () => {
+	if (!isMe.value) return
+	const card = data.value?.card
+	const changed = !card
+		|| card.projectCount !== creator.value.projectCount
+		|| card.likeCount !== creator.value.likeCount
+		|| card.rank !== creator.value.rank
+	if (!changed) return
+	try {
+		await uploadCard(cardData.value)
+	} catch {
+		cardSyncFailed.value = true
+	}
+})
+
+const origin = useRequestURL().origin
+const profileUrl = origin + route.path
 const { shareLink } = useShareLink()
 
 function shareProfile() {
@@ -41,16 +81,17 @@ const seoDescription = computed(() => creator.value.bio
 	|| [roleLabel.value, creator.value.location].filter(Boolean).join(' dari ')
 	|| `Karya ${creator.value.name} di Majalengka Tech`)
 
+const cardImage = data.value?.card ? origin + data.value.card.url : undefined
+
 useSeoMeta({
 	title: () => `${creator.value.name} (@${creator.value.username})`,
 	description: seoDescription,
-	ogDescription: seoDescription
-})
-
-defineOgImage('Saas', {
-	headline: roleLabel.value || 'Kreator Majalengka',
-	title: creator.value.name,
-	description: `@${creator.value.username}`
+	ogDescription: seoDescription,
+	ogImage: cardImage,
+	ogImageWidth: cardImage ? 1200 : undefined,
+	ogImageHeight: cardImage ? 630 : undefined,
+	ogImageAlt: cardImage ? `Kartu kreator ${creator.value.name} di Majalengka Tech` : undefined,
+	twitterCard: cardImage ? 'summary_large_image' : 'summary'
 })
 </script>
 
@@ -98,14 +139,33 @@ defineOgImage('Saas', {
 				</div>
 			</div>
 
-			<div class="flex flex-wrap gap-2 lg:justify-end">
+			<div
+				v-if="isMe"
+				class="flex flex-wrap gap-2 lg:justify-end"
+			>
 				<UButton
-					v-if="isMe"
 					to="/dashboard/settings"
 					label="Edit Profil"
 					icon="i-lucide-pencil"
 					color="neutral"
 					variant="outline"
+				/>
+			</div>
+		</header>
+
+		<section
+			aria-label="Kartu kreator"
+			class="flex flex-col gap-3"
+		>
+			<CreatorStatsCard :data="cardData" />
+			<div class="flex flex-wrap items-center gap-2">
+				<UButton
+					label="Unduh Kartu"
+					icon="i-lucide-download"
+					color="neutral"
+					variant="outline"
+					:loading="cardBusy"
+					@click="onDownloadCard"
 				/>
 				<UButton
 					label="Bagikan Profil"
@@ -114,30 +174,17 @@ defineOgImage('Saas', {
 					variant="ghost"
 					@click="shareProfile"
 				/>
+				<p
+					v-if="isMe && cardSyncFailed"
+					class="text-sm text-muted"
+				>
+					Gambar pratinjau link belum bisa diperbarui. Kartu di halaman ini tetap memakai angka terbaru.
+				</p>
 			</div>
-		</header>
+		</section>
 
 		<div class="grid gap-10 lg:grid-cols-[280px_minmax(0,1fr)] lg:gap-12">
 			<aside class="flex flex-col gap-6">
-				<dl class="grid grid-cols-2 gap-3">
-					<div class="rounded-md border border-default px-4 py-3">
-						<dt class="text-xs text-muted">
-							Karya
-						</dt>
-						<dd class="text-2xl font-bold text-highlighted tabular-nums">
-							{{ creator.projectCount }}
-						</dd>
-					</div>
-					<div class="rounded-md border border-default px-4 py-3">
-						<dt class="text-xs text-muted">
-							Apresiasi
-						</dt>
-						<dd class="text-2xl font-bold text-highlighted tabular-nums">
-							{{ creator.likeCount }}
-						</dd>
-					</div>
-				</dl>
-
 				<section
 					v-if="creator.bio"
 					aria-labelledby="judul-bio"

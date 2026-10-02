@@ -1,6 +1,7 @@
 import { and, desc, eq } from 'drizzle-orm'
 import { db, schema } from 'hub:db'
 import { projectListColumns, toProjectItem } from '../../utils/project-listing'
+import { creatorCardPath, getCreatorStats } from '../../utils/creator-stats'
 
 export default defineEventHandler(async (event) => {
 	const username = getRouterParam(event, 'username')?.trim().toLowerCase().replace(/^@/, '')
@@ -50,13 +51,32 @@ export default defineEventHandler(async (event) => {
 
 	const projects = rows.map(toProjectItem)
 	const { banned: _banned, ...profile } = creator
+	const stats = await getCreatorStats(creator.id)
 
 	return {
 		creator: {
 			...profile,
-			projectCount: projects.length,
-			likeCount: projects.reduce((total, project) => total + project.likeCount, 0)
+			...stats
 		},
+		card: await readCardInfo(creator.id),
 		projects
 	}
 })
+
+// Info kartu yang tersimpan di R2; null kalau belum pernah dibuat atau R2 tidak tersedia (misalnya di lokal).
+async function readCardInfo(userId: string) {
+	try {
+		const meta = await blob.head(creatorCardPath(userId))
+		if (!meta) return null
+		const updatedAt = new Date(meta.uploadedAt).getTime()
+		return {
+			url: `/api/files/${creatorCardPath(userId)}?v=${updatedAt}`,
+			updatedAt,
+			projectCount: Number(meta.customMetadata?.projectCount) || 0,
+			likeCount: Number(meta.customMetadata?.likeCount) || 0,
+			rank: Number(meta.customMetadata?.rank) || 0
+		}
+	} catch {
+		return null
+	}
+}

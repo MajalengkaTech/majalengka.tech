@@ -3,6 +3,7 @@ import { db, schema } from 'hub:db'
 import { z } from 'zod'
 import { isSuperAdmin, requireAdminSession } from '../../utils/admin'
 import { deleteOwnedBlob } from '../../utils/project-blob'
+import { creatorCardPath } from '../../utils/creator-stats'
 
 const deleteUserSchema = z.object({
 	userId: z.string().min(1, 'User ID wajib diisi')
@@ -68,6 +69,7 @@ export default defineEventHandler(async (event) => {
 	for (const url of [...userProjects.map(p => p.thumbnailUrl), ...userImages.map(image => image.url)]) {
 		await deleteOwnedBlob(url, body.userId)
 	}
+	await blob.delete(creatorCardPath(body.userId)).catch(() => {})
 
 	return {
 		success: true,
