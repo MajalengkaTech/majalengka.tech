@@ -54,7 +54,7 @@ defineProps<{
 					majalengka<span class="text-[#6293ff] font-extrabold">.tech</span>
 				</span>
 				<div class="h-px flex-1 bg-neutral-800" />
-				<span class="text-lg font-medium text-neutral-400">Komunitas Open Source Majalengka</span>
+				<span class="text-lg font-medium text-neutral-400">Gratis untuk kreator, kodenya terbuka</span>
 			</div>
 		</div>
 	</div>

@@ -16,7 +16,7 @@ Tempat developer dan desainer Majalengka memamerkan proyeknya, membangun profil,
 - **Apresiasi dan komentar.** Pengunjung yang sudah masuk bisa memberi apresiasi dan menulis komentar.
 - **Profil kreator** di `majalengka.tech/username`, lengkap dengan kartu kreator yang bisa diunduh dan dipakai sebagai pratinjau link.
 - **Dashboard kreator.** Pamerkan proyek baru, simpan sebagai Draf, edit profil, dan cek kelengkapan profil.
-- **Halaman admin.** Kelola Pengguna dan Kelola Proyek, termasuk memilih proyek untuk Pilihan Kurator.
+- **Halaman pengelola.** Kelola Pengguna dan Kelola Proyek, termasuk memilih proyek untuk Pilihan Kurator.
 - **Panduan dan catatan rilis** di `/docs` dan `/changelog`.
 - **Konten untuk alat AI** di `/llms.txt` dan `/llms-full.txt`.
 

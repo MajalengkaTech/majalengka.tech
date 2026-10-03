@@ -493,7 +493,7 @@ async function onSubmit(event: FormSubmitEvent<ProjectInput>) {
 					<USwitch
 						v-model="state.isPublished"
 						label="Terbitkan di showcase"
-						description="Matikan untuk menyimpan sebagai Draf. Draf hanya bisa dilihat olehmu dan admin."
+						description="Matikan untuk menyimpan sebagai Draf. Draf hanya bisa dilihat olehmu dan pengelola situs."
 					/>
 				</div>
 			</UCard>

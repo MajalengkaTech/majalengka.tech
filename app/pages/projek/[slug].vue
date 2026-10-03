@@ -116,8 +116,8 @@ useReveal(useTemplateRef<HTMLElement>('others'))
 			icon="i-lucide-eye-off"
 			title="Proyek ini masih Draf"
 			:description="project.isOwner
-				? 'Hanya kamu dan admin yang bisa melihat halaman ini. Terbitkan dari dashboard kalau sudah siap dipamerkan.'
-				: 'Halaman ini hanya bisa dilihat pemiliknya dan admin.'"
+				? 'Hanya kamu dan pengelola situs yang bisa melihat halaman ini. Terbitkan dari dashboard kalau sudah siap dipamerkan.'
+				: 'Halaman ini hanya bisa dilihat pemiliknya dan pengelola situs.'"
 			:actions="[{ label: 'Edit Proyek', to: `/dashboard/projects/${project.id}`, color: 'warning', variant: 'outline' }]"
 		/>
 
