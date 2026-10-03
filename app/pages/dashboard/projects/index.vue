@@ -117,7 +117,7 @@ async function executeDelete() {
 				<USkeleton
 					v-for="n in 3"
 					:key="n"
-					class="aspect-4/3 w-full rounded-xl"
+					class="aspect-video w-full rounded-xl"
 				/>
 			</div>
 

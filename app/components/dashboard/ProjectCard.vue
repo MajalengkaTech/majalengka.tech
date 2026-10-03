@@ -19,6 +19,15 @@ const detailPath = computed(() => `/projek/${props.project.slug}`)
 const isOwn = computed(() => (user.value as { id?: string } | null)?.id === String(props.project.userId))
 const category = computed(() => categoryLabel(props.project.category))
 
+// Tombol panah menuju demo, lalu kode sumber, lalu profil kreator, sesuai yang tersedia.
+const quickLink = computed(() => {
+	const { demoUrl, repoUrl, author, title } = props.project
+	if (demoUrl) return { to: demoUrl, external: true, icon: 'i-lucide-arrow-up-right', label: `Buka demo ${title}` }
+	if (repoUrl) return { to: repoUrl, external: true, icon: 'i-lucide-arrow-up-right', label: `Lihat kode sumber ${title}` }
+	if (author?.username) return { to: `/${author.username}`, external: false, icon: 'i-lucide-arrow-right', label: `Lihat profil ${author.name}` }
+	return null
+})
+
 const actionItems = computed(() => [
 	[
 		{
@@ -49,7 +58,7 @@ const actionItems = computed(() => [
 			<!-- Lapisan hover hanya pelengkap: judul dan kreator selalu tampil di baris bawah untuk layar sentuh. -->
 			<NuxtLink
 				:to="detailPath"
-				class="relative block aspect-4/3 overflow-hidden rounded-xl bg-elevated outline-primary/40 outline-offset-2 focus-visible:outline-3"
+				class="relative block aspect-video overflow-hidden rounded-xl bg-elevated outline-primary/40 outline-offset-2 focus-visible:outline-3"
 				:aria-label="`${project.title}, ${category}`"
 			>
 				<NuxtImg
@@ -72,16 +81,30 @@ const actionItems = computed(() => [
 					class="pointer-events-none absolute inset-0 flex items-end justify-between gap-4 bg-linear-to-t from-black/80 via-black/25 to-transparent p-5 opacity-0 transition-opacity duration-300 group-hover:opacity-100 group-focus-within:opacity-100 motion-reduce:transition-none"
 					aria-hidden="true"
 				>
-					<span class="flex min-w-0 flex-col gap-1">
+					<!-- pe-12 memberi ruang untuk tombol panah yang berada di atas lapisan ini. -->
+					<span class="flex min-w-0 flex-col gap-1 pe-12">
 						<span class="text-xs font-medium text-white/85">{{ category }}</span>
 						<span class="truncate text-xl font-bold text-white">{{ project.title }}</span>
 					</span>
-					<UIcon
-						name="i-lucide-arrow-up-right"
-						class="size-7 shrink-0 text-white"
-					/>
 				</span>
 			</NuxtLink>
+
+			<!-- Di luar NuxtLink karena tautan tidak boleh bersarang. Di layar sentuh selalu tampil karena tidak ada hover. -->
+			<UTooltip
+				v-if="quickLink"
+				:text="quickLink.label"
+			>
+				<UButton
+					:to="quickLink.to"
+					:target="quickLink.external ? '_blank' : undefined"
+					:icon="quickLink.icon"
+					color="neutral"
+					variant="solid"
+					size="lg"
+					class="absolute right-4 bottom-4 rounded-full opacity-0 shadow-sm transition-opacity duration-300 group-hover:opacity-100 group-focus-within:opacity-100 focus-visible:opacity-100 motion-reduce:transition-none [@media(hover:none)]:opacity-100"
+					:aria-label="quickLink.label"
+				/>
+			</UTooltip>
 
 			<div class="pointer-events-none absolute top-3 left-3 flex flex-wrap gap-1.5">
 				<span

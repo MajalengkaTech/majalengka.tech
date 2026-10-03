@@ -177,7 +177,7 @@ async function deleteProject() {
 					class="flex flex-col gap-3 p-4 sm:flex-row sm:items-center"
 				>
 					<div class="flex min-w-0 flex-1 items-center gap-3">
-						<div class="aspect-4/3 w-20 shrink-0 overflow-hidden rounded-sm bg-elevated">
+						<div class="aspect-video w-24 shrink-0 overflow-hidden rounded-sm bg-elevated">
 							<NuxtImg
 								v-if="project.thumbnailUrl"
 								:src="project.thumbnailUrl"

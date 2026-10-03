@@ -36,6 +36,18 @@ const state = reactive({
 
 const tagList = ref<string[]>(splitTags(state.tags))
 watch(tagList, (list) => {
+	// Memecah teks tempelan dengan koma bisa menyisakan spasi atau item ganda, jadi dirapikan di sini.
+	const seen = new Set<string>()
+	const clean = list.map(tag => tag.trim()).filter((tag) => {
+		const key = tag.toLowerCase()
+		if (!tag || seen.has(key)) return false
+		seen.add(key)
+		return true
+	})
+	if (clean.length !== list.length || clean.some((tag, i) => tag !== list[i])) {
+		tagList.value = clean
+		return
+	}
 	state.tags = list.join(', ')
 }, { deep: true })
 
@@ -481,11 +493,14 @@ async function onSubmit(event: FormSubmitEvent<ProjectInput>) {
 					<UFormField
 						label="Dibuat dengan"
 						name="tags"
-						description="Teknologi atau alat yang kamu pakai. Tekan Enter setelah tiap item."
+						description="Teknologi atau alat yang kamu pakai. Pisahkan dengan koma atau tekan Enter."
 					>
 						<UInputTags
 							v-model="tagList"
 							placeholder="Nuxt, Figma, Laravel..."
+							delimiter=","
+							add-on-paste
+							add-on-blur
 							class="w-full"
 						/>
 					</UFormField>
