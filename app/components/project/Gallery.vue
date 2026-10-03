@@ -46,9 +46,10 @@ function step(delta: number) {
 </script>
 
 <template>
+	<!-- Lebar mengikuti tinggi layar supaya gambar utama dan thumbnail muat tanpa menggulir di laptop. -->
 	<section
 		aria-label="Galeri proyek"
-		class="flex flex-col gap-3"
+		class="mx-auto flex w-full max-w-[min(100%,64rem,calc((100svh-12rem)*16/9))] flex-col gap-3"
 	>
 		<div
 			v-if="activeImage"

@@ -101,7 +101,15 @@ const { data: files } = useLazyAsyncData('search', () => queryCollectionSearchSe
 const { data: blogPosts } = useLazyAsyncData('search-posts', () => queryCollection('posts').all(), {
 	server: false
 })
-const { data: projectsData } = useLazyFetch('/api/projects')
+const { data: projectsData, refresh: refreshSearchProjects } = useLazyFetch('/api/projects', {
+	key: 'search-projects'
+})
+
+// Daftar proyek diambil sekali saat situs dibuka, jadi proyek yang baru diunggah perlu diambil ulang saat pencarian dibuka.
+const { open: searchOpen } = useContentSearch()
+watch(searchOpen, (isOpen) => {
+	if (isOpen) refreshSearchProjects()
+})
 
 interface SearchGroupItem {
 	id: string
@@ -140,6 +148,7 @@ const searchGroups = computed<SearchGroup[]>(() => {
 		id: number
 		slug: string
 		title: string
+		tagline?: string | null
 		description: string
 		tags?: string | null
 		author?: { name?: string | null }
@@ -152,7 +161,7 @@ const searchGroups = computed<SearchGroup[]>(() => {
 			items: projects.map(p => ({
 				id: `project-${p.id}`,
 				label: p.title,
-				description: p.description,
+				description: p.tagline || p.description,
 				icon: 'i-lucide-folder-git-2',
 				to: `/projek/${p.slug}`,
 				suffix: p.tags?.split(',')[0]?.trim() || p.author?.name || 'Proyek'
@@ -181,7 +190,7 @@ provide('navigation', navigation)
 				:groups="searchGroups"
 				:links="navLinks"
 				:fuse="{ resultLimit: 42 }"
-				placeholder="Cari panduan dan halaman..."
+				placeholder="Cari proyek, panduan, atau artikel..."
 			/>
 		</ClientOnly>
 	</UApp>
