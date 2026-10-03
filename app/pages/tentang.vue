@@ -32,26 +32,19 @@ defineOgImage('Saas', {
 			:description="page.features.description"
 			:ui="{ container: 'py-10 sm:py-14 lg:py-16' }"
 		>
-			<ul class="grid gap-x-8 gap-y-6 sm:grid-cols-2 lg:grid-cols-3">
-				<li
+			<!-- Spotlight Nuxt UI: tepi kartu menyala mengikuti kursor, hanya saat diarahkan (permintaan pemilik). -->
+			<UPageGrid>
+				<UPageCard
 					v-for="item in page.features.items"
 					:key="item.title"
-					class="flex flex-col gap-2 border-t border-default pt-4"
-				>
-					<div class="flex items-center gap-2">
-						<UIcon
-							:name="item.icon"
-							class="size-5 text-primary"
-						/>
-						<h3 class="font-semibold text-highlighted">
-							{{ item.title }}
-						</h3>
-					</div>
-					<p class="text-sm/6 text-muted">
-						{{ item.description }}
-					</p>
-				</li>
-			</ul>
+					:title="item.title"
+					:description="item.description"
+					:icon="item.icon"
+					variant="outline"
+					spotlight
+					spotlight-color="primary"
+				/>
+			</UPageGrid>
 		</UPageSection>
 
 		<USeparator />

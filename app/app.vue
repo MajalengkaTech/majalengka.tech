@@ -14,10 +14,31 @@ useHead({
 	link: [
 		{ rel: 'icon', href: '/favicon.ico' }
 	],
+	// Jalan sebelum halaman tergambar, supaya elemen yang akan dianimasikan tidak sempat tampil lalu berkedip hilang.
+	script: [
+		{
+			key: 'motion-ready',
+			tagPosition: 'head',
+			innerHTML: 'try{var d=document.documentElement;if(!matchMedia(\'(prefers-reduced-motion: reduce)\').matches){d.classList.add(\'motion-ready\')}if(sessionStorage.getItem(\'mt-hero-seen\')){d.classList.add(\'hero-seen\')}}catch(e){}'
+		}
+	],
 	htmlAttrs: {
 		lang: 'id'
 	}
 })
+
+if (import.meta.client) {
+	if (motionAllowed()) {
+		// Halaman SPA (dashboard) tidak membawa skrip <head> di HTML awal, jadi kelasnya dipasang di sini juga.
+		document.documentElement.classList.add('motion-ready')
+	} else {
+		// nanime tidak membaca prefers-reduced-motion, jadi gaya transisi bersama dibuat seketika bila gerak dikurangi.
+		const styles: Record<string, unknown> = useAppConfig().nanime?.transitions || {}
+		for (const name of Object.keys(styles)) {
+			styles[name] = { enter: { duration: 0 }, leave: { duration: 0 }, move: { duration: 0 } }
+		}
+	}
+}
 
 const site = useSiteConfig()
 

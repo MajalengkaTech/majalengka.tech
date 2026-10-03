@@ -1,3 +1,5 @@
+import { animate } from 'animejs'
+
 interface LikeableProject {
 	id: number
 	title: string
@@ -15,7 +17,22 @@ export function useProjectLike() {
 		return pendingIds.value.includes(id)
 	}
 
-	async function toggleLike(project: LikeableProject) {
+	// Ikon hati membesar sesaat setelah apresiasi tersimpan, sebagai tanda aksinya berhasil (bukan saat masih menunggu server).
+	async function popIcon(button: HTMLElement | null) {
+		if (!button || !motionAllowed()) return
+		await nextTick()
+		const icon = button.querySelector<HTMLElement>('[data-slot="leadingIcon"]')
+		if (!icon) return
+		animate(icon, {
+			scale: [1, 1.45, 1],
+			duration: 480,
+			ease: 'out(3)',
+			onComplete: () => icon.style.removeProperty('transform')
+		})
+	}
+
+	async function toggleLike(project: LikeableProject, event?: Event) {
+		const button = event?.currentTarget instanceof HTMLElement ? event.currentTarget : null
 		if (!loggedIn.value) {
 			toast.add({
 				title: 'Masuk dulu, ya',
@@ -38,6 +55,7 @@ export function useProjectLike() {
 			})
 			project.likedByMe = res.liked
 			project.likeCount = res.likeCount
+			if (res.liked) popIcon(button)
 		} catch (err: unknown) {
 			project.likedByMe = previous.liked
 			project.likeCount = previous.count

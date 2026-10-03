@@ -72,3 +72,70 @@
 	--ui-text-muted: var(--ui-color-neutral-400);
 	--ui-text-dimmed: var(--ui-color-neutral-400);
 }
+
+/*
+ * Gerak (DESIGN.md, MOTION 2). Kelas .motion-ready dipasang skrip di <head> sebelum halaman tergambar,
+ * hanya bila pengguna tidak meminta gerak dikurangi. Tanpa kelas itu tidak ada yang disembunyikan.
+ */
+.motion-ready:not(.hero-seen) [data-hero] [data-hero-word] {
+	transform: translateY(110%);
+}
+
+.motion-ready:not(.hero-seen) [data-hero] :is([data-slot="headline"], [data-slot="description"], [data-slot="links"], [data-hero-media]) {
+	opacity: 0;
+}
+
+/* Cadangan bila JavaScript gagal dimuat: konten hero tetap muncul setelah 2,5 detik. */
+.motion-ready:not(.hero-seen) [data-hero] :is([data-hero-word], [data-hero-mark], [data-slot="headline"], [data-slot="description"], [data-slot="links"], [data-hero-media]) {
+	animation: hero-fallback 0s linear 2.5s forwards;
+}
+
+@keyframes hero-fallback {
+	to {
+		opacity: 1;
+		transform: none;
+		background-size: 100% 0.09em;
+	}
+}
+
+/* Garis bawah mangga di frasa sorotan hero: satu-satunya aksen di layar pertama. */
+[data-hero-mark] {
+	background-image: linear-gradient(var(--color-mango-500), var(--color-mango-500));
+	background-repeat: no-repeat;
+	background-position: 0 92%;
+	background-size: 100% 0.09em;
+}
+
+.motion-ready:not(.hero-seen) [data-hero] [data-hero-mark] {
+	background-size: 0% 0.09em;
+}
+
+.motion-ready [data-hero] [data-hero-mark] {
+	transition: background-size 700ms cubic-bezier(0.2, 0, 0, 1) 650ms;
+}
+
+.motion-ready.hero-play [data-hero] [data-hero-mark] {
+	background-size: 100% 0.09em;
+}
+
+/* Transisi antarhalaman: halaman lama memudar cepat, halaman baru naik sedikit. Memberi rasa berpindah tempat tanpa menahan pengguna. */
+.motion-ready .page-leave-active,
+.motion-ready .layout-leave-active {
+	transition: opacity 120ms ease-in;
+}
+
+.motion-ready .page-enter-active,
+.motion-ready .layout-enter-active {
+	transition: opacity 260ms cubic-bezier(0.2, 0, 0, 1), transform 260ms cubic-bezier(0.2, 0, 0, 1);
+}
+
+.motion-ready .page-enter-from,
+.motion-ready .layout-enter-from {
+	opacity: 0;
+	transform: translateY(8px);
+}
+
+.motion-ready .page-leave-to,
+.motion-ready .layout-leave-to {
+	opacity: 0;
+}

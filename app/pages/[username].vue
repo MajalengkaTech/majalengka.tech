@@ -93,6 +93,9 @@ useSeoMeta({
 	ogImageAlt: cardImage ? `Kartu kreator ${creator.value.name} di Majalengka Tech` : undefined,
 	twitterCard: cardImage ? 'summary_large_image' : 'summary'
 })
+
+// Karya di bawah layar muncul bertahap saat di-scroll.
+useReveal(useTemplateRef<HTMLElement>('works'))
 </script>
 
 <template>
@@ -276,11 +279,13 @@ useSeoMeta({
 
 				<div
 					v-else
+					ref="works"
 					class="grid grid-cols-1 gap-x-5 gap-y-8 sm:grid-cols-2 xl:grid-cols-3"
 				>
 					<div
 						v-for="project in projects"
 						:key="project.id"
+						data-reveal
 						class="flex flex-col gap-2"
 					>
 						<ProjectMiniCard :project="project" />

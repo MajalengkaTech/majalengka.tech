@@ -168,7 +168,7 @@ const actionItems = computed(() => [
 					:aria-pressed="project.likedByMe"
 					:aria-label="project.likedByMe ? `Tarik apresiasi untuk ${project.title}` : `Beri apresiasi untuk ${project.title}`"
 					:loading="isPending(project.id)"
-					@click="toggleLike(project)"
+					@click="toggleLike(project, $event)"
 				/>
 				<span
 					v-else

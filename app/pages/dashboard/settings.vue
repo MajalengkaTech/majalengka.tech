@@ -214,13 +214,23 @@ async function onSubmit(event: FormSubmitEvent<ProfileInput>) {
 								:class="usernameStatus?.available ? 'text-success' : 'text-error'"
 								aria-live="polite"
 							>
-								<template v-if="usernameStatus">
-									<UIcon
-										:name="usernameStatus.available ? 'i-lucide-circle-check' : 'i-lucide-circle-x'"
-										class="size-4 shrink-0"
-									/>
-									{{ usernameStatus.message }}
-								</template>
+								<AnimeTransition
+									enter-animation="mt-status"
+									leave-animation="mt-status"
+									mode="out-in"
+								>
+									<span
+										v-if="usernameStatus"
+										:key="usernameStatus.message"
+										class="flex items-center gap-1"
+									>
+										<UIcon
+											:name="usernameStatus.available ? 'i-lucide-circle-check' : 'i-lucide-circle-x'"
+											class="size-4 shrink-0"
+										/>
+										{{ usernameStatus.message }}
+									</span>
+								</AnimeTransition>
 							</p>
 						</UFormField>
 					</div>

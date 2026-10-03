@@ -149,9 +149,13 @@ async function executeDelete() {
 			</div>
 
 			<!-- Projects Grid -->
-			<div
+			<AnimeTransitionGroup
 				v-else
-				class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-10"
+				tag="div"
+				enter-animation="mt-item"
+				leave-animation="mt-item"
+				move-animation="mt-item"
+				class="relative grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-10"
 			>
 				<DashboardProjectCard
 					v-for="p in filteredProjects"
@@ -160,7 +164,7 @@ async function executeDelete() {
 					editable
 					@delete="confirmDelete"
 				/>
-			</div>
+			</AnimeTransitionGroup>
 		</div>
 
 		<!-- Delete Confirmation Modal -->

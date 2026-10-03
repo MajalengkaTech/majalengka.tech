@@ -80,6 +80,9 @@ useSeoMeta({
 	ogImageAlt: ogImage ? `Tampilan ${project.value.title}` : undefined,
 	twitterCard: ogImage ? 'summary_large_image' : 'summary'
 })
+
+// Karya lain dari kreator yang sama muncul saat pembaca sampai di bagian bawah.
+useReveal(useTemplateRef<HTMLElement>('others'))
 </script>
 
 <template>
@@ -159,7 +162,7 @@ useSeoMeta({
 						:variant="project.likedByMe ? 'solid' : 'outline'"
 						:aria-pressed="project.likedByMe"
 						:loading="isPending(project.id)"
-						@click="toggleLike(project)"
+						@click="toggleLike(project, $event)"
 					/>
 					<span
 						v-else
@@ -292,11 +295,15 @@ useSeoMeta({
 			>
 				Karya lain dari {{ project.author.name }}
 			</h2>
-			<div class="grid grid-cols-2 gap-4 lg:grid-cols-4">
+			<div
+				ref="others"
+				class="grid grid-cols-2 gap-4 lg:grid-cols-4"
+			>
 				<ProjectMiniCard
 					v-for="item in otherProjects"
 					:key="item.id"
 					:project="item"
+					data-reveal
 				/>
 			</div>
 		</section>

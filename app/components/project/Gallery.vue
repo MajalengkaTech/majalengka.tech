@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { animate } from 'animejs'
 import type { ProjectImage } from '~/types/project'
 
 const props = defineProps<{
@@ -11,6 +12,26 @@ const activeImage = computed(() => props.images[activeIndex.value] || props.imag
 
 watch(() => props.images.length, () => {
 	activeIndex.value = 0
+})
+
+const mainImage = useTemplateRef<{ $el?: HTMLElement }>('mainImage')
+
+// Gambar baru masuk dengan fade singkat supaya pergantian terasa bersambung, bukan meloncat.
+watch(activeIndex, async () => {
+	if (!motionAllowed()) return
+	await nextTick()
+	const image = mainImage.value?.$el
+	if (!image) return
+	animate(image, {
+		opacity: [0, 1],
+		scale: [1.015, 1],
+		duration: 380,
+		ease: 'out(3)',
+		onComplete: () => {
+			image.style.removeProperty('opacity')
+			image.style.removeProperty('transform')
+		}
+	})
 })
 
 function show(index: number) {
@@ -39,6 +60,7 @@ function step(delta: number) {
 			@keydown.right.prevent="step(1)"
 		>
 			<NuxtImg
+				ref="mainImage"
 				:key="activeImage.url"
 				:src="activeImage.url"
 				:alt="activeImage.alt || `Tampilan ${title}`"

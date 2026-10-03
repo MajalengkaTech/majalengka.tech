@@ -83,7 +83,14 @@ async function removeComment(comment: ProjectComment) {
 			<span
 				v-if="comments.length"
 				class="font-normal text-muted"
-			>({{ comments.length }})</span>
+			>(<AnimeTransition
+				enter-animation="mt-count"
+				leave-animation="mt-count"
+				mode="out-in"
+			><span
+				:key="comments.length"
+				class="inline-block tabular-nums"
+			>{{ comments.length }}</span></AnimeTransition>)</span>
 		</h2>
 
 		<UForm
@@ -155,9 +162,15 @@ async function removeComment(comment: ProjectComment) {
 			Belum ada komentar. Jadilah yang pertama memberi tanggapan.
 		</p>
 
-		<ul
-			v-else
-			class="flex flex-col divide-y divide-default"
+		<!-- Selalu dirender (disembunyikan saat kosong) supaya komentar pertama pun ikut animasi masuk. -->
+		<AnimeTransitionGroup
+			v-if="!error"
+			v-show="comments.length"
+			tag="ul"
+			enter-animation="mt-item"
+			leave-animation="mt-item"
+			move-animation="mt-item"
+			class="relative flex flex-col divide-y divide-default"
 		>
 			<li
 				v-for="comment in comments"
@@ -192,6 +205,6 @@ async function removeComment(comment: ProjectComment) {
 					@click="removeComment(comment)"
 				/>
 			</li>
-		</ul>
+		</AnimeTransitionGroup>
 	</section>
 </template>

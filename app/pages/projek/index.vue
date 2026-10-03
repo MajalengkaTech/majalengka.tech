@@ -60,6 +60,9 @@ const filtered = computed(() => {
 	].some(value => value?.toLowerCase().includes(q)))
 })
 
+const grid = useTemplateRef('grid')
+useReveal(grid)
+
 const chips = computed(() => {
 	const counts = statsData.value?.categories || {}
 	return categoryKeys
@@ -145,18 +148,30 @@ function resetFilters() {
 					class="w-full sm:max-w-sm"
 					aria-label="Cari karya"
 				/>
-				<USelect
+				<!-- Dua pilihan urutan langsung terlihat; penanda aktif bergeser saat diganti. -->
+				<UTabs
 					:model-value="sort"
 					:items="sortItems"
-					class="w-full sm:w-44"
+					:content="false"
+					size="sm"
+					class="w-full sm:w-auto"
 					aria-label="Urutkan karya"
-					@update:model-value="(value: string) => setQuery({ urut: value === 'populer' ? 'populer' : undefined })"
+					@update:model-value="(value: string | number) => setQuery({ urut: value === 'populer' ? 'populer' : undefined })"
 				/>
 				<p
 					class="text-sm text-muted sm:ml-auto"
 					aria-live="polite"
 				>
-					{{ filtered.length }} karya
+					<AnimeTransition
+						enter-animation="mt-count"
+						leave-animation="mt-count"
+						mode="out-in"
+					>
+						<span
+							:key="filtered.length"
+							class="inline-block tabular-nums"
+						>{{ filtered.length }}</span>
+					</AnimeTransition> karya
 				</p>
 			</div>
 		</div>
@@ -192,15 +207,22 @@ function resetFilters() {
 				: [{ label: 'Pamerkan Karyamu', icon: 'i-lucide-folder-plus', to: '/dashboard/projects/new' }]"
 		/>
 
-		<div
+		<!-- Saat filter berubah: kartu yang tersisa bergeser ke posisi barunya, yang hilang memudar, yang baru masuk. -->
+		<AnimeTransitionGroup
 			v-else
-			class="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3"
+			ref="grid"
+			tag="div"
+			enter-animation="mt-item"
+			leave-animation="mt-item"
+			move-animation="mt-item"
+			class="relative grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3"
 		>
 			<DashboardProjectCard
 				v-for="project in filtered"
 				:key="project.id"
 				:project="project"
+				data-reveal
 			/>
-		</div>
+		</AnimeTransitionGroup>
 	</UContainer>
 </template>

@@ -3,6 +3,7 @@ export default defineNuxtConfig({
 	modules: [
 		'@nuxt/eslint',
 		'@nuxt/image',
+		'nanime',
 		'@nuxt/ui',
 		'@nuxtjs/seo',
 		'@nuxt/content',
@@ -14,6 +15,12 @@ export default defineNuxtConfig({
 
 	devtools: {
 		enabled: true
+	},
+
+	// Gaya transisinya ada di main.css dan hanya aktif di bawah .motion-ready; tanpa itu Vue langsung mengganti halaman.
+	app: {
+		pageTransition: { name: 'page', mode: 'out-in' },
+		layoutTransition: { name: 'layout', mode: 'out-in' }
 	},
 
 	css: ['~/assets/css/main.css'],
