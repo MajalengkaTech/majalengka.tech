@@ -8,7 +8,7 @@ export interface CreatorStats {
 	totalCreators: number
 }
 
-// Peringkat dihitung dari kreator yang punya username dan minimal satu karya terbit, berdasarkan total apresiasi diterima.
+// Peringkat dihitung dari kreator yang punya username dan minimal satu proyek terbit, berdasarkan total apresiasi diterima.
 export async function getCreatorStats(userId: string): Promise<CreatorStats> {
 	const row = await db.get<{ projectCount: number, likeCount: number, rank: number, totalCreators: number }>(sql`
 		with creators as (
@@ -38,7 +38,7 @@ export async function getCreatorStats(userId: string): Promise<CreatorStats> {
 	return {
 		projectCount,
 		likeCount: Number(row?.likeCount) || 0,
-		// Kreator tanpa karya terbit tidak ikut diperingkat.
+		// Kreator tanpa proyek terbit tidak ikut diperingkat.
 		rank: projectCount > 0 ? Number(row?.rank) || 1 : 0,
 		totalCreators: Number(row?.totalCreators) || 0
 	}

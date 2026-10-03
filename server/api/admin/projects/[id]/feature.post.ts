@@ -26,6 +26,6 @@ export default defineEventHandler(async (event) => {
 	return {
 		success: true,
 		project: updated,
-		message: body.featured ? 'Karya masuk Pilihan Kurator' : 'Karya dikeluarkan dari Pilihan Kurator'
+		message: body.featured ? 'Proyek masuk Pilihan Kurator' : 'Proyek dikeluarkan dari Pilihan Kurator'
 	}
 })

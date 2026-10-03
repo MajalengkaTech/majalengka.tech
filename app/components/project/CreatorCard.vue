@@ -61,7 +61,7 @@ const links = computed(() => [
 			/>
 			<UBadge
 				v-if="author.openToWork"
-				label="Terbuka untuk project"
+				label="Terbuka untuk kerja sama"
 				icon="i-lucide-briefcase"
 				color="success"
 				variant="subtle"
@@ -78,7 +78,7 @@ const links = computed(() => [
 		<UButton
 			v-if="author.username"
 			:to="`/${author.username}`"
-			label="Lihat Profil & Karya Lain"
+			label="Lihat Profil & Proyek Lain"
 			color="neutral"
 			variant="outline"
 			block

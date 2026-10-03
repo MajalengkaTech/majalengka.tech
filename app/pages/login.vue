@@ -8,7 +8,7 @@ definePageMeta({
 
 useSeoMeta({
 	title: 'Masuk',
-	description: 'Masuk untuk mengelola karya dan profil kreatormu di Majalengka Tech.'
+	description: 'Masuk untuk mengelola proyek dan profil kreatormu di Majalengka Tech.'
 })
 
 const { loggedIn } = useUserSession()
@@ -83,7 +83,7 @@ async function onSubmit(payload: FormSubmitEvent<Schema>) {
 
 		if (error) {
 			toast.add({
-				title: 'Gagal Masuk',
+				title: 'Belum bisa masuk',
 				description: error.message || 'Email atau kata sandi tidak valid.',
 				color: 'error'
 			})
@@ -91,8 +91,8 @@ async function onSubmit(payload: FormSubmitEvent<Schema>) {
 		}
 
 		toast.add({
-			title: 'Berhasil Masuk',
-			description: 'Selamat datang kembali di Majalengka Tech!',
+			title: 'Kamu sudah masuk',
+			description: 'Selamat datang kembali di Majalengka Tech.',
 			color: 'success'
 		})
 		const destination = (route.query.redirect as string) || '/dashboard'
@@ -100,7 +100,7 @@ async function onSubmit(payload: FormSubmitEvent<Schema>) {
 	} catch (err: unknown) {
 		const errorMessage = err instanceof Error ? err.message : 'Terjadi kesalahan sistem.'
 		toast.add({
-			title: 'Gagal Masuk',
+			title: 'Belum bisa masuk',
 			description: errorMessage,
 			color: 'error'
 		})
@@ -117,7 +117,7 @@ async function onSubmit(payload: FormSubmitEvent<Schema>) {
 		:providers="providers"
 		:loading="loading"
 		separator="atau"
-		title="Selamat Datang Kembali"
+		title="Selamat datang kembali"
 		icon="i-lucide-lock"
 		:submit="{ label: 'Masuk' }"
 		@submit="onSubmit"

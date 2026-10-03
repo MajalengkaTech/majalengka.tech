@@ -7,7 +7,7 @@ const querySchema = z.object({
 	limit: z.coerce.number().int().min(1).max(48).default(12)
 })
 
-// Hanya kreator yang punya username dan minimal satu karya terbit, urut dari yang terakhir menerbitkan.
+// Hanya kreator yang punya username dan minimal satu proyek terbit, urut dari yang terakhir menerbitkan.
 export default defineEventHandler(async (event) => {
 	const query = await getQueryWith(event, querySchema)
 	const { user } = schema

@@ -44,7 +44,7 @@ defineProps<{
 				<dl class="grid grid-cols-2 gap-3 sm:gap-4">
 					<div class="flex flex-col-reverse rounded-lg border-2 border-[#00017B] bg-[#00004A] px-4 py-5 sm:px-6">
 						<dt class="mt-1 text-sm text-[#99BAFE] sm:text-base">
-							Karya terbit
+							Proyek terbit
 						</dt>
 						<dd class="text-4xl font-bold tabular-nums sm:text-5xl">
 							{{ data.projectCount }}

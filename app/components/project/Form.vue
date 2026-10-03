@@ -16,7 +16,7 @@ const MAX_GALLERY = 8
 
 const toast = useToast()
 const { user } = useUserSession()
-const { uploadImage, isUploading } = useImageUpload()
+const { uploadImage, isUploading } = useImageUpload(() => props.project?.id)
 const saving = ref(false)
 const isEdit = computed(() => Boolean(props.project?.id))
 
@@ -44,28 +44,21 @@ const galleryUrlInput = ref('')
 
 // Skema bersama membiarkan kategori opsional demi form lama; form ini mewajibkannya.
 function validateCategory(value: { category?: string | null }) {
-	return value.category ? [] : [{ name: 'category', message: 'Pilih kategori karya' }]
+	return value.category ? [] : [{ name: 'category', message: 'Pilih kategori proyek' }]
 }
 
 const categoryItems = Object.entries(PROJECT_CATEGORIES).map(([value, label]) => ({ value, label }))
 
-const coverInput = ref<HTMLInputElement | null>(null)
-const galleryInput = ref<HTMLInputElement | null>(null)
-
-async function onCoverSelected(event: Event) {
-	const input = event.target as HTMLInputElement
-	const file = input.files?.[0]
-	input.value = ''
+// UFileUpload hanya dipakai untuk memilih atau menarik file; gambar langsung diunggah dan ditampilkan di pratinjau sendiri.
+async function onCoverSelected(file: File | null | undefined) {
 	if (!file) return
 	const url = await uploadImage(file)
 	if (url) state.thumbnailUrl = url
 }
 
-async function onGallerySelected(event: Event) {
-	const input = event.target as HTMLInputElement
-	const files = Array.from(input.files || []).slice(0, MAX_GALLERY - gallery.value.length)
-	input.value = ''
-	for (const file of files) {
+async function onGallerySelected(files: File[] | null | undefined) {
+	const list = (files || []).slice(0, MAX_GALLERY - gallery.value.length)
+	for (const file of list) {
 		const url = await uploadImage(file)
 		if (url) gallery.value.push({ url, alt: '' })
 	}
@@ -98,7 +91,7 @@ function removeImage(index: number) {
 const preview = computed<ProjectItem>(() => ({
 	id: props.project?.id || 0,
 	userId: (user.value as { id?: string } | null)?.id || '',
-	title: state.title || 'Judul karyamu',
+	title: state.title || 'Judul proyekmu',
 	slug: props.project?.slug || 'pratinjau',
 	tagline: state.tagline || 'Tagline singkat muncul di sini',
 	description: state.description,
@@ -106,6 +99,39 @@ const preview = computed<ProjectItem>(() => ({
 	thumbnailUrl: state.thumbnailUrl || gallery.value[0]?.url || null,
 	createdAt: new Date()
 }))
+
+// Cerita proyek bisa panjang, jadi meninggalkan form yang sudah diubah perlu konfirmasi dulu.
+const snapshot = () => JSON.stringify({ state, gallery: gallery.value })
+const initialSnapshot = ref(snapshot())
+const isDirty = computed(() => snapshot() !== initialSnapshot.value)
+const leaveOpen = ref(false)
+let pendingLeave: ((leave: boolean) => void) | null = null
+
+onBeforeRouteLeave(() => {
+	if (!isDirty.value || saving.value) return true
+	leaveOpen.value = true
+	return new Promise<boolean>((resolve) => {
+		pendingLeave = resolve
+	})
+})
+
+function answerLeave(leave: boolean) {
+	leaveOpen.value = false
+	pendingLeave?.(leave)
+	pendingLeave = null
+}
+
+watch(leaveOpen, (open) => {
+	// Menutup modal lewat Esc atau klik di luar sama dengan memilih tetap di halaman.
+	if (!open && pendingLeave) answerLeave(false)
+})
+
+// Menutup tab atau memuat ulang tidak lewat router, jadi memakai peringatan bawaan browser.
+useEventListener('beforeunload', (event: BeforeUnloadEvent) => {
+	if (!isDirty.value) return
+	event.preventDefault()
+	event.returnValue = ''
+})
 
 async function onSubmit(event: FormSubmitEvent<ProjectInput>) {
 	try {
@@ -120,16 +146,17 @@ async function onSubmit(event: FormSubmitEvent<ProjectInput>) {
 			body: { images: gallery.value.map(image => ({ url: image.url, alt: image.alt || null })) }
 		})
 
+		initialSnapshot.value = snapshot()
 		toast.add({
-			title: isEdit.value ? 'Perubahan tersimpan' : 'Karya tersimpan',
-			description: res.project.isPublished ? 'Karyamu sudah tampil di showcase.' : 'Karyamu tersimpan sebagai Draf.',
+			title: isEdit.value ? 'Perubahan tersimpan' : 'Proyek tersimpan',
+			description: res.project.isPublished ? 'Proyekmu sudah tampil di showcase.' : 'Proyekmu tersimpan sebagai Draf.',
 			color: 'success'
 		})
 		emit('saved', res.project)
 	} catch (err: unknown) {
 		const errorResponse = err as { data?: { statusMessage?: string } }
 		toast.add({
-			title: 'Karya belum tersimpan',
+			title: 'Proyek belum tersimpan',
 			description: errorResponse.data?.statusMessage || 'Periksa isian yang ditandai lalu simpan lagi.',
 			color: 'error'
 		})
@@ -151,7 +178,7 @@ async function onSubmit(event: FormSubmitEvent<ProjectInput>) {
 			<UCard>
 				<template #header>
 					<h2 class="text-base font-bold text-highlighted">
-						Tentang karya
+						Tentang proyek
 					</h2>
 				</template>
 
@@ -163,7 +190,7 @@ async function onSubmit(event: FormSubmitEvent<ProjectInput>) {
 					>
 						<UInput
 							v-model="state.title"
-							placeholder="Nama karyamu"
+							placeholder="Nama proyekmu"
 							class="w-full"
 						/>
 					</UFormField>
@@ -171,7 +198,7 @@ async function onSubmit(event: FormSubmitEvent<ProjectInput>) {
 					<UFormField
 						label="Tagline"
 						name="tagline"
-						description="Satu kalimat yang menjelaskan karya ini. Tampil di kartu showcase."
+						description="Satu kalimat yang menjelaskan proyek ini. Tampil di kartu showcase."
 						:hint="`${state.tagline.length}/140`"
 					>
 						<UInput
@@ -209,7 +236,7 @@ async function onSubmit(event: FormSubmitEvent<ProjectInput>) {
 					</div>
 
 					<UFormField
-						label="Cerita di balik karya"
+						label="Cerita di balik proyek"
 						name="description"
 						required
 						description="Masalah apa yang diselesaikan, bagaimana prosesnya, dan apa yang kamu pelajari. Pisahkan paragraf dengan baris kosong."
@@ -232,7 +259,7 @@ async function onSubmit(event: FormSubmitEvent<ProjectInput>) {
 						Gambar
 					</h2>
 					<p class="text-sm text-muted">
-						Pakai tangkapan layar atau desain asli karyamu. JPG, PNG, WebP, atau GIF, maksimal 8 MB.
+						Pakai tangkapan layar atau desain asli proyekmu, bukan gambar stok.
 					</p>
 				</template>
 
@@ -240,7 +267,7 @@ async function onSubmit(event: FormSubmitEvent<ProjectInput>) {
 					<UFormField
 						label="Gambar sampul"
 						name="thumbnailUrl"
-						description="Tampil di kartu showcase dan sebagai gambar pertama di halaman karya."
+						description="Tampil di kartu showcase dan sebagai gambar pertama di halaman proyek."
 					>
 						<div class="flex flex-col gap-3">
 							<div
@@ -255,35 +282,34 @@ async function onSubmit(event: FormSubmitEvent<ProjectInput>) {
 									preset="sampul"
 								/>
 							</div>
+							<UFileUpload
+								:model-value="null"
+								icon="i-lucide-image-up"
+								:label="isUploading ? 'Mengunggah gambar...' : 'Tarik gambar ke sini, atau klik untuk memilih'"
+								description="JPG, PNG, WebP, atau GIF, maksimal 8 MB"
+								accept="image/png,image/jpeg,image/webp,image/gif"
+								:preview="false"
+								:disabled="isUploading"
+								reset
+								class="w-full"
+								:ui="{ base: 'min-h-28' }"
+								@update:model-value="onCoverSelected"
+							/>
 							<div class="flex flex-col gap-2 sm:flex-row">
-								<UButton
-									label="Unggah Sampul"
-									icon="i-lucide-upload"
-									color="neutral"
-									variant="outline"
-									:loading="isUploading"
-									@click="coverInput?.click()"
-								/>
 								<UInput
 									v-model="state.thumbnailUrl"
 									placeholder="atau tempel link https://"
 									class="flex-1"
+									aria-label="Link gambar sampul"
 								/>
 								<UButton
 									v-if="state.thumbnailUrl"
-									label="Hapus"
+									label="Hapus Sampul"
 									color="neutral"
 									variant="ghost"
 									@click="state.thumbnailUrl = ''"
 								/>
 							</div>
-							<input
-								ref="coverInput"
-								type="file"
-								accept="image/png,image/jpeg,image/webp,image/gif"
-								class="hidden"
-								@change="onCoverSelected"
-							>
 						</div>
 					</UFormField>
 
@@ -295,9 +321,14 @@ async function onSubmit(event: FormSubmitEvent<ProjectInput>) {
 							<span class="text-xs text-muted tabular-nums">{{ gallery.length }}/{{ MAX_GALLERY }}</span>
 						</div>
 
-						<ol
-							v-if="gallery.length"
-							class="flex flex-col gap-3"
+						<!-- Saat gambar dinaikkan, diturunkan, ditambah, atau dihapus, gambar lain bergeser supaya urutannya mudah diikuti. -->
+						<AnimeTransitionGroup
+							v-show="gallery.length"
+							tag="ol"
+							enter-animation="mt-item"
+							leave-animation="mt-item"
+							move-animation="mt-item"
+							class="relative flex flex-col gap-3"
 						>
 							<li
 								v-for="(image, index) in gallery"
@@ -343,50 +374,47 @@ async function onSubmit(event: FormSubmitEvent<ProjectInput>) {
 									/>
 								</div>
 							</li>
-						</ol>
+						</AnimeTransitionGroup>
 
 						<p
-							v-else
+							v-if="!gallery.length"
 							class="text-sm text-muted"
 						>
-							Tambahkan beberapa tangkapan layar atau detail desain supaya pengunjung bisa melihat karyamu lebih utuh.
+							Tambahkan beberapa tangkapan layar atau detail desain supaya pengunjung bisa melihat proyekmu lebih utuh.
 						</p>
 
-						<div
-							v-if="gallery.length < MAX_GALLERY"
-							class="flex flex-col gap-2 sm:flex-row"
-						>
-							<UButton
-								label="Unggah Gambar"
+						<template v-if="gallery.length < MAX_GALLERY">
+							<UFileUpload
+								:model-value="null"
+								multiple
 								icon="i-lucide-images"
-								color="neutral"
-								variant="outline"
-								:loading="isUploading"
-								@click="galleryInput?.click()"
+								:label="isUploading ? 'Mengunggah gambar...' : 'Tarik beberapa gambar ke sini, atau klik untuk memilih'"
+								:description="`Masih bisa ${MAX_GALLERY - gallery.length} gambar lagi`"
+								accept="image/png,image/jpeg,image/webp,image/gif"
+								:preview="false"
+								:disabled="isUploading"
+								reset
+								class="w-full"
+								:ui="{ base: 'min-h-24' }"
+								@update:model-value="onGallerySelected"
 							/>
-							<UInput
-								v-model="galleryUrlInput"
-								placeholder="atau tempel link https://"
-								class="flex-1"
-								aria-label="Link gambar galeri"
-								@keydown.enter.prevent="addGalleryUrl"
-							/>
-							<UButton
-								label="Tambah"
-								color="neutral"
-								variant="ghost"
-								:disabled="!galleryUrlInput.trim()"
-								@click="addGalleryUrl"
-							/>
-						</div>
-						<input
-							ref="galleryInput"
-							type="file"
-							multiple
-							accept="image/png,image/jpeg,image/webp,image/gif"
-							class="hidden"
-							@change="onGallerySelected"
-						>
+							<div class="flex flex-col gap-2 sm:flex-row">
+								<UInput
+									v-model="galleryUrlInput"
+									placeholder="atau tempel link https://"
+									class="flex-1"
+									aria-label="Link gambar galeri"
+									@keydown.enter.prevent="addGalleryUrl"
+								/>
+								<UButton
+									label="Tambah"
+									color="neutral"
+									variant="ghost"
+									:disabled="!galleryUrlInput.trim()"
+									@click="addGalleryUrl"
+								/>
+							</div>
+						</template>
 					</div>
 				</div>
 			</UCard>
@@ -401,25 +429,28 @@ async function onSubmit(event: FormSubmitEvent<ProjectInput>) {
 					</p>
 				</template>
 
-				<div class="grid grid-cols-1 gap-5 sm:grid-cols-3">
+				<!-- Disusun ke bawah: di tiga kolom, label dan link panjang terpotong atau turun ke dua baris. -->
+				<div class="flex flex-col gap-4">
 					<UFormField
 						label="Demo"
 						name="demoUrl"
+						hint="Situs atau aplikasi yang bisa dicoba"
 					>
 						<UInput
 							v-model="state.demoUrl"
-							placeholder="https://..."
+							placeholder="https://proyekmu.com"
 							icon="i-lucide-external-link"
 							class="w-full"
 						/>
 					</UFormField>
 					<UFormField
-						label="Desain (Figma, Behance)"
+						label="Desain"
 						name="designUrl"
+						hint="Figma atau Behance"
 					>
 						<UInput
 							v-model="state.designUrl"
-							placeholder="https://..."
+							placeholder="https://figma.com/..."
 							icon="i-lucide-pen-tool"
 							class="w-full"
 						/>
@@ -427,6 +458,7 @@ async function onSubmit(event: FormSubmitEvent<ProjectInput>) {
 					<UFormField
 						label="Kode sumber"
 						name="repoUrl"
+						hint="GitHub atau GitLab"
 					>
 						<UInput
 							v-model="state.repoUrl"
@@ -439,6 +471,12 @@ async function onSubmit(event: FormSubmitEvent<ProjectInput>) {
 			</UCard>
 
 			<UCard>
+				<template #header>
+					<h2 class="text-base font-bold text-highlighted">
+						Publikasi
+					</h2>
+				</template>
+
 				<div class="flex flex-col gap-5">
 					<UFormField
 						label="Dibuat dengan"
@@ -455,7 +493,7 @@ async function onSubmit(event: FormSubmitEvent<ProjectInput>) {
 					<USwitch
 						v-model="state.isPublished"
 						label="Terbitkan di showcase"
-						description="Matikan untuk menyimpan sebagai Draf. Draf hanya bisa dilihat olehmu."
+						description="Matikan untuk menyimpan sebagai Draf. Draf hanya bisa dilihat olehmu dan admin."
 					/>
 				</div>
 			</UCard>
@@ -469,13 +507,35 @@ async function onSubmit(event: FormSubmitEvent<ProjectInput>) {
 				/>
 				<UButton
 					type="submit"
-					:label="isEdit ? 'Simpan Perubahan' : (state.isPublished ? 'Terbitkan Karya' : 'Simpan Draf')"
+					:label="isEdit ? 'Simpan Perubahan' : (state.isPublished ? 'Terbitkan Proyek' : 'Simpan Draf')"
 					icon="i-lucide-save"
 					:loading="saving"
-					:disabled="isUploading"
+					:disabled="saving || isUploading"
 				/>
 			</div>
 		</div>
+
+		<UModal
+			v-model:open="leaveOpen"
+			title="Tinggalkan halaman ini?"
+			description="Perubahanmu belum disimpan dan akan hilang kalau kamu pergi sekarang."
+		>
+			<template #footer>
+				<div class="flex w-full justify-end gap-2">
+					<UButton
+						label="Tetap di Sini"
+						color="neutral"
+						variant="outline"
+						@click="answerLeave(false)"
+					/>
+					<UButton
+						label="Tinggalkan"
+						color="error"
+						@click="answerLeave(true)"
+					/>
+				</div>
+			</template>
+		</UModal>
 
 		<aside class="flex flex-col gap-3 lg:sticky lg:top-6 lg:self-start">
 			<p class="text-sm font-medium text-muted">
@@ -485,7 +545,7 @@ async function onSubmit(event: FormSubmitEvent<ProjectInput>) {
 				<ProjectMiniCard :project="preview" />
 			</div>
 			<p class="text-xs text-muted">
-				Begini tampilan karyamu di showcase dan di profilmu.
+				Begini tampilan proyekmu di showcase dan di profilmu.
 			</p>
 		</aside>
 	</UForm>

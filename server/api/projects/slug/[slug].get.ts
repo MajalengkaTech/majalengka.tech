@@ -8,7 +8,7 @@ export default defineEventHandler(async (event) => {
 	if (!slug) {
 		throw createError({
 			statusCode: 400,
-			statusMessage: 'Alamat karya tidak valid'
+			statusMessage: 'Alamat proyek tidak valid'
 		})
 	}
 
@@ -26,7 +26,7 @@ export default defineEventHandler(async (event) => {
 	if (!row || (!row.project.isPublished && !canSeeDraft)) {
 		throw createError({
 			statusCode: 404,
-			statusMessage: 'Karya tidak ditemukan'
+			statusMessage: 'Proyek tidak ditemukan'
 		})
 	}
 
@@ -58,7 +58,9 @@ export default defineEventHandler(async (event) => {
 			...item,
 			author: { ...item.author, ...(authorProfile[0] || {}) },
 			images,
-			isOwner: currentUserId === row.project.userId
+			isOwner: currentUserId === row.project.userId,
+			// Hanya untuk tampilan tombol; endpoint ubah dan hapus tetap memeriksa sendiri.
+			canManage: currentUserId === row.project.userId || isAdmin(session?.user)
 		}
 	}
 })

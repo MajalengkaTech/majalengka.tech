@@ -148,14 +148,14 @@ const searchGroups = computed<SearchGroup[]>(() => {
 	if (projects.length > 0) {
 		groups.push({
 			id: 'projects',
-			label: 'Karya',
+			label: 'Proyek',
 			items: projects.map(p => ({
 				id: `project-${p.id}`,
 				label: p.title,
 				description: p.description,
 				icon: 'i-lucide-folder-git-2',
 				to: `/projek/${p.slug}`,
-				suffix: p.tags?.split(',')[0]?.trim() || p.author?.name || 'Karya'
+				suffix: p.tags?.split(',')[0]?.trim() || p.author?.name || 'Proyek'
 			}))
 		})
 	}

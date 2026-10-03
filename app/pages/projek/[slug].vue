@@ -11,7 +11,7 @@ const { data, error } = await useFetch<{ project: ProjectDetail }>(() => `/api/p
 if (error.value || !data.value?.project) {
 	throw createError({
 		statusCode: 404,
-		statusMessage: 'Karya tidak ditemukan',
+		statusMessage: 'Proyek tidak ditemukan',
 		fatal: true
 	})
 }
@@ -52,10 +52,30 @@ const otherProjects = computed(() => (otherData.value?.projects || []).filter(p 
 const shareUrl = useRequestURL().origin + route.path
 const { shareLink } = useShareLink()
 
+const toast = useToast()
+const deleteOpen = ref(false)
+const deleting = ref(false)
+
+// Pemilik kembali ke daftar proyeknya; admin kembali ke halaman kelola proyek.
+async function deleteProject() {
+	deleting.value = true
+	try {
+		await $fetch(`/api/projects/${project.value.id}`, { method: 'DELETE' })
+		deleteOpen.value = false
+		toast.add({ title: 'Proyek dihapus', description: `${project.value.title} sudah dihapus beserta gambar, apresiasi, dan komentarnya.`, color: 'success' })
+		await navigateTo(project.value.isOwner ? '/dashboard/projects' : '/kelola/proyek')
+	} catch (err: unknown) {
+		const errorResponse = err as { data?: { statusMessage?: string } }
+		toast.add({ title: 'Proyek belum terhapus', description: errorResponse.data?.statusMessage || 'Coba lagi sebentar.', color: 'error' })
+	} finally {
+		deleting.value = false
+	}
+}
+
 function shareProject() {
 	return shareLink({
 		title: project.value.title,
-		text: project.value.tagline || `Karya ${project.value.author.name} di Majalengka Tech`,
+		text: project.value.tagline || `Proyek ${project.value.author.name} di Majalengka Tech`,
 		url: shareUrl
 	})
 }
@@ -67,7 +87,7 @@ const breadcrumb = computed(() => [
 ])
 
 const seoDescription = computed(() => project.value.tagline || project.value.description.slice(0, 155))
-// Gambar pratinjau link memakai sampul karya; OG image runtime tidak dipakai karena batas CPU Workers Free.
+// Gambar pratinjau link memakai sampul proyek; OG image runtime tidak dipakai karena batas CPU Workers Free.
 const coverUrl = images.value[0]?.url
 const ogImage = coverUrl ? (coverUrl.startsWith('/') ? useRequestURL().origin + coverUrl : coverUrl) : undefined
 
@@ -81,7 +101,7 @@ useSeoMeta({
 	twitterCard: ogImage ? 'summary_large_image' : 'summary'
 })
 
-// Karya lain dari kreator yang sama muncul saat pembaca sampai di bagian bawah.
+// Proyek lain dari kreator yang sama muncul saat pembaca sampai di bagian bawah.
 useReveal(useTemplateRef<HTMLElement>('others'))
 </script>
 
@@ -94,9 +114,11 @@ useReveal(useTemplateRef<HTMLElement>('others'))
 			color="warning"
 			variant="subtle"
 			icon="i-lucide-eye-off"
-			title="Karya ini masih Draf"
-			description="Hanya kamu dan admin yang bisa melihat halaman ini. Terbitkan dari dashboard kalau sudah siap dipamerkan."
-			:actions="[{ label: 'Edit Karya', to: `/dashboard/projects/${project.id}`, color: 'warning', variant: 'outline' }]"
+			title="Proyek ini masih Draf"
+			:description="project.isOwner
+				? 'Hanya kamu dan admin yang bisa melihat halaman ini. Terbitkan dari dashboard kalau sudah siap dipamerkan.'
+				: 'Halaman ini hanya bisa dilihat pemiliknya dan admin.'"
+			:actions="[{ label: 'Edit Proyek', to: `/dashboard/projects/${project.id}`, color: 'warning', variant: 'outline' }]"
 		/>
 
 		<header class="flex flex-col gap-5">
@@ -157,7 +179,7 @@ useReveal(useTemplateRef<HTMLElement>('others'))
 					<UButton
 						v-if="!project.isOwner && project.isPublished"
 						:icon="project.likedByMe ? 'i-tabler-heart-filled' : 'i-tabler-heart'"
-						:label="project.likeCount ? `${project.likeCount} Apresiasi` : 'Beri Apresiasi'"
+						:label="project.likeCount ? `${project.likeCount} apresiasi` : 'Beri Apresiasi'"
 						:color="project.likedByMe ? 'primary' : 'neutral'"
 						:variant="project.likedByMe ? 'solid' : 'outline'"
 						:aria-pressed="project.likedByMe"
@@ -192,14 +214,22 @@ useReveal(useTemplateRef<HTMLElement>('others'))
 						variant="ghost"
 						@click="shareProject"
 					/>
-					<UButton
-						v-if="project.isOwner"
-						icon="i-lucide-pencil"
-						label="Edit"
-						color="neutral"
-						variant="ghost"
-						:to="`/dashboard/projects/${project.id}`"
-					/>
+					<template v-if="project.canManage">
+						<UButton
+							icon="i-lucide-pencil"
+							label="Edit"
+							color="neutral"
+							variant="ghost"
+							:to="`/dashboard/projects/${project.id}`"
+						/>
+						<UButton
+							icon="i-lucide-trash-2"
+							label="Hapus"
+							color="error"
+							variant="ghost"
+							@click="deleteOpen = true"
+						/>
+					</template>
 				</div>
 			</div>
 		</header>
@@ -219,7 +249,7 @@ useReveal(useTemplateRef<HTMLElement>('others'))
 						id="judul-cerita"
 						class="text-xl font-bold text-highlighted"
 					>
-						Cerita di balik karya
+						Cerita di balik proyek
 					</h2>
 					<div class="flex max-w-prose flex-col gap-4 text-base/7 text-default">
 						<p
@@ -274,7 +304,7 @@ useReveal(useTemplateRef<HTMLElement>('others'))
 						Komentar
 					</h2>
 					<p class="mt-2 text-sm text-muted">
-						Komentar dibuka setelah karya ini terbit di showcase.
+						Komentar dibuka setelah proyek ini terbit di showcase.
 					</p>
 				</section>
 			</article>
@@ -293,7 +323,7 @@ useReveal(useTemplateRef<HTMLElement>('others'))
 				id="judul-karya-lain"
 				class="text-xl font-bold text-highlighted"
 			>
-				Karya lain dari {{ project.author.name }}
+				Proyek lain dari {{ project.author.name }}
 			</h2>
 			<div
 				ref="others"
@@ -307,5 +337,30 @@ useReveal(useTemplateRef<HTMLElement>('others'))
 				/>
 			</div>
 		</section>
+
+		<UModal
+			v-if="project.canManage"
+			v-model:open="deleteOpen"
+			title="Hapus proyek ini?"
+			:description="project.isOwner ? 'Proyek, gambar, apresiasi, dan komentarnya akan dihapus permanen.' : `Proyek milik ${project.author.name} ini akan dihapus permanen beserta gambar, apresiasi, dan komentarnya.`"
+		>
+			<template #footer>
+				<div class="flex w-full justify-end gap-2">
+					<UButton
+						label="Batal"
+						color="neutral"
+						variant="outline"
+						@click="deleteOpen = false"
+					/>
+					<UButton
+						label="Ya, Hapus"
+						icon="i-lucide-trash-2"
+						color="error"
+						:loading="deleting"
+						@click="deleteProject"
+					/>
+				</div>
+			</template>
+		</UModal>
 	</UContainer>
 </template>

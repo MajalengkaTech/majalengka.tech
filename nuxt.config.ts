@@ -28,7 +28,7 @@ export default defineNuxtConfig({
 	site: {
 		url: process.env.NUXT_SITE_URL || 'https://majalengka.tech',
 		name: 'Majalengka Tech',
-		description: 'Etalase karya developer dan desainer Majalengka',
+		description: 'Tempat developer dan desainer Majalengka memamerkan proyeknya',
 		defaultLocale: 'id',
 		indexable: true
 	},
@@ -174,7 +174,7 @@ export default defineNuxtConfig({
 	llms: {
 		domain: 'https://majalengka.tech',
 		title: 'Majalengka Tech',
-		description: 'Etalase karya developer dan desainer Majalengka',
+		description: 'Tempat developer dan desainer Majalengka memamerkan proyeknya',
 		notes: [
 			'Dibangun dengan Nuxt 4, Nuxt Content v3, Nuxt UI v4, Cloudflare D1, Cloudflare R2, dan Better Auth.',
 			'Menyediakan showcase karya, profil kreator di /username, panduan pemakaian, dan catatan rilis.'

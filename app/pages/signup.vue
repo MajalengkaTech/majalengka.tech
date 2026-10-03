@@ -8,7 +8,7 @@ definePageMeta({
 
 useSeoMeta({
 	title: 'Daftar sebagai Kreator',
-	description: 'Buat akun untuk memamerkan karya dan profilmu sebagai developer atau desainer Majalengka.'
+	description: 'Buat akun untuk memamerkan proyek dan profilmu sebagai developer atau desainer Majalengka.'
 })
 
 const { loggedIn } = useUserSession()
@@ -38,7 +38,7 @@ const fields = [{
 	name: 'password',
 	label: 'Kata Sandi',
 	type: 'password' as const,
-	placeholder: 'Buat kata sandi aman'
+	placeholder: 'Minimal 8 karakter'
 }]
 
 const providers = [{
@@ -84,7 +84,7 @@ async function onSubmit(payload: FormSubmitEvent<Schema>) {
 
 		if (error) {
 			toast.add({
-				title: 'Gagal Mendaftar',
+				title: 'Pendaftaran belum berhasil',
 				description: error.message || 'Terjadi kesalahan saat mendaftar.',
 				color: 'error'
 			})
@@ -92,7 +92,7 @@ async function onSubmit(payload: FormSubmitEvent<Schema>) {
 		}
 
 		toast.add({
-			title: 'Pendaftaran Berhasil',
+			title: 'Akunmu sudah dibuat',
 			description: `Selamat datang di Majalengka Tech, ${payload.data.name}!`,
 			color: 'success'
 		})
@@ -100,7 +100,7 @@ async function onSubmit(payload: FormSubmitEvent<Schema>) {
 	} catch (err: unknown) {
 		const errorMessage = err instanceof Error ? err.message : 'Terjadi kesalahan saat mendaftar.'
 		toast.add({
-			title: 'Gagal Mendaftar',
+			title: 'Pendaftaran belum berhasil',
 			description: errorMessage,
 			color: 'error'
 		})
@@ -132,7 +132,7 @@ async function onSubmit(payload: FormSubmitEvent<Schema>) {
 			Sebelum mengunggah, baca <ULink
 				to="/docs"
 				class="text-primary font-medium"
-			>panduan memamerkan karya</ULink>.
+			>panduan memamerkan proyek</ULink>.
 		</template>
 	</UAuthForm>
 </template>

@@ -23,7 +23,7 @@ export default defineEventHandler(async (event) => {
 		if (!currentUserId) {
 			throw createError({
 				statusCode: 401,
-				statusMessage: 'Silakan masuk terlebih dahulu'
+				statusMessage: 'Masuk dulu untuk melanjutkan.'
 			})
 		}
 		filters.push(eq(schema.projects.userId, currentUserId))

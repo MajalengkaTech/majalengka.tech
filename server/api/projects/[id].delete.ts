@@ -8,7 +8,7 @@ export default defineEventHandler(async (event) => {
 	if (!session?.user?.id) {
 		throw createError({
 			statusCode: 401,
-			statusMessage: 'Silakan masuk terlebih dahulu'
+			statusMessage: 'Masuk dulu untuk melanjutkan.'
 		})
 	}
 
@@ -16,7 +16,7 @@ export default defineEventHandler(async (event) => {
 	if (!Number.isInteger(id) || id <= 0) {
 		throw createError({
 			statusCode: 400,
-			statusMessage: 'ID projek tidak valid'
+			statusMessage: 'ID proyek tidak valid'
 		})
 	}
 
@@ -27,14 +27,14 @@ export default defineEventHandler(async (event) => {
 	if (!project) {
 		throw createError({
 			statusCode: 404,
-			statusMessage: 'Projek tidak ditemukan'
+			statusMessage: 'Proyek tidak ditemukan'
 		})
 	}
 
 	if (project.userId !== session.user.id && !isAdmin(session.user)) {
 		throw createError({
 			statusCode: 403,
-			statusMessage: 'Kamu tidak punya akses untuk menghapus projek ini'
+			statusMessage: 'Kamu tidak punya akses untuk menghapus proyek ini'
 		})
 	}
 
@@ -57,6 +57,6 @@ export default defineEventHandler(async (event) => {
 
 	return {
 		success: true,
-		message: 'Projek berhasil dihapus'
+		message: 'Proyek sudah dihapus'
 	}
 })

@@ -40,6 +40,31 @@
 	--font-mono: 'Geist Mono', monospace;
 }
 
+/*
+ * Pengaman gerak: lebar halaman tidak bergeser saat scrollbar muncul atau hilang (misalnya di jeda transisi out-in),
+ * dan elemen yang sesaat membesar lewat efek pegas tidak memunculkan scroll horizontal. clip tidak membuat wadah scroll baru, jadi header sticky tetap bekerja.
+ */
+@layer base {
+	html {
+		scrollbar-gutter: stable;
+	}
+
+	body {
+		overflow-x: clip;
+	}
+
+	/* Teks yang diblok memakai Kuning Mangga, aksen khas Majalengka Tech. Kontras 12,76:1 (light) dan 9,96:1 (dark). */
+	::selection {
+		background-color: var(--color-mango-300);
+		color: var(--color-brand-900);
+	}
+
+	.dark ::selection {
+		background-color: var(--color-mango-400);
+		color: var(--ui-color-neutral-900);
+	}
+}
+
 /* until v5 ships --ui-font-heading */
 @layer base {
 	h1, h2, h3, h4, h5, h6 {
@@ -118,10 +143,13 @@
 	background-size: 100% 0.09em;
 }
 
-/* Transisi antarhalaman: halaman lama memudar cepat, halaman baru naik sedikit. Memberi rasa berpindah tempat tanpa menahan pengguna. */
+/*
+ * Transisi antarhalaman: halaman lama langsung disembunyikan, halaman baru masuk dengan fade dan naik sedikit.
+ * Halaman lama tidak ikut memudar, karena gulir ke atas terjadi di awal perpindahan dan halaman lama akan terlihat meloncat.
+ */
 .motion-ready .page-leave-active,
 .motion-ready .layout-leave-active {
-	transition: opacity 120ms ease-in;
+	opacity: 0;
 }
 
 .motion-ready .page-enter-active,
@@ -135,7 +163,3 @@
 	transform: translateY(8px);
 }
 
-.motion-ready .page-leave-to,
-.motion-ready .layout-leave-to {
-	opacity: 0;
-}

@@ -32,8 +32,8 @@ definePageMeta({
 })
 
 useSeoMeta({
-	title: 'Konsol Manajemen Komunitas',
-	description: 'Ruang kendali administrator untuk mengelola akun dan data komunitas Majalengka Tech'
+	title: 'Kelola Pengguna',
+	description: 'Kelola akun kreator Majalengka Tech'
 })
 
 const { user: currentSessionUser } = useUserSession()
@@ -41,6 +41,11 @@ const toast = useToast()
 
 const search = ref('')
 const selectedRoleFilter = ref<'all' | 'admin' | 'user'>('all')
+const roleFilterItems = [
+	{ label: 'Semua', value: 'all' },
+	{ label: 'Admin', value: 'admin' },
+	{ label: 'Kreator', value: 'user' }
+]
 
 const { data: usersData, refresh: refreshUsers, status } = await useFetch<{ users: AdminUser[] }>('/api/admin/users', {
 	key: 'admin-users-list'
@@ -96,8 +101,8 @@ async function handleSavePassword() {
 
 	if (!newPassword.value || newPassword.value.length < 8) {
 		toast.add({
-			title: 'Password Terlalu Pendek',
-			description: 'Password baru minimal harus 8 karakter.',
+			title: 'Kata sandi terlalu pendek',
+			description: 'Kata sandi baru minimal 8 karakter.',
 			color: 'error'
 		})
 		return
@@ -105,8 +110,8 @@ async function handleSavePassword() {
 
 	if (newPassword.value !== confirmPassword.value) {
 		toast.add({
-			title: 'Password Tidak Cocok',
-			description: 'Konfirmasi password harus sama dengan password baru.',
+			title: 'Kata sandi tidak sama',
+			description: 'Ketik ulang kata sandi baru persis sama.',
 			color: 'error'
 		})
 		return
@@ -123,8 +128,8 @@ async function handleSavePassword() {
 		})
 
 		toast.add({
-			title: 'Password Berhasil Diubah',
-			description: `Password untuk ${selectedUserForPassword.value.email} telah berhasil diperbarui.`,
+			title: 'Kata sandi diganti',
+			description: `Kata sandi untuk ${selectedUserForPassword.value.email} sudah diganti.`,
 			color: 'success'
 		})
 
@@ -133,7 +138,7 @@ async function handleSavePassword() {
 	} catch (err: unknown) {
 		const errorResponse = err as { data?: { statusMessage?: string } }
 		toast.add({
-			title: 'Gagal Mengubah Password',
+			title: 'Kata sandi belum diganti',
 			description: errorResponse?.data?.statusMessage || 'Terjadi kesalahan sistem.',
 			color: 'error'
 		})
@@ -168,7 +173,7 @@ async function handleSaveRole() {
 		})
 
 		toast.add({
-			title: 'Role Berhasil Diperbarui',
+			title: 'Peran akun diperbarui',
 			description: `Hak akses ${selectedUserForRole.value.name || selectedUserForRole.value.email} kini menjadi ${selectedRole.value}.`,
 			color: 'success'
 		})
@@ -179,7 +184,7 @@ async function handleSaveRole() {
 	} catch (err: unknown) {
 		const errorResponse = err as { data?: { statusMessage?: string } }
 		toast.add({
-			title: 'Gagal Mengubah Role',
+			title: 'Peran akun belum berubah',
 			description: errorResponse?.data?.statusMessage || 'Terjadi kesalahan sistem.',
 			color: 'error'
 		})
@@ -211,8 +216,8 @@ async function handleDeleteUser() {
 		})
 
 		toast.add({
-			title: 'Akun Dihapus',
-			description: `Akun ${selectedUserForDelete.value.name || selectedUserForDelete.value.email} telah dihapus permanen.`,
+			title: 'Akun dihapus',
+			description: `Akun ${selectedUserForDelete.value.name || selectedUserForDelete.value.email} sudah dihapus permanen.`,
 			color: 'success'
 		})
 
@@ -222,7 +227,7 @@ async function handleDeleteUser() {
 	} catch (err: unknown) {
 		const errorResponse = err as { data?: { statusMessage?: string } }
 		toast.add({
-			title: 'Gagal Menghapus Akun',
+			title: 'Akun belum terhapus',
 			description: errorResponse?.data?.statusMessage || 'Terjadi kesalahan sistem.',
 			color: 'error'
 		})
@@ -259,7 +264,7 @@ async function handleToggleBan(target: AdminUser) {
 	} catch (err: unknown) {
 		const errorResponse = err as { data?: { statusMessage?: string } }
 		toast.add({
-			title: 'Gagal Memperbarui Status',
+			title: 'Status akun belum berubah',
 			description: errorResponse?.data?.statusMessage || 'Terjadi kesalahan.',
 			color: 'error'
 		})
@@ -282,7 +287,7 @@ function formatDate(dateVal: string | number | Date) {
 <template>
 	<div class="flex flex-col flex-1">
 		<UDashboardNavbar
-			title="Konsol Manajemen"
+			title="Kelola Pengguna"
 			:ui="{ root: 'border-b border-default' }"
 		>
 			<template #leading>
@@ -290,44 +295,51 @@ function formatDate(dateVal: string | number | Date) {
 			</template>
 
 			<template #right>
-				<UBadge
-					color="primary"
-					variant="subtle"
-					class="gap-1.5 px-2.5 py-1"
-				>
-					<UIcon
-						name="i-lucide-shield-alert"
-						class="w-4 h-4"
-					/>
-					Mode Administrator
-				</UBadge>
+				<UButton
+					icon="i-lucide-rotate-cw"
+					label="Muat Ulang"
+					color="neutral"
+					variant="outline"
+					size="sm"
+					:loading="status === 'pending'"
+					@click="() => refreshUsers()"
+				/>
 			</template>
 		</UDashboardNavbar>
 
-		<div class="p-4 sm:p-6 lg:p-8 flex flex-col gap-6 max-w-7xl w-full mx-auto flex-1">
-			<!-- Header Banner -->
-			<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-				<div>
-					<h1 class="text-2xl font-black text-highlighted tracking-tight">
-						Ruang Kendali Data & Akun
-					</h1>
-					<p class="text-sm text-muted">
-						Kelola akun developer, atur kata sandi, sesuaikan hak akses administrator, dan pantau aktivitas komunitas.
-					</p>
-				</div>
+		<!-- Cari dan filter punya tempat tetap di bawah navbar, sama dengan Kelola Proyek. -->
+		<UDashboardToolbar :ui="{ root: 'flex-wrap gap-y-2 py-2' }">
+			<template #left>
+				<UInput
+					v-model="search"
+					placeholder="Cari nama, email, atau username"
+					icon="i-lucide-search"
+					class="w-full sm:w-72"
+					aria-label="Cari akun"
+				/>
+			</template>
+			<template #right>
+				<UTabs
+					:model-value="selectedRoleFilter"
+					:items="roleFilterItems"
+					:content="false"
+					size="sm"
+					aria-label="Filter peran akun"
+					@update:model-value="(value: string | number) => selectedRoleFilter = value === 'admin' || value === 'user' ? value : 'all'"
+				/>
+				<p
+					class="text-sm whitespace-nowrap text-muted"
+					aria-live="polite"
+				>
+					{{ filteredUsers.length }} akun
+				</p>
+			</template>
+		</UDashboardToolbar>
 
-				<div class="flex items-center gap-2">
-					<UButton
-						icon="i-lucide-rotate-cw"
-						label="Muat Ulang"
-						color="neutral"
-						variant="outline"
-						size="sm"
-						:loading="status === 'pending'"
-						@click="() => refreshUsers()"
-					/>
-				</div>
-			</div>
+		<div class="p-4 sm:p-6 lg:p-8 flex flex-col gap-6 max-w-7xl w-full mx-auto flex-1">
+			<p class="text-sm text-muted">
+				Ganti kata sandi, atur peran admin, tangguhkan, atau hapus akun kreator.
+			</p>
 
 			<!-- Stats Grid -->
 			<div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
@@ -365,7 +377,7 @@ function formatDate(dateVal: string | number | Date) {
 				</div>
 
 				<div class="p-4 rounded-xl border border-default bg-muted flex flex-col gap-1">
-					<span class="text-xs font-semibold text-muted">Total Karya Komunitas</span>
+					<span class="text-xs font-semibold text-muted">Total Proyek Komunitas</span>
 					<div class="flex items-baseline justify-between">
 						<span class="text-2xl font-black text-highlighted">{{ totalProjects }}</span>
 						<UIcon
@@ -376,223 +388,115 @@ function formatDate(dateVal: string | number | Date) {
 				</div>
 			</div>
 
-			<!-- Filter & Search Controls -->
-			<div class="flex flex-col sm:flex-row items-center justify-between gap-3">
-				<div class="flex items-center gap-1.5 w-full sm:w-auto">
-					<UButton
-						label="Semua Akun"
-						size="xs"
-						:variant="selectedRoleFilter === 'all' ? 'solid' : 'ghost'"
-						:color="selectedRoleFilter === 'all' ? 'primary' : 'neutral'"
-						@click="selectedRoleFilter = 'all'"
-					/>
-					<UButton
-						label="Administrator"
-						size="xs"
-						:variant="selectedRoleFilter === 'admin' ? 'solid' : 'ghost'"
-						:color="selectedRoleFilter === 'admin' ? 'primary' : 'neutral'"
-						@click="selectedRoleFilter = 'admin'"
-					/>
-					<UButton
-						label="Kreator"
-						size="xs"
-						:variant="selectedRoleFilter === 'user' ? 'solid' : 'ghost'"
-						:color="selectedRoleFilter === 'user' ? 'primary' : 'neutral'"
-						@click="selectedRoleFilter = 'user'"
-					/>
-				</div>
+			<UEmpty
+				v-if="filteredUsers.length === 0"
+				icon="i-lucide-user-x"
+				title="Tidak ada akun yang cocok"
+				description="Coba kata kunci lain atau ganti filter peran."
+			/>
 
-				<div class="w-full sm:w-80">
-					<UInput
-						v-model="search"
-						placeholder="Cari nama, email, username..."
-						icon="i-lucide-search"
-						class="w-full"
-					/>
-				</div>
-			</div>
+			<!-- Pola sama dengan Kelola Proyek: baris yang tersisa merapat, yang hilang memudar, yang baru masuk. -->
+			<AnimeTransitionGroup
+				v-else
+				tag="ul"
+				enter-animation="mt-item"
+				leave-animation="mt-item"
+				move-animation="mt-item"
+				class="relative flex flex-col divide-y divide-default rounded-md border border-default"
+			>
+				<li
+					v-for="u in filteredUsers"
+					:key="u.id"
+					class="flex flex-col gap-3 p-4 sm:flex-row sm:items-center"
+				>
+					<div class="flex min-w-0 flex-1 items-center gap-3">
+						<UAvatar
+							:src="u.image || undefined"
+							:alt="u.name || 'Kreator'"
+							size="md"
+							class="shrink-0"
+						/>
+						<div class="min-w-0">
+							<div class="flex items-center gap-1.5">
+								<span class="truncate font-semibold text-highlighted">{{ u.name || 'Tanpa nama' }}</span>
+								<UBadge
+									v-if="u.id === currentSessionUser?.id"
+									label="Kamu"
+									color="primary"
+									variant="subtle"
+									size="sm"
+								/>
+							</div>
+							<p class="truncate text-sm text-muted">
+								{{ u.email }} · {{ u.projectCount }} proyek · bergabung {{ formatDate(u.createdAt) }}
+							</p>
+							<div class="mt-1 flex flex-wrap gap-1.5">
+								<UBadge
+									:label="u.role === 'admin' ? 'Admin' : 'Kreator'"
+									:icon="u.role === 'admin' ? 'i-lucide-shield-check' : 'i-lucide-user'"
+									:color="u.role === 'admin' ? 'primary' : 'neutral'"
+									variant="subtle"
+									size="sm"
+								/>
+								<UBadge
+									:label="u.banned ? 'Ditangguhkan' : 'Aktif'"
+									:color="u.banned ? 'error' : 'success'"
+									variant="subtle"
+									size="sm"
+								/>
+							</div>
+						</div>
+					</div>
 
-			<!-- Users Table -->
-			<div class="rounded-xl border border-default bg-muted/50 overflow-hidden">
-				<div class="overflow-x-auto">
-					<table class="w-full text-left text-sm">
-						<thead class="bg-elevated border-b border-default text-xs font-semibold text-muted uppercase tracking-wider">
-							<tr>
-								<th class="py-3 px-4">
-									Pengguna
-								</th>
-								<th class="py-3 px-4">
-									Role
-								</th>
-								<th class="py-3 px-4">
-									Projek
-								</th>
-								<th class="py-3 px-4">
-									Status
-								</th>
-								<th class="py-3 px-4">
-									Terdaftar
-								</th>
-								<th class="py-3 px-4 text-right">
-									Aksi Manajemen
-								</th>
-							</tr>
-						</thead>
-						<tbody class="divide-y divide-default">
-							<tr
-								v-for="u in filteredUsers"
-								:key="u.id"
-								class="hover:bg-elevated/50 transition-colors"
-							>
-								<!-- Pengguna Info -->
-								<td class="py-3.5 px-4">
-									<div class="flex items-center gap-3">
-										<UAvatar
-											:src="u.image || undefined"
-											:alt="u.name || 'User'"
-											size="md"
-											class="border border-default shrink-0"
-										/>
-										<div class="flex flex-col min-w-0">
-											<div class="flex items-center gap-1.5">
-												<span class="font-semibold text-highlighted truncate max-w-xs">{{ u.name || 'Tanpa Nama' }}</span>
-												<UBadge
-													v-if="u.id === currentSessionUser?.id"
-													color="primary"
-													variant="subtle"
-													size="xs"
-												>
-													Kamu
-												</UBadge>
-											</div>
-											<span class="text-xs text-muted truncate max-w-xs">{{ u.email }}</span>
-										</div>
-									</div>
-								</td>
-
-								<!-- Role -->
-								<td class="py-3.5 px-4">
-									<UBadge
-										:color="u.role === 'admin' ? 'primary' : 'neutral'"
-										:variant="u.role === 'admin' ? 'solid' : 'subtle'"
-										class="gap-1 font-semibold"
-										size="sm"
-									>
-										<UIcon
-											:name="u.role === 'admin' ? 'i-lucide-shield-check' : 'i-lucide-user'"
-											class="w-3.5 h-3.5"
-										/>
-										{{ u.role === 'admin' ? 'Admin' : 'User' }}
-									</UBadge>
-								</td>
-
-								<!-- Projek Count -->
-								<td class="py-3.5 px-4">
-									<span class="font-medium text-highlighted">{{ u.projectCount }}</span>
-									<span class="text-xs text-muted ml-1">projek</span>
-								</td>
-
-								<!-- Status -->
-								<td class="py-3.5 px-4">
-									<UBadge
-										:color="u.banned ? 'error' : 'success'"
-										variant="subtle"
-										size="xs"
-										class="gap-1"
-									>
-										<span
-											class="w-1.5 h-1.5 rounded-full"
-											:class="u.banned ? 'bg-error' : 'bg-success'"
-										/>
-										{{ u.banned ? 'Ditangguhkan' : 'Aktif' }}
-									</UBadge>
-								</td>
-
-								<!-- Tanggal Bergabung -->
-								<td class="py-3.5 px-4 text-xs text-muted whitespace-nowrap">
-									{{ formatDate(u.createdAt) }}
-								</td>
-
-								<!-- Actions -->
-								<td class="py-3.5 px-4 text-right whitespace-nowrap">
-									<div class="flex items-center justify-end gap-1">
-										<!-- Ubah Password -->
-										<UButton
-											icon="i-lucide-key-round"
-											color="neutral"
-											variant="ghost"
-											size="xs"
-											title="Ubah Password Pengguna"
-											aria-label="Ubah Password Pengguna"
-											@click="openPasswordModal(u)"
-										/>
-
-										<!-- Ubah Role -->
-										<UButton
-											icon="i-lucide-shield"
-											color="neutral"
-											variant="ghost"
-											size="xs"
-											title="Ubah Role (Hak Akses)"
-											aria-label="Ubah Role"
-											@click="openRoleModal(u)"
-										/>
-
-										<!-- Ban / Unban -->
-										<UButton
-											:icon="u.banned ? 'i-lucide-check-circle' : 'i-lucide-ban'"
-											:color="u.banned ? 'success' : 'neutral'"
-											variant="ghost"
-											size="xs"
-											:disabled="u.id === currentSessionUser?.id"
-											:title="u.banned ? 'Pulihkan Akun' : 'Tangguhkan Akun'"
-											:aria-label="u.banned ? 'Pulihkan Akun' : 'Tangguhkan Akun'"
-											@click="handleToggleBan(u)"
-										/>
-
-										<!-- Hapus Akun -->
-										<UButton
-											icon="i-lucide-trash-2"
-											color="error"
-											variant="ghost"
-											size="xs"
-											:disabled="u.id === currentSessionUser?.id"
-											title="Hapus Akun Pengguna"
-											aria-label="Hapus Akun Pengguna"
-											@click="openDeleteModal(u)"
-										/>
-									</div>
-								</td>
-							</tr>
-
-							<!-- Empty Row -->
-							<tr v-if="filteredUsers.length === 0">
-								<td
-									colspan="6"
-									class="py-12 text-center text-muted"
-								>
-									<div class="flex flex-col items-center justify-center gap-2">
-										<UIcon
-											name="i-lucide-user-x"
-											class="w-8 h-8 text-muted"
-										/>
-										<p class="font-medium text-highlighted">
-											Tidak ada akun yang sesuai dengan pencarian.
-										</p>
-									</div>
-								</td>
-							</tr>
-						</tbody>
-					</table>
-				</div>
-			</div>
+					<div class="flex flex-wrap items-center gap-1 sm:justify-end">
+						<UButton
+							icon="i-lucide-key-round"
+							color="neutral"
+							variant="ghost"
+							size="sm"
+							aria-label="Ganti Kata Sandi"
+							title="Ganti Kata Sandi"
+							@click="openPasswordModal(u)"
+						/>
+						<UButton
+							icon="i-lucide-shield"
+							color="neutral"
+							variant="ghost"
+							size="sm"
+							aria-label="Ubah Peran"
+							title="Ubah Peran"
+							@click="openRoleModal(u)"
+						/>
+						<UButton
+							:icon="u.banned ? 'i-lucide-check-circle' : 'i-lucide-ban'"
+							:color="u.banned ? 'success' : 'neutral'"
+							variant="ghost"
+							size="sm"
+							:disabled="u.id === currentSessionUser?.id"
+							:aria-label="u.banned ? 'Pulihkan Akun' : 'Tangguhkan Akun'"
+							:title="u.banned ? 'Pulihkan Akun' : 'Tangguhkan Akun'"
+							@click="handleToggleBan(u)"
+						/>
+						<UButton
+							icon="i-lucide-trash-2"
+							color="error"
+							variant="ghost"
+							size="sm"
+							:disabled="u.id === currentSessionUser?.id"
+							aria-label="Hapus Akun"
+							title="Hapus Akun"
+							@click="openDeleteModal(u)"
+						/>
+					</div>
+				</li>
+			</AnimeTransitionGroup>
 		</div>
 
 		<!-- Modal Ubah Password -->
 		<UModal
 			v-model:open="isPasswordModalOpen"
-			title="Ubah Kata Sandi Akun"
-			:description="`Tetapkan password baru untuk ${selectedUserForPassword?.name || selectedUserForPassword?.email}`"
+			title="Ganti kata sandi akun"
+			:description="`Buat kata sandi baru untuk ${selectedUserForPassword?.name || selectedUserForPassword?.email}`"
 		>
 			<template #body>
 				<div class="flex flex-col gap-4 py-2">
@@ -609,7 +513,7 @@ function formatDate(dateVal: string | number | Date) {
 					</div>
 
 					<UFormField
-						label="Password Baru"
+						label="Kata Sandi Baru"
 						required
 						description="Minimal 8 karakter."
 					>
@@ -617,7 +521,7 @@ function formatDate(dateVal: string | number | Date) {
 							<UInput
 								v-model="newPassword"
 								:type="showNewPassword ? 'text' : 'password'"
-								placeholder="Masukkan password baru..."
+								placeholder="Minimal 8 karakter"
 								icon="i-lucide-lock"
 								class="w-full"
 							/>
@@ -635,13 +539,13 @@ function formatDate(dateVal: string | number | Date) {
 					</UFormField>
 
 					<UFormField
-						label="Konfirmasi Password Baru"
+						label="Ulangi Kata Sandi Baru"
 						required
 					>
 						<UInput
 							v-model="confirmPassword"
 							:type="showNewPassword ? 'text' : 'password'"
-							placeholder="Ulangi password baru..."
+							placeholder="Ketik ulang kata sandi baru"
 							icon="i-lucide-check"
 							class="w-full"
 						/>
@@ -658,7 +562,7 @@ function formatDate(dateVal: string | number | Date) {
 						@click="isPasswordModalOpen = false"
 					/>
 					<UButton
-						label="Simpan Password"
+						label="Simpan Kata Sandi"
 						color="primary"
 						icon="i-lucide-save"
 						:loading="updatingPassword"
@@ -671,8 +575,8 @@ function formatDate(dateVal: string | number | Date) {
 		<!-- Modal Ubah Role -->
 		<UModal
 			v-model:open="isRoleModalOpen"
-			title="Ubah Peran Pengguna (Role)"
-			:description="`Atur tingkat hak akses untuk ${selectedUserForRole?.name || selectedUserForRole?.email}`"
+			title="Ubah peran akun"
+			:description="`Pilih peran untuk ${selectedUserForRole?.name || selectedUserForRole?.email}`"
 		>
 			<template #body>
 				<div class="flex flex-col gap-4 py-2">
@@ -696,7 +600,7 @@ function formatDate(dateVal: string | number | Date) {
 									Administrator
 								</span>
 								<span class="text-xs text-muted">
-									Memiliki akses ke konsol manajemen ini, dapat mengelola akun pengguna lain, dan mengedit/menghapus projek komunitas.
+									Bisa membuka halaman Kelola, mengatur akun lain, serta mengedit dan menghapus proyek siapa pun.
 								</span>
 							</div>
 						</label>
@@ -717,10 +621,10 @@ function formatDate(dateVal: string | number | Date) {
 										name="i-lucide-user"
 										class="w-4 h-4 text-muted"
 									/>
-									Developer (Pengguna Biasa)
+									Kreator
 								</span>
 								<span class="text-xs text-muted">
-									Hanya dapat mengakses dashboard pribadi, mengunggah portofolio projek mereka sendiri, dan mengedit profil sendiri.
+									Mengelola proyek dan profilnya sendiri lewat dashboard.
 								</span>
 							</div>
 						</label>
@@ -737,7 +641,7 @@ function formatDate(dateVal: string | number | Date) {
 						@click="isRoleModalOpen = false"
 					/>
 					<UButton
-						label="Simpan Perubahan Role"
+						label="Simpan Peran"
 						color="primary"
 						:loading="updatingRole"
 						@click="handleSaveRole"
@@ -749,8 +653,8 @@ function formatDate(dateVal: string | number | Date) {
 		<!-- Modal Konfirmasi Hapus Akun -->
 		<UModal
 			v-model:open="isDeleteModalOpen"
-			title="Konfirmasi Hapus Akun"
-			description="Tindakan ini permanen dan tidak dapat dibatalkan."
+			title="Hapus akun ini?"
+			description="Data yang dihapus tidak bisa dikembalikan."
 		>
 			<template #body>
 				<UAlert
@@ -758,7 +662,7 @@ function formatDate(dateVal: string | number | Date) {
 					variant="subtle"
 					icon="i-lucide-triangle-alert"
 					:title="`Hapus akun ${selectedUserForDelete?.name || selectedUserForDelete?.email}?`"
-					:description="`${selectedUserForDelete?.projectCount || 0} karya miliknya ikut terhapus, beserta gambar, komentar, apresiasi, kartu kreator, dan sesi login. Data ini tidak bisa dikembalikan.`"
+					:description="`${selectedUserForDelete?.projectCount || 0} proyek miliknya ikut terhapus, beserta gambar, komentar, apresiasi, kartu kreator, dan sesi login. Data ini tidak bisa dikembalikan.`"
 				/>
 			</template>
 

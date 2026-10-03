@@ -12,7 +12,7 @@ export default defineEventHandler(async (event) => {
 	if (project.userId === userId) {
 		throw createError({
 			statusCode: 403,
-			statusMessage: 'Kamu tidak bisa mengapresiasi karyamu sendiri'
+			statusMessage: 'Kamu tidak bisa mengapresiasi proyekmu sendiri'
 		})
 	}
 

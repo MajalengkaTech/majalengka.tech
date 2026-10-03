@@ -24,14 +24,14 @@ export async function requireAdminSession(event: H3Event) {
 	if (!session?.user?.id) {
 		throw createError({
 			statusCode: 401,
-			statusMessage: 'Silakan masuk terlebih dahulu'
+			statusMessage: 'Masuk dulu untuk melanjutkan.'
 		})
 	}
 
 	if (!isAdmin(session.user as SessionUserLike)) {
 		throw createError({
 			statusCode: 403,
-			statusMessage: 'Halaman ini hanya untuk administrator'
+			statusMessage: 'Halaman ini khusus admin.'
 		})
 	}
 

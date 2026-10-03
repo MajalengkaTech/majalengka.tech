@@ -22,19 +22,19 @@ const category = computed(() => categoryLabel(props.project.category))
 const actionItems = computed(() => [
 	[
 		{
-			label: 'Lihat Halaman Karya',
+			label: 'Lihat Halaman Proyek',
 			icon: 'i-lucide-external-link',
 			to: detailPath.value
 		},
 		{
-			label: 'Edit Karya',
+			label: 'Edit Proyek',
 			icon: 'i-lucide-pencil',
 			to: `/dashboard/projects/${props.project.id}`
 		}
 	],
 	[
 		{
-			label: 'Hapus Karya',
+			label: 'Hapus Proyek',
 			icon: 'i-lucide-trash-2',
 			color: 'error' as const,
 			onSelect: () => emit('delete', props.project.id)
@@ -118,8 +118,9 @@ const actionItems = computed(() => [
 			</UDropdownMenu>
 		</div>
 
-		<div class="flex items-center justify-between gap-3">
-			<div class="flex min-w-0 items-center gap-2">
+		<!-- Judul di baris pertama, kreator di bawahnya: judul tetap terbaca utuh walau nama kreatornya panjang. -->
+		<div class="flex items-start justify-between gap-3">
+			<div class="flex min-w-0 flex-col gap-1">
 				<h3 class="truncate font-semibold text-highlighted">
 					<NuxtLink
 						:to="detailPath"
@@ -130,34 +131,36 @@ const actionItems = computed(() => [
 					</NuxtLink>
 				</h3>
 
-				<template v-if="!editable && project.author">
-					<span class="shrink-0 text-xs text-muted">oleh</span>
+				<div
+					v-if="!editable && project.author"
+					class="flex min-w-0 items-center gap-1.5"
+				>
 					<UAvatar
 						:src="project.author.avatarUrl || undefined"
 						:alt="project.author.name"
-						size="2xs"
+						size="3xs"
 						class="shrink-0"
 					/>
 					<NuxtLink
 						v-if="project.author.username"
 						:to="`/${project.author.username}`"
-						class="truncate rounded-sm text-sm font-medium text-default underline decoration-(--ui-border-accented) underline-offset-4 outline-primary/25 hover:text-primary hover:decoration-primary focus-visible:outline-3"
+						class="truncate rounded-sm text-sm text-muted outline-primary/25 transition-colors hover:text-primary focus-visible:outline-3"
 					>
 						{{ project.author.name }}
 					</NuxtLink>
 					<span
 						v-else
-						class="truncate text-sm font-medium text-default"
+						class="truncate text-sm text-muted"
 					>{{ project.author.name }}</span>
-				</template>
+				</div>
 
 				<span
 					v-else-if="editable"
-					class="shrink-0 text-xs text-muted"
+					class="text-sm text-muted"
 				>{{ formatTanggal(project.createdAt) }}</span>
 			</div>
 
-			<div class="flex shrink-0 items-center">
+			<div class="-mt-0.5 flex shrink-0 items-center">
 				<UButton
 					v-if="!editable && !isOwn"
 					:icon="project.likedByMe ? 'i-tabler-heart-filled' : 'i-tabler-heart'"

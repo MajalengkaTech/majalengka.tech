@@ -35,7 +35,7 @@ const items = computed(() => {
 			to: '/dashboard/settings'
 		},
 		{
-			label: 'Karya Saya',
+			label: 'Proyek Saya',
 			icon: 'i-lucide-folder-git-2',
 			to: '/dashboard/projects'
 		},
@@ -48,9 +48,13 @@ const items = computed(() => {
 
 	if (isAdmin.value) {
 		secondSection.push({
-			label: 'Konsol Kelola',
+			label: 'Kelola Pengguna',
 			icon: 'i-lucide-shield-alert',
 			to: '/kelola'
+		}, {
+			label: 'Kelola Proyek',
+			icon: 'i-lucide-folder-cog',
+			to: '/kelola/proyek'
 		})
 	}
 
@@ -71,7 +75,7 @@ const items = computed(() => {
 				onSelect: () => toggleColorMode()
 			},
 			{
-				label: 'Kembali ke Web',
+				label: 'Kembali ke situs',
 				icon: 'i-lucide-arrow-left',
 				to: '/'
 			}

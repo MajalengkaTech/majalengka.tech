@@ -7,7 +7,7 @@ definePageMeta({
 
 useSeoMeta({
 	title: 'Dashboard Kreator',
-	description: 'Ringkasan profil dan karyamu di Majalengka Tech'
+	description: 'Ringkasan profil dan proyekmu di Majalengka Tech'
 })
 
 const { user } = useUserSession()
@@ -55,8 +55,8 @@ async function executeDelete() {
 			method: 'DELETE'
 		})
 		toast.add({
-			title: 'Karya dihapus',
-			description: 'Karya sudah dihapus dari portofoliomu.',
+			title: 'Proyek dihapus',
+			description: 'Proyek sudah dihapus dari portofoliomu.',
 			color: 'success'
 		})
 		deleteModalOpen.value = false
@@ -66,14 +66,29 @@ async function executeDelete() {
 	} catch (err: unknown) {
 		const errorResponse = err as { data?: { statusMessage?: string } }
 		toast.add({
-			title: 'Gagal Menghapus',
-			description: errorResponse?.data?.statusMessage || 'Projek belum terhapus. Coba lagi sebentar.',
+			title: 'Proyek belum terhapus',
+			description: errorResponse?.data?.statusMessage || 'Proyek belum terhapus. Coba lagi sebentar.',
 			color: 'error'
 		})
 	} finally {
 		deleting.value = false
 	}
 }
+
+// Bilah terisi dari 0 setelah dashboard tampil, supaya mata tertuju ke profil yang belum lengkap.
+const shownCompletion = ref(0)
+onMounted(() => {
+	if (!motionAllowed()) {
+		shownCompletion.value = profileCompletion.value
+		return
+	}
+	requestAnimationFrame(() => {
+		shownCompletion.value = profileCompletion.value
+	})
+})
+watch(profileCompletion, (value) => {
+	shownCompletion.value = value
+})
 </script>
 
 <template>
@@ -91,10 +106,10 @@ async function executeDelete() {
 					icon="i-lucide-plus"
 					color="primary"
 					size="sm"
-					aria-label="Pamerkan Karya"
+					aria-label="Pamerkan Proyek"
 					to="/dashboard/projects/new"
 				>
-					<span class="hidden sm:inline">Pamerkan Karya</span>
+					<span class="hidden sm:inline">Pamerkan Proyek</span>
 				</UButton>
 			</template>
 		</UDashboardNavbar>
@@ -152,7 +167,7 @@ async function executeDelete() {
 			<div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
 				<UCard class="p-4">
 					<div class="flex items-center justify-between">
-						<span class="text-sm font-medium text-muted">Total Karya</span>
+						<span class="text-sm font-medium text-muted">Total Proyek</span>
 						<UIcon
 							name="i-lucide-folder-git-2"
 							class="w-5 h-5 text-primary"
@@ -175,12 +190,12 @@ async function executeDelete() {
 					<div class="mt-2 text-3xl font-bold text-highlighted">
 						{{ profileCompletion }}%
 					</div>
-					<div class="w-full bg-accented rounded-full h-1.5 mt-2 overflow-hidden">
-						<div
-							class="bg-primary h-1.5 rounded-full transition-all duration-500"
-							:style="{ width: `${profileCompletion}%` }"
-						/>
-					</div>
+					<UProgress
+						:model-value="shownCompletion"
+						size="sm"
+						class="mt-2"
+						:aria-label="`Profil ${profileCompletion}% lengkap`"
+					/>
 				</UCard>
 
 				<UCard class="p-4">
@@ -208,16 +223,16 @@ async function executeDelete() {
 				<div class="flex items-center justify-between">
 					<div>
 						<h2 class="text-lg font-bold text-highlighted">
-							Karya terbarumu
+							Proyek terbarumu
 						</h2>
 						<p class="text-xs text-muted">
-							Karya yang sudah kamu unggah, baik yang terbit maupun yang masih draf
+							Proyek yang sudah kamu unggah, baik yang terbit maupun yang masih draf
 						</p>
 					</div>
 
 					<UButton
 						v-if="projects.length > 0"
-						label="Kelola Semua Karya"
+						label="Kelola Semua Proyek"
 						trailing-icon="i-lucide-arrow-right"
 						color="neutral"
 						variant="ghost"
@@ -231,17 +246,17 @@ async function executeDelete() {
 					color="error"
 					variant="subtle"
 					icon="i-lucide-cloud-off"
-					title="Daftar karyamu gagal dimuat"
-					description="Server belum merespons. Karyamu tetap aman, coba muat ulang sebentar lagi."
+					title="Daftar proyekmu gagal dimuat"
+					description="Server belum merespons. Proyekmu tetap aman, coba muat ulang sebentar lagi."
 					:actions="[{ label: 'Muat Ulang', icon: 'i-lucide-refresh-cw', color: 'error', variant: 'outline', loading: projectsStatus === 'pending', onClick: () => refreshProjects() }]"
 				/>
 				<UEmpty
 					v-else-if="projects.length === 0"
 					icon="i-lucide-folder-plus"
-					title="Belum ada karya"
-					description="Kamu belum mengunggah karya. Pamerkan aplikasi, desain, atau tool buatanmu supaya bisa dilihat kreator lain."
+					title="Belum ada proyek"
+					description="Kamu belum mengunggah proyek. Pamerkan aplikasi, desain, atau tool buatanmu supaya bisa dilihat kreator lain."
 					variant="outline"
-					:actions="[{ label: 'Pamerkan Karyamu', icon: 'i-lucide-plus', to: '/dashboard/projects/new' }]"
+					:actions="[{ label: 'Pamerkan Proyekmu', icon: 'i-lucide-plus', to: '/dashboard/projects/new' }]"
 				/>
 
 				<AnimeTransitionGroup
@@ -265,8 +280,8 @@ async function executeDelete() {
 
 		<UModal
 			v-model:open="deleteModalOpen"
-			title="Hapus karya ini?"
-			description="Karya, gambar, apresiasi, dan komentarnya akan dihapus permanen."
+			title="Hapus proyek ini?"
+			description="Proyek, gambar, apresiasi, dan komentarnya akan dihapus permanen."
 		>
 			<template #footer>
 				<div class="flex items-center justify-end gap-3">

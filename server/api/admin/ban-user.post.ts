@@ -36,7 +36,7 @@ export default defineEventHandler(async (event) => {
 	if (isSuperAdmin(targetUser.id) && body.banned) {
 		throw createError({
 			statusCode: 400,
-			statusMessage: 'Tidak dapat memblokir Super Admin utama'
+			statusMessage: 'Akun Super Admin utama tidak bisa ditangguhkan.'
 		})
 	}
 

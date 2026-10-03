@@ -101,7 +101,7 @@ async function drawCard(data: CreatorCardData) {
 	ctx.fillText(fitText(ctx, handle, 470), 64, 444)
 
 	const tiles = [
-		{ value: data.projectCount, label: 'Karya terbit', color: COLORS.text },
+		{ value: data.projectCount, label: 'Proyek terbit', color: COLORS.text },
 		{ value: data.likeCount, label: 'Apresiasi diterima', color: COLORS.accent }
 	]
 	tiles.forEach((tile, index) => {

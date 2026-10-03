@@ -47,7 +47,7 @@ function step(delta: number) {
 
 <template>
 	<section
-		aria-label="Galeri karya"
+		aria-label="Galeri proyek"
 		class="flex flex-col gap-3"
 	>
 		<div
@@ -106,7 +106,7 @@ function step(delta: number) {
 				class="size-8 text-muted"
 			/>
 			<p class="text-sm text-muted">
-				Kreatornya belum menambahkan gambar untuk karya ini.
+				Kreatornya belum menambahkan gambar untuk proyek ini.
 			</p>
 		</div>
 

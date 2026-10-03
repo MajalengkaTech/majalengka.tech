@@ -1,7 +1,7 @@
 import { count, countDistinct, eq } from 'drizzle-orm'
 import { db, schema } from 'hub:db'
 
-// Angka untuk beranda dan filter Showcase; semuanya dihitung dari karya yang sudah terbit.
+// Angka untuk beranda dan filter Showcase; semuanya dihitung dari proyek yang sudah terbit.
 export default defineEventHandler(async () => {
 	const published = eq(schema.projects.isPublished, true)
 

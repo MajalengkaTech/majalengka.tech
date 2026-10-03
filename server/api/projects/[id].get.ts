@@ -7,7 +7,7 @@ export default defineEventHandler(async (event) => {
 	if (!Number.isInteger(id) || id <= 0) {
 		throw createError({
 			statusCode: 400,
-			statusMessage: 'ID projek tidak valid'
+			statusMessage: 'ID proyek tidak valid'
 		})
 	}
 
@@ -22,7 +22,7 @@ export default defineEventHandler(async (event) => {
 		if (!canSeeDraft) {
 			throw createError({
 				statusCode: 404,
-				statusMessage: 'Projek tidak ditemukan'
+				statusMessage: 'Proyek tidak ditemukan'
 			})
 		}
 	}
@@ -30,17 +30,29 @@ export default defineEventHandler(async (event) => {
 	if (!project) {
 		throw createError({
 			statusCode: 404,
-			statusMessage: 'Projek tidak ditemukan'
+			statusMessage: 'Proyek tidak ditemukan'
 		})
 	}
 
-	const images = await db
-		.select({ id: schema.projectImages.id, url: schema.projectImages.url, alt: schema.projectImages.alt })
-		.from(schema.projectImages)
-		.where(eq(schema.projectImages.projectId, id))
-		.orderBy(asc(schema.projectImages.sortOrder), asc(schema.projectImages.id))
+	const [images, [owner]] = await Promise.all([
+		db
+			.select({ id: schema.projectImages.id, url: schema.projectImages.url, alt: schema.projectImages.alt })
+			.from(schema.projectImages)
+			.where(eq(schema.projectImages.projectId, id))
+			.orderBy(asc(schema.projectImages.sortOrder), asc(schema.projectImages.id)),
+		// Nama pemilik dipakai form edit untuk memberi tahu admin proyek siapa yang sedang diubah.
+		db
+			.select({ name: schema.user.name, username: schema.user.username })
+			.from(schema.user)
+			.where(eq(schema.user.id, project.userId))
+			.limit(1)
+	])
 
 	return {
-		project: { ...project, images }
+		project: {
+			...project,
+			images,
+			author: { name: owner?.name || 'Kreator Majalengka', username: owner?.username ?? null }
+		}
 	}
 })

@@ -21,13 +21,13 @@ const optionalUrl = (message: string) => z.string().url(message).or(z.literal(''
 export const projectInputSchema = z.object({
 	title: z.string().min(3, 'Judul minimal 3 karakter').max(120, 'Judul maksimal 120 karakter'),
 	tagline: z.string().max(140, 'Tagline maksimal 140 karakter').optional().nullable(),
-	description: z.string().min(10, 'Cerita karya minimal 10 karakter').max(5000, 'Cerita karya maksimal 5000 karakter'),
-	category: z.enum(projectCategoryValues, { message: 'Pilih kategori karya' }).optional(),
+	description: z.string().min(10, 'Cerita proyek minimal 10 karakter').max(5000, 'Cerita proyek maksimal 5000 karakter'),
+	category: z.enum(projectCategoryValues, { message: 'Pilih kategori proyek' }).optional(),
 	contribution: z.string().max(120, 'Peranmu maksimal 120 karakter').optional().nullable(),
 	// Path lokal hanya boleh berupa file hasil upload; kepemilikannya dicek lagi di server.
 	thumbnailUrl: z.string().refine(
 		val => !val || val.startsWith('/api/files/') || /^https?:\/\//i.test(val),
-		{ message: 'Thumbnail harus berupa gambar yang diunggah atau link https:// yang valid' }
+		{ message: 'Gambar sampul harus gambar yang diunggah atau link https:// yang valid.' }
 	).optional().nullable(),
 	repoUrl: optionalUrl('URL repositori tidak valid'),
 	demoUrl: optionalUrl('URL demo tidak valid'),

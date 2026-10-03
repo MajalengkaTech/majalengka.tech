@@ -14,13 +14,13 @@ export function isOwnedBlobUrl(url: string | null | undefined, ownerId: string |
 	return !!pathname && pathname.startsWith(`${projectUploadPrefix(ownerId)}/`)
 }
 
-// File upload milik user lain tidak boleh dipakai sebagai thumbnail, supaya tidak bisa ikut terhapus lewat projek ini.
+// File upload milik user lain tidak boleh dipakai sebagai thumbnail, supaya tidak bisa ikut terhapus lewat proyek ini.
 export function assertThumbnailAllowed(url: string | null, ownerId: string | number, currentUrl?: string | null) {
 	if (!url || /^https?:\/\//i.test(url) || url === currentUrl) return
 	if (!isOwnedBlobUrl(url, ownerId)) {
 		throw createError({
 			statusCode: 400,
-			statusMessage: 'Thumbnail harus gambar yang kamu unggah sendiri atau link https:// yang valid'
+			statusMessage: 'Gambar sampul harus gambar yang kamu unggah sendiri atau link https:// yang valid.'
 		})
 	}
 }

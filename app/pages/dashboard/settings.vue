@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { animate } from 'animejs'
 import type { FormSubmitEvent } from '@nuxt/ui'
 
 definePageMeta({
@@ -95,6 +96,27 @@ watchDebounced(() => state.username, async (value) => {
 
 const usernameBlocked = computed(() => usernameStatus.value?.available === false)
 
+// Tombol berganti "Tersimpan" dengan centang yang membesar sesaat, konfirmasi di tempat yang sedang dilihat pengguna.
+const justSaved = ref(false)
+const saveButton = useTemplateRef<{ $el?: HTMLElement }>('saveButton')
+let savedTimer: ReturnType<typeof setTimeout> | undefined
+
+async function confirmSaved() {
+	justSaved.value = true
+	clearTimeout(savedTimer)
+	savedTimer = setTimeout(() => {
+		justSaved.value = false
+	}, 1800)
+	if (!motionAllowed()) return
+	await nextTick()
+	const icon = saveButton.value?.$el?.querySelector<HTMLElement>('[data-slot="leadingIcon"]')
+	if (icon) {
+		animate(icon, { scale: [0.6, 1.2, 1], duration: 360, ease: 'out(3)', onComplete: () => icon.style.removeProperty('transform') })
+	}
+}
+
+onBeforeUnmount(() => clearTimeout(savedTimer))
+
 async function onSubmit(event: FormSubmitEvent<ProfileInput>) {
 	try {
 		loading.value = true
@@ -108,6 +130,7 @@ async function onSubmit(event: FormSubmitEvent<ProfileInput>) {
 
 		await refreshSession()
 		await refreshProfile()
+		confirmSaved()
 
 		toast.add({
 			title: 'Profil tersimpan',
@@ -162,7 +185,7 @@ async function onSubmit(event: FormSubmitEvent<ProfileInput>) {
 						Identitas
 					</h2>
 					<p class="text-sm text-muted">
-						Nama dan username tampil di setiap karyamu.
+						Nama dan username tampil di setiap proyekmu.
 					</p>
 				</template>
 
@@ -328,7 +351,7 @@ async function onSubmit(event: FormSubmitEvent<ProfileInput>) {
 
 					<USwitch
 						v-model="state.openToWork"
-						label="Terbuka untuk project"
+						label="Terbuka untuk kerja sama"
 						description="Tampilkan badge di profil supaya UMKM atau perekrut tahu kamu bisa diajak kerja sama."
 					/>
 				</div>
@@ -397,9 +420,11 @@ async function onSubmit(event: FormSubmitEvent<ProfileInput>) {
 
 			<div class="flex justify-end">
 				<UButton
-					label="Simpan Profil"
+					ref="saveButton"
+					:label="justSaved ? 'Tersimpan' : 'Simpan Profil'"
 					type="submit"
-					icon="i-lucide-save"
+					:icon="justSaved ? 'i-lucide-check' : 'i-lucide-save'"
+					:color="justSaved ? 'success' : 'primary'"
 					:loading="loading"
 					:disabled="usernameBlocked || checkingUsername"
 				/>

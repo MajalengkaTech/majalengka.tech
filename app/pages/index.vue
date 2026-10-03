@@ -34,7 +34,7 @@ const latest = computed(() => latest$.data.value?.projects || [])
 const creators = computed(() => creators$.data.value?.creators || [])
 const stats = computed(() => stats$.data.value || { totalProjects: 0, totalCreators: 0, categories: {} })
 
-// Satu fetch gagal sudah cukup membuat beranda tidak lengkap, jadi pengunjung perlu tahu bahwa ini error, bukan etalase kosong.
+// Satu fetch gagal sudah cukup membuat beranda tidak lengkap, jadi pengunjung perlu tahu bahwa ini error, bukan halaman yang memang kosong.
 const loadFailed = computed(() => [stats$, featured$, latest$, creators$].some(request => request.error.value))
 const retrying = ref(false)
 
@@ -44,7 +44,7 @@ async function retryLoad() {
 	retrying.value = false
 }
 
-// Mozaik hero hanya dari karya asli yang punya gambar; kurang dari 3 berarti hero tampil tanpa mozaik.
+// Mozaik hero hanya dari proyek asli yang punya gambar; kurang dari 3 berarti hero tampil tanpa mozaik.
 const mosaic = computed(() => {
 	const seen = new Set<number>()
 	return [...featured.value, ...latest.value]
@@ -75,7 +75,7 @@ const hero = useTemplateRef('hero')
 // Kartu di bawah layar muncul bertahap saat di-scroll, supaya grid panjang terbaca per baris.
 useReveal(useTemplateRef<HTMLElement>('home'))
 
-// Momen sambutan: judul naik per kata, lalu deskripsi, tombol, dan karya. Hanya sekali per sesi supaya tidak mengulang di setiap kunjungan beranda.
+// Momen sambutan: judul naik per kata, lalu deskripsi, tombol, dan proyek. Hanya sekali per sesi supaya tidak mengulang di setiap kunjungan beranda.
 onMounted(() => {
 	const html = document.documentElement
 	const root = (hero.value as { $el?: HTMLElement } | null)?.$el
@@ -120,7 +120,7 @@ useSeoMeta({
 })
 
 defineOgImage('Saas', {
-	headline: 'Etalase Karya',
+	headline: 'Proyek Kreator Majalengka',
 	title: 'Majalengka Tech',
 	description
 })
@@ -188,7 +188,7 @@ defineOgImage('Saas', {
 				#headline
 			>
 				<span class="text-sm font-medium text-muted">
-					{{ stats.totalProjects }} karya dari {{ stats.totalCreators }} kreator
+					{{ stats.totalProjects }} proyek dari {{ stats.totalCreators }} kreator
 				</span>
 			</template>
 
@@ -240,7 +240,7 @@ defineOgImage('Saas', {
 				</span>
 			</template>
 			<template #title>
-				Karya yang layak kamu buka lebih dulu
+				Proyek yang layak kamu buka lebih dulu
 			</template>
 			<template #description>
 				Dipilih kurator Majalengka Tech karena ceritanya kuat dan tampilannya rapi.
@@ -261,7 +261,7 @@ defineOgImage('Saas', {
 
 		<UPageSection :ui="{ container: 'py-12 sm:py-16 lg:py-20' }">
 			<template #title>
-				Karya terbaru
+				Proyek terbaru
 			</template>
 			<template #description>
 				Baru saja diterbitkan developer dan desainer Majalengka.
@@ -271,7 +271,7 @@ defineOgImage('Saas', {
 				#links
 			>
 				<UButton
-					label="Lihat Semua Karya"
+					label="Lihat Semua Proyek"
 					icon="i-lucide-arrow-right"
 					trailing
 					to="/projek"
@@ -286,7 +286,7 @@ defineOgImage('Saas', {
 				variant="subtle"
 				icon="i-lucide-cloud-off"
 				title="Sebagian isi beranda gagal dimuat"
-				description="Server belum merespons, jadi karya atau kreator di halaman ini mungkin belum lengkap. Coba muat ulang sebentar lagi."
+				description="Server belum merespons, jadi proyek atau kreator di halaman ini mungkin belum lengkap. Coba muat ulang sebentar lagi."
 				:actions="[{ label: 'Muat Ulang', icon: 'i-lucide-refresh-cw', color: 'error', variant: 'outline', loading: retrying, onClick: retryLoad }]"
 				:class="{ 'mb-10': latest.length }"
 			/>
@@ -304,9 +304,9 @@ defineOgImage('Saas', {
 			<UEmpty
 				v-else-if="!loadFailed"
 				icon="i-lucide-folder-open"
-				title="Belum ada karya yang terbit"
-				description="Etalase ini baru dibuka. Karyamu bisa jadi yang pertama tampil di sini."
-				:actions="[{ label: 'Pamerkan Karyamu', icon: 'i-lucide-folder-plus', to: '/dashboard/projects/new' }]"
+				title="Belum ada proyek yang terbit"
+				description="Belum ada proyek yang tampil di sini. Proyekmu bisa jadi yang pertama."
+				:actions="[{ label: 'Pamerkan Proyekmu', icon: 'i-lucide-folder-plus', to: '/dashboard/projects/new' }]"
 			/>
 		</UPageSection>
 
@@ -342,10 +342,10 @@ defineOgImage('Saas', {
 			:ui="{ container: 'py-12 sm:py-16 lg:py-20' }"
 		>
 			<template #title>
-				Kreator di balik karya
+				Kreator di balik proyek
 			</template>
 			<template #description>
-				Kenali orangnya, lihat karya lainnya, dan temukan yang terbuka untuk project.
+				Kenali orangnya, lihat proyek lainnya, dan temukan yang terbuka untuk kerja sama.
 			</template>
 
 			<ul class="flex flex-wrap justify-center gap-4">
@@ -371,13 +371,13 @@ defineOgImage('Saas', {
 							<p class="truncate text-sm text-muted">
 								{{ creator.creatorRole ? CREATOR_ROLES[creator.creatorRole as CreatorRole] : `@${creator.username}` }}
 								<span aria-hidden="true">·</span>
-								{{ creator.projectCount }} karya
+								{{ creator.projectCount }} proyek
 							</p>
 							<p
 								v-if="creator.openToWork"
 								class="mt-1 text-xs font-medium text-success"
 							>
-								Terbuka untuk project
+								Terbuka untuk kerja sama
 							</p>
 						</div>
 					</NuxtLink>
@@ -388,10 +388,10 @@ defineOgImage('Saas', {
 		<USeparator />
 
 		<UPageCTA
-			title="Punya karya yang ingin dipamerkan?"
+			title="Punya proyek yang ingin dipamerkan?"
 			description="Unggah tangkapan layar, ceritakan prosesnya, lalu bagikan satu alamat portofolio ke teman, klien, atau perekrut."
 			:links="[
-				{ label: 'Pamerkan Karyamu', icon: 'i-lucide-folder-plus', to: '/dashboard/projects/new', size: 'lg' },
+				{ label: 'Pamerkan Proyekmu', icon: 'i-lucide-folder-plus', to: '/dashboard/projects/new', size: 'lg' },
 				{ label: 'Tentang Majalengka Tech', to: '/tentang', color: 'neutral', variant: 'ghost', size: 'lg' }
 			]"
 			variant="naked"

@@ -5,7 +5,7 @@ import { isSuperAdmin, requireAdminSession } from '../../utils/admin'
 
 const setRoleSchema = z.object({
 	userId: z.string().min(1, 'User ID wajib diisi'),
-	role: z.enum(['admin', 'user'], { message: 'Role harus berupa admin atau user' })
+	role: z.enum(['admin', 'user'], { message: 'Pilih peran Admin atau Kreator.' })
 })
 
 export default defineEventHandler(async (event) => {
@@ -29,7 +29,7 @@ export default defineEventHandler(async (event) => {
 	if (isSuperAdmin(targetUser.id) && body.role !== 'admin') {
 		throw createError({
 			statusCode: 400,
-			statusMessage: 'Tidak dapat mengubah role Super Admin utama'
+			statusMessage: 'Peran Super Admin utama tidak bisa diubah.'
 		})
 	}
 
@@ -43,6 +43,6 @@ export default defineEventHandler(async (event) => {
 
 	return {
 		success: true,
-		message: `Role untuk ${targetUser.name || targetUser.email} berhasil diubah menjadi ${body.role}`
+		message: `Peran ${targetUser.name || targetUser.email} sekarang ${body.role === 'admin' ? 'Admin' : 'Kreator'}`
 	}
 })

@@ -12,7 +12,7 @@ function slugify(text: string): string {
 }
 
 async function findUniqueSlug(title: string) {
-	const baseSlug = slugify(title) || 'projek'
+	const baseSlug = slugify(title) || 'proyek'
 	let slug = baseSlug
 	for (let attempt = 0; attempt < 5; attempt++) {
 		const existing = await db.query.projects.findFirst({
@@ -29,7 +29,7 @@ export default defineEventHandler(async (event) => {
 	if (!session?.user?.id) {
 		throw createError({
 			statusCode: 401,
-			statusMessage: 'Silakan masuk terlebih dahulu untuk menambah projek'
+			statusMessage: 'Masuk dulu untuk menambah proyek.'
 		})
 	}
 

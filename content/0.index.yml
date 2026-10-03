@@ -1,12 +1,12 @@
-title: Pamerkan Karya [Teknologi Majalengka]{class="text-primary"}
-description: Etalase karya developer dan desainer Majalengka. Unggah karyamu, dapatkan apresiasi, dan punya satu alamat portofolio untuk dibagikan.
+title: Pamerkan Proyek [Teknologi Majalengka]{class="text-primary"}
+description: Tempat developer dan desainer Majalengka memamerkan proyeknya. Unggah proyekmu, dapatkan apresiasi, dan punya satu alamat portofolio untuk dibagikan.
 seo:
-  title: Majalengka Tech · Etalase Karya Developer & Desainer Majalengka
-  description: Karya aplikasi, desain, dan teknologi buatan developer dan desainer Majalengka.
+  title: Majalengka Tech · Proyek Developer & Desainer Majalengka
+  description: Proyek aplikasi, desain, dan teknologi buatan developer dan desainer Majalengka.
 navigation: false
 hero:
   links:
-    - label: Pamerkan Karyamu
+    - label: Pamerkan Proyekmu
       icon: i-lucide-folder-plus
       to: /dashboard/projects/new
       size: xl

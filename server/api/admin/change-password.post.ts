@@ -65,6 +65,6 @@ export default defineEventHandler(async (event) => {
 
 	return {
 		success: true,
-		message: `Password untuk akun ${targetUser.email} berhasil diperbarui.`
+		message: `Kata sandi akun ${targetUser.email} sudah diganti.`
 	}
 })

@@ -107,7 +107,7 @@ async function removeComment(comment: ProjectComment) {
 			>
 				<UTextarea
 					v-model="state.body"
-					placeholder="Apa yang menarik dari karya ini? Masukan yang membangun juga boleh."
+					placeholder="Apa yang menarik dari proyek ini? Masukan yang membangun juga boleh."
 					:rows="3"
 					autoresize
 					:maxrows="8"

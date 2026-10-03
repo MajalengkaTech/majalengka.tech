@@ -7,7 +7,7 @@ export function parseProjectId(event: H3Event) {
 	if (!Number.isInteger(id) || id <= 0) {
 		throw createError({
 			statusCode: 400,
-			statusMessage: 'ID projek tidak valid'
+			statusMessage: 'ID proyek tidak valid'
 		})
 	}
 	return id
@@ -20,13 +20,13 @@ export async function requirePublishedProject(id: number) {
 	if (!project || !project.isPublished) {
 		throw createError({
 			statusCode: 404,
-			statusMessage: 'Karya tidak ditemukan'
+			statusMessage: 'Proyek tidak ditemukan'
 		})
 	}
 	return project
 }
 
-export async function requireSignedIn(event: H3Event, message = 'Silakan masuk terlebih dahulu') {
+export async function requireSignedIn(event: H3Event, message = 'Masuk dulu untuk melanjutkan.') {
 	const session = await getUserSession(event)
 	if (!session?.user?.id) {
 		throw createError({

@@ -5,7 +5,7 @@ const columns = [{
 		label: 'Showcase',
 		to: '/projek'
 	}, {
-		label: 'Pamerkan Karyamu',
+		label: 'Pamerkan Proyekmu',
 		to: '/dashboard/projects/new'
 	}, {
 		label: 'Tentang',
@@ -17,7 +17,7 @@ const columns = [{
 		label: 'Mengenal Majalengka Tech',
 		to: '/docs/getting-started'
 	}, {
-		label: 'Pamerkan karya',
+		label: 'Pamerkan proyek',
 		to: '/docs/getting-started/pamerkan-karya'
 	}, {
 		label: 'Profil kreator',
@@ -53,7 +53,7 @@ const columns = [{
 
 		<template #left>
 			<p class="text-muted text-sm">
-				Majalengka Tech · Etalase karya kreator Majalengka · Kode terbuka berlisensi MIT · © {{ new Date().getFullYear() }}
+				Majalengka Tech · Tempat kreator Majalengka memamerkan proyek · Kode terbuka berlisensi MIT · © {{ new Date().getFullYear() }}
 			</p>
 		</template>
 

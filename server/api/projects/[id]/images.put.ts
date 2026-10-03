@@ -25,7 +25,7 @@ export default defineEventHandler(async (event) => {
 	if (!project) {
 		throw createError({
 			statusCode: 404,
-			statusMessage: 'Projek tidak ditemukan'
+			statusMessage: 'Proyek tidak ditemukan'
 		})
 	}
 	if (project.userId !== String(session.user.id) && !isAdmin(session.user)) {

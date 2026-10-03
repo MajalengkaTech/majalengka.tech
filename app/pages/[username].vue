@@ -79,7 +79,7 @@ function shareProfile() {
 
 const seoDescription = computed(() => creator.value.bio
 	|| [roleLabel.value, creator.value.location].filter(Boolean).join(' dari ')
-	|| `Karya ${creator.value.name} di Majalengka Tech`)
+	|| `Proyek ${creator.value.name} di Majalengka Tech`)
 
 const cardImage = data.value?.card ? origin + data.value.card.url : undefined
 
@@ -94,7 +94,7 @@ useSeoMeta({
 	twitterCard: cardImage ? 'summary_large_image' : 'summary'
 })
 
-// Karya di bawah layar muncul bertahap saat di-scroll.
+// Proyek di bawah layar muncul bertahap saat di-scroll.
 useReveal(useTemplateRef<HTMLElement>('works'))
 </script>
 
@@ -133,7 +133,7 @@ useReveal(useTemplateRef<HTMLElement>('works'))
 						/>
 						<UBadge
 							v-if="creator.openToWork"
-							label="Terbuka untuk project"
+							label="Terbuka untuk kerja sama"
 							icon="i-lucide-briefcase"
 							color="success"
 							variant="subtle"
@@ -266,15 +266,15 @@ useReveal(useTemplateRef<HTMLElement>('works'))
 					id="judul-karya"
 					class="text-xl font-bold text-highlighted"
 				>
-					Karya
+					Proyek
 				</h2>
 
 				<UEmpty
 					v-if="!projects.length"
 					icon="i-lucide-folder-open"
-					:title="isMe ? 'Karya pertamamu belum dipamerkan' : 'Belum ada karya yang dipublikasikan'"
-					:description="isMe ? 'Unggah satu karya, lalu bagikan profil ini ke teman atau calon klien.' : `${creator.name} belum menerbitkan karya di Majalengka Tech.`"
-					:actions="isMe ? [{ label: 'Pamerkan Karya', icon: 'i-lucide-folder-plus', to: '/dashboard/projects/new' }] : []"
+					:title="isMe ? 'Proyek pertamamu belum dipamerkan' : 'Belum ada proyek yang terbit'"
+					:description="isMe ? 'Unggah satu proyek, lalu bagikan profil ini ke teman atau calon klien.' : `${creator.name} belum menerbitkan proyek di Majalengka Tech.`"
+					:actions="isMe ? [{ label: 'Pamerkan Proyek', icon: 'i-lucide-folder-plus', to: '/dashboard/projects/new' }] : []"
 				/>
 
 				<div

@@ -8,14 +8,14 @@ interface ShowcaseStats {
 }
 
 useSeoMeta({
-	title: 'Showcase Karya',
-	description: 'Karya aplikasi, desain, dan teknologi buatan developer dan desainer Majalengka.'
+	title: 'Showcase Proyek',
+	description: 'Proyek aplikasi, desain, dan teknologi buatan developer dan desainer Majalengka.'
 })
 
 defineOgImage('Saas', {
 	headline: 'Showcase',
-	title: 'Karya Kreator Majalengka',
-	description: 'Karya aplikasi, desain, dan teknologi buatan developer dan desainer Majalengka.'
+	title: 'Proyek Kreator Majalengka',
+	description: 'Proyek aplikasi, desain, dan teknologi buatan developer dan desainer Majalengka.'
 })
 
 const route = useRoute()
@@ -91,14 +91,14 @@ function resetFilters() {
 					Showcase
 				</h1>
 				<p class="text-base text-pretty text-muted sm:text-lg">
-					Karya developer dan desainer Majalengka.
+					Proyek developer dan desainer Majalengka.
 					<template v-if="statsData?.totalProjects">
-						Saat ini ada {{ statsData.totalProjects }} karya dari {{ statsData.totalCreators }} kreator.
+						Saat ini ada {{ statsData.totalProjects }} proyek dari {{ statsData.totalCreators }} kreator.
 					</template>
 				</p>
 			</div>
 			<UButton
-				label="Pamerkan Karyamu"
+				label="Pamerkan Proyekmu"
 				icon="i-lucide-folder-plus"
 				to="/dashboard/projects/new"
 				size="lg"
@@ -146,7 +146,7 @@ function resetFilters() {
 					icon="i-lucide-search"
 					placeholder="Cari judul, teknologi, atau nama kreator"
 					class="w-full sm:max-w-sm"
-					aria-label="Cari karya"
+					aria-label="Cari proyek"
 				/>
 				<!-- Dua pilihan urutan langsung terlihat; penanda aktif bergeser saat diganti. -->
 				<UTabs
@@ -155,7 +155,7 @@ function resetFilters() {
 					:content="false"
 					size="sm"
 					class="w-full sm:w-auto"
-					aria-label="Urutkan karya"
+					aria-label="Urutkan proyek"
 					@update:model-value="(value: string | number) => setQuery({ urut: value === 'populer' ? 'populer' : undefined })"
 				/>
 				<p
@@ -171,7 +171,7 @@ function resetFilters() {
 							:key="filtered.length"
 							class="inline-block tabular-nums"
 						>{{ filtered.length }}</span>
-					</AnimeTransition> karya
+					</AnimeTransition> proyek
 				</p>
 			</div>
 		</div>
@@ -192,7 +192,7 @@ function resetFilters() {
 			color="error"
 			variant="subtle"
 			icon="i-lucide-triangle-alert"
-			title="Karya gagal dimuat"
+			title="Proyek gagal dimuat"
 			description="Server tidak merespons. Coba muat ulang sebentar lagi."
 			:actions="[{ label: 'Coba Lagi', color: 'error', variant: 'outline', onClick: () => refresh() }]"
 		/>
@@ -200,11 +200,11 @@ function resetFilters() {
 		<UEmpty
 			v-else-if="!filtered.length"
 			icon="i-lucide-folder-search"
-			:title="isFiltering ? 'Tidak ada karya yang cocok' : 'Belum ada karya yang terbit'"
-			:description="isFiltering ? 'Coba kategori lain atau kata kunci yang berbeda.' : 'Etalase ini baru dibuka. Karyamu bisa jadi yang pertama tampil di sini.'"
+			:title="isFiltering ? 'Tidak ada proyek yang cocok' : 'Belum ada proyek yang terbit'"
+			:description="isFiltering ? 'Coba kategori lain atau kata kunci yang berbeda.' : 'Belum ada proyek yang tampil di sini. Proyekmu bisa jadi yang pertama.'"
 			:actions="isFiltering
 				? [{ label: 'Hapus Filter', icon: 'i-lucide-x', color: 'neutral', variant: 'outline', onClick: resetFilters }]
-				: [{ label: 'Pamerkan Karyamu', icon: 'i-lucide-folder-plus', to: '/dashboard/projects/new' }]"
+				: [{ label: 'Pamerkan Proyekmu', icon: 'i-lucide-folder-plus', to: '/dashboard/projects/new' }]"
 		/>
 
 		<!-- Saat filter berubah: kartu yang tersisa bergeser ke posisi barunya, yang hilang memudar, yang baru masuk. -->

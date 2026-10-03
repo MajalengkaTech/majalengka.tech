@@ -41,6 +41,7 @@ export interface ProjectItem {
 export interface ProjectDetail extends ProjectItem {
 	images: ProjectImage[]
 	isOwner: boolean
+	canManage?: boolean
 	author: ProjectAuthor & {
 		bio?: string | null
 		location?: string | null

@@ -16,7 +16,7 @@ const shownError = computed(() => ({
 		? (notFound.value ? 'Halaman tidak ditemukan' : 'Terjadi kesalahan di server')
 		: props.error.statusMessage,
 	message: notFound.value
-		? 'Alamat ini mungkin salah ketik, atau karya dan profilnya sudah dihapus. Cek lagi alamatnya, atau kembali ke beranda.'
+		? 'Alamat ini mungkin salah ketik, atau proyek dan profilnya sudah dihapus. Cek lagi alamatnya, atau kembali ke beranda.'
 		: 'Halaman belum bisa ditampilkan. Coba muat ulang beberapa saat lagi, atau kembali ke beranda.'
 }))
 

@@ -6,8 +6,8 @@ definePageMeta({
 })
 
 useSeoMeta({
-	title: 'Karya Saya',
-	description: 'Kelola karya yang kamu pamerkan di Majalengka Tech'
+	title: 'Proyek Saya',
+	description: 'Kelola proyek yang kamu pamerkan di Majalengka Tech'
 })
 
 const toast = useToast()
@@ -45,8 +45,8 @@ async function executeDelete() {
 			method: 'DELETE'
 		})
 		toast.add({
-			title: 'Karya dihapus',
-			description: 'Karya sudah dihapus dari portofoliomu.',
+			title: 'Proyek dihapus',
+			description: 'Proyek sudah dihapus dari portofoliomu.',
 			color: 'success'
 		})
 		deleteModalOpen.value = false
@@ -55,8 +55,8 @@ async function executeDelete() {
 	} catch (err: unknown) {
 		const errorResponse = err as { data?: { statusMessage?: string } }
 		toast.add({
-			title: 'Gagal Menghapus',
-			description: errorResponse?.data?.statusMessage || 'Terjadi kesalahan saat menghapus projek.',
+			title: 'Proyek belum terhapus',
+			description: errorResponse?.data?.statusMessage || 'Terjadi kesalahan saat menghapus proyek.',
 			color: 'error'
 		})
 	} finally {
@@ -68,7 +68,7 @@ async function executeDelete() {
 <template>
 	<div class="flex flex-col flex-1">
 		<UDashboardNavbar
-			title="Karya Saya"
+			title="Proyek Saya"
 			:ui="{ root: 'border-b border-default' }"
 		>
 			<template #leading>
@@ -80,10 +80,10 @@ async function executeDelete() {
 					icon="i-lucide-plus"
 					color="primary"
 					size="sm"
-					aria-label="Pamerkan Karya Baru"
+					aria-label="Pamerkan Proyek Baru"
 					to="/dashboard/projects/new"
 				>
-					<span class="hidden sm:inline">Pamerkan Karya Baru</span>
+					<span class="hidden sm:inline">Pamerkan Proyek Baru</span>
 				</UButton>
 			</template>
 		</UDashboardNavbar>
@@ -92,10 +92,10 @@ async function executeDelete() {
 			<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
 				<div>
 					<h1 class="text-xl font-bold text-highlighted">
-						Semua karyamu
+						Semua proyekmu
 					</h1>
 					<p class="text-xs text-muted">
-						Kelola semua karya yang kamu buat: aplikasi, desain, library open-source, atau tool.
+						Kelola semua proyek yang kamu buat: aplikasi, desain, library open-source, atau tool.
 					</p>
 				</div>
 
@@ -133,14 +133,14 @@ async function executeDelete() {
 					/>
 				</div>
 				<h3 class="text-lg font-bold text-highlighted">
-					{{ search ? 'Tidak ada karya yang cocok' : 'Belum ada karya' }}
+					{{ search ? 'Tidak ada proyek yang cocok' : 'Belum ada proyek' }}
 				</h3>
 				<p class="text-sm text-muted max-w-md">
-					{{ search ? 'Coba kata kunci lain.' : 'Unggah karya pertamamu supaya bisa dilihat kreator Majalengka lainnya.' }}
+					{{ search ? 'Coba kata kunci lain.' : 'Unggah proyek pertamamu supaya bisa dilihat kreator Majalengka lainnya.' }}
 				</p>
 				<UButton
 					v-if="!search"
-					label="Pamerkan Karya Baru"
+					label="Pamerkan Proyek Baru"
 					icon="i-lucide-plus"
 					color="primary"
 					class="mt-3"
@@ -170,8 +170,8 @@ async function executeDelete() {
 		<!-- Delete Confirmation Modal -->
 		<UModal
 			v-model:open="deleteModalOpen"
-			title="Hapus karya ini?"
-			description="Karya, gambar, apresiasi, dan komentarnya akan dihapus permanen."
+			title="Hapus proyek ini?"
+			description="Proyek, gambar, apresiasi, dan komentarnya akan dihapus permanen."
 		>
 			<template #footer>
 				<div class="flex items-center justify-end gap-3">

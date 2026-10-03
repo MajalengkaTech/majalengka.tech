@@ -21,7 +21,7 @@ const navLinks = computed<NavigationMenuItem[][]>(() => {
 			}
 		},
 		{
-			label: 'Karya Saya',
+			label: 'Proyek Saya',
 			icon: 'i-lucide-folder-git-2',
 			to: '/dashboard/projects',
 			onSelect: () => {
@@ -40,9 +40,17 @@ const navLinks = computed<NavigationMenuItem[][]>(() => {
 
 	if (isAdmin.value) {
 		primaryLinks.push({
-			label: 'Konsol Kelola',
+			label: 'Kelola Pengguna',
 			icon: 'i-lucide-shield-alert',
 			to: '/kelola',
+			exact: true,
+			onSelect: () => {
+				open.value = false
+			}
+		}, {
+			label: 'Kelola Proyek',
+			icon: 'i-lucide-folder-cog',
+			to: '/kelola/proyek',
 			onSelect: () => {
 				open.value = false
 			}
@@ -64,7 +72,7 @@ const navLinks = computed<NavigationMenuItem[][]>(() => {
 				to: '/docs'
 			},
 			{
-				label: 'Ke Website',
+				label: 'Kembali ke situs',
 				icon: 'i-lucide-external-link',
 				to: '/'
 			}

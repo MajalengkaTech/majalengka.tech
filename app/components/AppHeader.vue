@@ -43,7 +43,7 @@ const userMenuItems = computed(() => [
 			to: '/dashboard'
 		},
 		{
-			label: 'Karya Saya',
+			label: 'Proyek Saya',
 			icon: 'i-lucide-folder-git-2',
 			to: '/dashboard/projects'
 		},

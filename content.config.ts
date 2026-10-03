@@ -51,6 +51,13 @@ export const collections = {
 		source: '5.tentang.yml',
 		type: 'page',
 		schema: z.object({
+			hero: z.object({
+				headline: z.string().optional(),
+				links: z.array(createLinkSchema())
+			}),
+			story: createBaseSchema().extend({
+				items: z.array(createFeatureItemSchema())
+			}),
 			features: createBaseSchema().extend({
 				items: z.array(createFeatureItemSchema())
 			}),

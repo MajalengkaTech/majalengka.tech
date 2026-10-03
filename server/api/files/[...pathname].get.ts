@@ -5,7 +5,7 @@ export default defineEventHandler(async (event) => {
 	if (!pathname) {
 		throw createError({
 			statusCode: 400,
-			statusMessage: 'Path file wajib diisi'
+			statusMessage: 'Alamat file kosong.'
 		})
 	}
 
@@ -13,7 +13,7 @@ export default defineEventHandler(async (event) => {
 	setResponseHeaders(event, {
 		'Content-Security-Policy': 'default-src \'none\'; img-src \'self\'; style-src \'unsafe-inline\'; sandbox',
 		'X-Content-Type-Options': 'nosniff',
-		// Upload karya dan avatar selalu bernama acak sehingga isinya tidak pernah berubah; kartu kreator ditimpa di path yang sama.
+		// Upload proyek dan avatar selalu bernama acak sehingga isinya tidak pernah berubah; kartu kreator ditimpa di path yang sama.
 		'Cache-Control': pathname.startsWith('Projek/')
 			? 'public, max-age=31536000, immutable'
 			: 'public, max-age=3600'

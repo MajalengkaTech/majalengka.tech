@@ -27,7 +27,7 @@ defineOgImage('Saas', { title, description })
 				v-if="!posts?.length"
 				icon="i-lucide-newspaper"
 				title="Belum ada tulisan"
-				description="Belum ada tulisan yang terbit. Sementara itu, lihat karya-karya di showcase."
+				description="Belum ada tulisan yang terbit. Sementara itu, lihat proyek kreator di Showcase."
 				:actions="[{ label: 'Lihat Showcase', icon: 'i-lucide-layout-grid', to: '/projek' }]"
 			/>
 			<UBlogPosts v-else>

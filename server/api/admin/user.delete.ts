@@ -36,7 +36,7 @@ export default defineEventHandler(async (event) => {
 	if (isSuperAdmin(targetUser.id)) {
 		throw createError({
 			statusCode: 400,
-			statusMessage: 'Akun Super Admin utama tidak dapat dihapus'
+			statusMessage: 'Akun Super Admin utama tidak bisa dihapus.'
 		})
 	}
 
@@ -73,6 +73,6 @@ export default defineEventHandler(async (event) => {
 
 	return {
 		success: true,
-		message: `Akun ${targetUser.name || targetUser.email} berhasil dihapus dari database.`
+		message: `Akun ${targetUser.name || targetUser.email} sudah dihapus.`
 	}
 })

@@ -2,7 +2,8 @@ const ALLOWED_TYPES = ['image/png', 'image/jpeg', 'image/webp', 'image/gif']
 // Sama dengan batas di server/api/upload.post.ts.
 const MAX_BYTES = 8 * 1024 * 1024
 
-export function useImageUpload() {
+// projectId diisi saat mengedit proyek, supaya admin yang mengunggah untuk proyek orang lain menyimpan gambar di folder pemiliknya.
+export function useImageUpload(projectId?: MaybeRefOrGetter<number | undefined>) {
 	const toast = useToast()
 	const uploading = ref(0)
 
@@ -20,7 +21,8 @@ export function useImageUpload() {
 		formData.append('file', file)
 		uploading.value++
 		try {
-			const res = await $fetch<{ url: string }>('/api/upload', { method: 'POST', body: formData })
+			const id = toValue(projectId)
+			const res = await $fetch<{ url: string }>('/api/upload', { method: 'POST', body: formData, query: id ? { projectId: id } : undefined })
 			return res.url
 		} catch (err: unknown) {
 			const errorResponse = err as { data?: { statusMessage?: string } }

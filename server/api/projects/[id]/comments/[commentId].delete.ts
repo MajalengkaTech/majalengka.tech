@@ -3,7 +3,7 @@ import { db, schema } from 'hub:db'
 import { isAdmin } from '../../../../utils/admin'
 import { parseProjectId, requireSignedIn } from '../../../../utils/project-access'
 
-// Komentar boleh dihapus oleh penulisnya, pemilik karya, atau admin.
+// Komentar boleh dihapus oleh penulisnya, pemilik proyek, atau admin.
 export default defineEventHandler(async (event) => {
 	const session = await requireSignedIn(event)
 	const projectId = parseProjectId(event)
