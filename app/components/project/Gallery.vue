@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { animate } from 'animejs'
 import type { ProjectImage } from '~/types/project'
 
 const props = defineProps<{
@@ -22,16 +21,17 @@ watch(activeIndex, async () => {
 	await nextTick()
 	const image = mainImage.value?.$el
 	if (!image) return
-	animate(image, {
-		opacity: [0, 1],
-		scale: [1.01, 1],
+	const anim = image.animate([
+		{ opacity: 0, transform: 'scale(1.01)' },
+		{ opacity: 1, transform: 'scale(1)' }
+	], {
 		duration: 300,
-		ease: 'out(3)',
-		onComplete: () => {
-			image.style.removeProperty('opacity')
-			image.style.removeProperty('transform')
-		}
+		easing: 'cubic-bezier(0.16, 1, 0.3, 1)'
 	})
+	anim.onfinish = () => {
+		image.style.removeProperty('opacity')
+		image.style.removeProperty('transform')
+	}
 })
 
 function show(index: number) {

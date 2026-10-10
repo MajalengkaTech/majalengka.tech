@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { animate } from 'animejs'
 import type { FormSubmitEvent } from '@nuxt/ui'
 import type { CreatorProfile } from '~/types/project'
 
@@ -112,7 +111,15 @@ async function confirmSaved() {
 	await nextTick()
 	const icon = saveButton.value?.$el?.querySelector<HTMLElement>('[data-slot="leadingIcon"]')
 	if (icon) {
-		animate(icon, { scale: [0.6, 1.2, 1], duration: 360, ease: 'out(3)', onComplete: () => icon.style.removeProperty('transform') })
+		const anim = icon.animate([
+			{ transform: 'scale(0.6)' },
+			{ transform: 'scale(1.2)' },
+			{ transform: 'scale(1)' }
+		], {
+			duration: 360,
+			easing: 'cubic-bezier(0.16, 1, 0.3, 1)'
+		})
+		anim.onfinish = () => icon.style.removeProperty('transform')
 	}
 }
 

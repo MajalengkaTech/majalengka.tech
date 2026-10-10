@@ -1,5 +1,3 @@
-import { animate } from 'animejs'
-
 interface LikeableProject {
 	id: number
 	title: string
@@ -23,12 +21,15 @@ export function useProjectLike() {
 		await nextTick()
 		const icon = button.querySelector<HTMLElement>('[data-slot="leadingIcon"]')
 		if (!icon) return
-		animate(icon, {
-			scale: [1, 1.45, 1],
+		const anim = icon.animate([
+			{ transform: 'scale(1)' },
+			{ transform: 'scale(1.45)' },
+			{ transform: 'scale(1)' }
+		], {
 			duration: 480,
-			ease: 'out(3)',
-			onComplete: () => icon.style.removeProperty('transform')
+			easing: 'cubic-bezier(0.16, 1, 0.3, 1)'
 		})
+		anim.onfinish = () => icon.style.removeProperty('transform')
 	}
 
 	async function toggleLike(project: LikeableProject, event?: Event) {

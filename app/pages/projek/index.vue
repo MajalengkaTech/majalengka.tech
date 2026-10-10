@@ -111,27 +111,33 @@ function resetFilters() {
 				<ul class="flex w-max gap-2 sm:w-auto sm:flex-wrap">
 					<li>
 						<UButton
-							label="Semua"
-							class="whitespace-nowrap"
-							:color="!category ? 'primary' : 'neutral'"
-							:variant="!category ? 'solid' : 'outline'"
+							class="shrink-0 whitespace-nowrap px-3.5 py-1.5 font-medium transition"
+							:class="!category ? 'filter-chip-active shadow-xs' : 'text-muted hover:text-highlighted'"
+							color="neutral"
+							variant="outline"
 							:aria-current="!category ? 'page' : undefined"
 							@click="setQuery({ kategori: undefined })"
-						/>
+						>
+							Semua
+						</UButton>
 					</li>
 					<li
 						v-for="chip in chips"
 						:key="chip.key"
 					>
 						<UButton
-							class="whitespace-nowrap"
-							:color="category === chip.key ? 'primary' : 'neutral'"
-							:variant="category === chip.key ? 'solid' : 'outline'"
+							class="shrink-0 whitespace-nowrap px-3.5 py-1.5 gap-1.5 font-medium transition"
+							:class="category === chip.key ? 'filter-chip-active shadow-xs' : 'text-muted hover:text-highlighted'"
+							color="neutral"
+							variant="outline"
 							:aria-current="category === chip.key ? 'page' : undefined"
 							@click="setQuery({ kategori: chip.key })"
 						>
-							{{ chip.label }}
-							<span class="tabular-nums opacity-70">{{ chip.total }}</span>
+							<span>{{ chip.label }}</span>
+							<span
+								class="text-xs tabular-nums"
+								:class="category === chip.key ? 'text-white/85' : 'text-muted'"
+							>{{ chip.total }}</span>
 						</UButton>
 					</li>
 				</ul>
@@ -140,9 +146,13 @@ function resetFilters() {
 			<div class="flex flex-col gap-3 sm:flex-row sm:items-center">
 				<UInput
 					v-model="search"
-					icon="i-lucide-search"
+					leading-icon="i-lucide-search"
 					placeholder="Cari judul, teknologi, atau nama kreator"
+					size="md"
 					class="w-full sm:max-w-sm"
+					:ui="{
+						base: '!ps-9'
+					}"
 					aria-label="Cari proyek"
 				/>
 				<!-- Dua pilihan urutan langsung terlihat; penanda aktif bergeser saat diganti. -->
@@ -152,6 +162,9 @@ function resetFilters() {
 					:content="false"
 					size="sm"
 					class="w-full sm:w-auto"
+					:ui="{
+						list: 'bg-muted/40 border border-default/60'
+					}"
 					aria-label="Urutkan proyek"
 					@update:model-value="(value: string | number) => setQuery({ urut: value === 'populer' ? 'populer' : undefined })"
 				/>

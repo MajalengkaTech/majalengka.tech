@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { animate } from 'animejs'
 import type { ProjectItem } from '~/types/project'
 
 interface CreatorSummary {
@@ -26,7 +25,7 @@ const [stats$, featured$, latest$, creators$] = await Promise.all([
 	useFetch<ShowcaseStats>('/api/projects/stats', { key: 'home-stats' }),
 	useFetch<{ projects: ProjectItem[] }>('/api/projects', { key: 'home-featured', query: { featured: 1, limit: 4 } }),
 	useFetch<{ projects: ProjectItem[] }>('/api/projects', { key: 'home-latest', query: { limit: 6 } }),
-	useFetch<{ creators: CreatorSummary[] }>('/api/creators', { key: 'home-creators', query: { limit: 8 } })
+	useFetch<{ creators: CreatorSummary[] }>('/api/creators', { key: 'home-creators', query: { limit: 48 } })
 ])
 
 const featured = computed(() => featured$.data.value?.projects || [])
@@ -34,15 +33,25 @@ const latest = computed(() => latest$.data.value?.projects || [])
 const creators = computed(() => creators$.data.value?.creators || [])
 const stats = computed(() => stats$.data.value || { totalProjects: 0, totalCreators: 0, categories: {} })
 
-// Satu fetch gagal sudah cukup membuat beranda tidak lengkap, jadi pengunjung perlu tahu bahwa ini error, bukan halaman yang memang kosong.
-const loadFailed = computed(() => [stats$, featured$, latest$, creators$].some(request => request.error.value))
-const retrying = ref(false)
+const isMounted = ref(false)
+onMounted(() => {
+	isMounted.value = true
+})
 
-async function retryLoad() {
-	retrying.value = true
-	await Promise.all([stats$, featured$, latest$, creators$].map(request => request.refresh()))
-	retrying.value = false
-}
+// Tepat 5 proyek terbaru untuk carousel showcase
+const showcaseProjects = computed(() => {
+	const list = latest.value
+	if (!list.length) return []
+	if (list.length >= 5) return list.slice(0, 5)
+	const filled: ProjectItem[] = []
+	let index = 0
+	while (filled.length < 5) {
+		const item = list[index % list.length]
+		if (item) filled.push(item)
+		index++
+	}
+	return filled
+})
 
 // Mozaik hero hanya dari proyek asli yang punya gambar; kurang dari 3 berarti hero tampil tanpa mozaik.
 const mosaic = computed(() => {
@@ -90,7 +99,13 @@ onMounted(() => {
 
 	const media = root.querySelector<HTMLElement>('[data-hero-media]')
 	if (media) {
-		animate(media, { opacity: [0, 1], scale: [0.98, 1], duration: 400, ease: 'out(3)' })
+		media.animate([
+			{ opacity: 0, transform: 'scale(0.98)' },
+			{ opacity: 1, transform: 'scale(1)' }
+		], {
+			duration: 400,
+			easing: 'cubic-bezier(0.16, 1, 0.3, 1)'
+		})
 	}
 })
 
@@ -220,55 +235,80 @@ defineOgImage('Saas', {
 			</div>
 		</UPageSection>
 
-		<UPageSection :ui="{ container: 'py-12 sm:py-16 lg:py-20' }">
-			<template #title>
-				Proyek terbaru
-			</template>
-			<template #description>
-				Baru saja diterbitkan developer dan desainer Majalengka.
-			</template>
-			<template
-				v-if="latest.length"
-				#links
-			>
-				<UButton
-					label="Lihat Semua Proyek"
-					icon="i-lucide-arrow-right"
-					trailing
-					to="/projek"
-					color="neutral"
-					variant="outline"
-				/>
-			</template>
-
-			<UAlert
-				v-if="loadFailed"
-				color="error"
-				variant="subtle"
-				icon="i-lucide-cloud-off"
-				title="Sebagian isi beranda gagal dimuat"
-				description="Server belum merespons, jadi proyek atau kreator di halaman ini mungkin belum lengkap. Coba muat ulang sebentar lagi."
-				:actions="[{ label: 'Muat Ulang', icon: 'i-lucide-refresh-cw', color: 'error', variant: 'outline', loading: retrying, onClick: retryLoad }]"
-				:class="{ 'mb-10': latest.length }"
-			/>
+		<UPageSection
+			id="showcaseData"
+			headline="Showcase"
+			title="Real-world Web Applications built with Nuxt"
+			:links="[{
+				label: 'Lihat Semua Proyek',
+				to: '/projek',
+				color: 'neutral',
+				size: 'md'
+			}]"
+			class="overflow-hidden border-x border-t border-default"
+			:ui="{
+				container: 'relative !flex !flex-col items-center text-center py-12 sm:py-16 lg:py-20 gap-8 lg:gap-10',
+				wrapper: 'w-full flex flex-col items-center text-center max-w-2xl mx-auto',
+				headline: 'justify-center font-semibold text-primary mb-2',
+				title: 'text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-center max-w-2xl mx-auto',
+				footer: 'mt-6 flex justify-center w-full',
+				links: 'justify-center'
+			}"
+		>
 			<div
-				v-if="latest.length"
-				class="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3"
-			>
-				<DashboardProjectCard
-					v-for="project in latest"
-					:key="project.id"
-					:project="project"
-					data-reveal
-				/>
-			</div>
-			<UEmpty
-				v-else-if="!loadFailed"
-				icon="i-lucide-folder-open"
-				title="Belum ada proyek yang terbit"
-				description="Belum ada proyek yang tampil di sini. Proyekmu bisa jadi yang pertama."
-				:actions="[{ label: 'Pamerkan Proyekmu', icon: 'i-lucide-folder-plus', to: '/dashboard/projects/new' }]"
+				aria-hidden="true"
+				class="absolute inset-0 z-[-1] mx-4 block border-x border-default sm:mx-6 lg:mx-8"
 			/>
+			<UCarousel
+				v-slot="{ item }"
+				loop
+				dots
+				wheel-gestures
+				arrows
+				:autoplay="{ delay: 3000 }"
+				:items="showcaseProjects"
+				:active="isMounted"
+				class="w-full min-w-0"
+				:ui="{
+					root: 'w-full min-w-0',
+					viewport: 'overflow-hidden w-full',
+					item: 'showcase-carousel-item',
+					container: 'py-2',
+					arrows: 'hidden 2xl:block'
+				}"
+			>
+				<UPageCard
+					:to="`/projek/${item.slug}`"
+					orientation="vertical"
+					variant="subtle"
+					class="group w-full rounded-none sm:rounded-lg"
+					:ui="{
+						root: 'bg-elevated/50 ring-1 ring-default hover:bg-elevated hover:ring-primary/40 transition duration-200',
+						container: 'flex flex-col p-2 sm:p-4 gap-2',
+						title: 'flex items-center gap-1 font-semibold text-highlighted'
+					}"
+				>
+					<template #title>
+						<span>
+							{{ item.title }}
+						</span>
+						<UIcon
+							name="i-lucide-arrow-up-right"
+							class="text-primary opacity-0 transition-opacity duration-150 ease-in-out group-hover:opacity-100"
+						/>
+					</template>
+					<NuxtImg
+						:src="item.thumbnailUrl || '/og-default.png'"
+						:alt="item.title"
+						width="646"
+						height="363"
+						sizes="587px sm:445px lg:646px"
+						format="webp"
+						class="aspect-video w-full rounded-none border border-default object-cover sm:rounded-lg"
+						loading="lazy"
+					/>
+				</UPageCard>
+			</UCarousel>
 		</UPageSection>
 
 		<UPageSection
@@ -300,50 +340,50 @@ defineOgImage('Saas', {
 
 		<UPageSection
 			v-if="creators.length"
-			:ui="{ container: 'py-12 sm:py-16 lg:py-20' }"
+			title="Dibangun oleh talenta digital Majalengka"
+			description="Ratusan pengembang, desainer, dan kreator lokal memamerkan karyanya di sini. Terhubung, berbagi inspirasi, dan mulai berkolaborasi."
+			orientation="horizontal"
+			reverse
+			:ui="{
+				root: 'border-t border-default bg-linear-to-b from-muted/30 dark:from-muted/20 to-default',
+				container: 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24',
+				title: 'text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-highlighted',
+				description: 'text-base sm:text-lg text-muted mt-4 max-w-xl'
+			}"
 		>
-			<template #title>
-				Kreator di balik proyek
-			</template>
-			<template #description>
-				Kenali orangnya, lihat proyek lainnya, dan temukan yang terbuka untuk kerja sama.
+			<template #links>
+				<div class="mt-6 flex flex-wrap items-center gap-3">
+					<UButton
+						to="/projek"
+						color="neutral"
+						size="lg"
+						icon="i-lucide-users"
+					>
+						Jelajahi Kreator
+					</UButton>
+					<UButton
+						to="https://github.com/majalengkatech"
+						target="_blank"
+						color="neutral"
+						variant="ghost"
+						size="lg"
+						icon="i-simple-icons-github"
+						aria-label="GitHub Majalengka Tech"
+					/>
+					<UButton
+						to="/dashboard/projects/new"
+						color="neutral"
+						variant="ghost"
+						size="lg"
+						icon="i-lucide-folder-plus"
+						aria-label="Pamerkan Proyekmu"
+					/>
+				</div>
 			</template>
 
-			<ul class="flex flex-wrap justify-center gap-4">
-				<li
-					v-for="creator in creators"
-					:key="creator.id"
-					data-reveal
-					class="w-full sm:w-[calc(50%-0.5rem)] lg:w-[calc(25%-0.75rem)]"
-				>
-					<NuxtLink
-						:to="`/${creator.username}`"
-						class="flex h-full items-center gap-3 rounded-md border border-default p-4 outline-primary/25 transition-colors hover:border-primary/40 focus-visible:outline-3"
-					>
-						<UAvatar
-							:src="creator.avatarUrl || undefined"
-							:alt="creator.name"
-							size="lg"
-						/>
-						<div class="min-w-0">
-							<p class="truncate font-semibold text-highlighted">
-								{{ creator.name }}
-							</p>
-							<p class="truncate text-sm text-muted">
-								{{ creator.creatorRole ? CREATOR_ROLES[creator.creatorRole as CreatorRole] : `@${creator.username}` }}
-								<span aria-hidden="true">·</span>
-								{{ creator.projectCount }} proyek
-							</p>
-							<p
-								v-if="creator.openToWork"
-								class="mt-1 text-xs font-medium text-success"
-							>
-								Terbuka untuk kerja sama
-							</p>
-						</div>
-					</NuxtLink>
-				</li>
-			</ul>
+			<div class="w-full max-w-lg lg:max-w-none mx-auto">
+				<HomeSectionCreators :creators="creators" />
+			</div>
 		</UPageSection>
 
 		<USeparator />

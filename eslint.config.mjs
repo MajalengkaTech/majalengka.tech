@@ -26,7 +26,7 @@ export default withNuxt(
 		},
 		rules: {
 			'vue/multi-word-component-names': 'off',
-			'better-tailwindcss/no-unknown-classes': ['error', { ignore: ['^stars$', '^star-layer$', '^star$'] }],
+			'better-tailwindcss/no-unknown-classes': ['error', { ignore: ['^stars$', '^star-layer$', '^star$', '^showcase-carousel-item$', '^filter-chip-active$'] }],
 			'vue/html-indent': [
 				'error',
 				'tab',

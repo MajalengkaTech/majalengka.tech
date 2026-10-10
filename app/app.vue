@@ -27,17 +27,9 @@ useHead({
 	}
 })
 
-if (import.meta.client) {
-	if (motionAllowed()) {
-		// Halaman SPA (dashboard) tidak membawa skrip <head> di HTML awal, jadi kelasnya dipasang di sini juga.
-		document.documentElement.classList.add('motion-ready')
-	} else {
-		// nanime tidak membaca prefers-reduced-motion, jadi gaya transisi bersama dibuat seketika bila gerak dikurangi.
-		const styles: Record<string, unknown> = useAppConfig().nanime?.transitions || {}
-		for (const name of Object.keys(styles)) {
-			styles[name] = { enter: { duration: 0 }, leave: { duration: 0 }, move: { duration: 0 } }
-		}
-	}
+if (import.meta.client && motionAllowed()) {
+	// Halaman SPA (dashboard) tidak membawa skrip <head> di HTML awal, jadi kelasnya dipasang di sini juga.
+	document.documentElement.classList.add('motion-ready')
 }
 
 const site = useSiteConfig()

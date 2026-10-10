@@ -3,7 +3,7 @@ export default defineNuxtConfig({
 	modules: [
 		'@nuxt/eslint',
 		'@nuxt/image',
-		'nanime',
+		'motion-v/nuxt',
 		'@nuxt/ui',
 		'@nuxtjs/seo',
 		'@nuxt/content',

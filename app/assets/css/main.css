@@ -144,3 +144,23 @@
 	transform: translateY(-4px);
 }
 
+/* Showcase Carousel Item: Nuxt.com style 2-up responsive carousel slides */
+.showcase-carousel-item {
+	min-width: 0 !important;
+	flex: 0 0 100% !important;
+	padding-left: 1rem;
+}
+
+@media (min-width: 640px) {
+	.showcase-carousel-item {
+		flex: 0 0 50% !important;
+	}
+}
+
+/* Category filter active state */
+.filter-chip-active {
+	background-color: #0014a8 !important;
+	color: #ffffff !important;
+	border-color: #0014a8 !important;
+}
+

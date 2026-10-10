@@ -1,5 +1,4 @@
 import type { ComponentPublicInstance, MaybeRef } from 'vue'
-import { animate, stagger } from 'animejs'
 
 type RevealRoot = HTMLElement | ComponentPublicInstance | null | undefined
 
@@ -51,19 +50,23 @@ export function useReveal(container: MaybeRef<RevealRoot>, selector = '[data-rev
 				observer?.unobserve(el)
 			}
 
-			animate(targets, {
-				opacity: [0, 1],
-				translateY: [24, 0],
-				duration: 450,
-				delay: stagger(50),
-				ease: 'out(3)',
-				onComplete: () => {
-					for (const el of targets) {
-						el.style.removeProperty('opacity')
-						el.style.removeProperty('transform')
-					}
+			for (let i = 0; i < targets.length; i++) {
+				const el = targets[i]
+				if (!el) continue
+				const anim = el.animate([
+					{ opacity: 0, transform: 'translateY(24px)' },
+					{ opacity: 1, transform: 'translateY(0)' }
+				], {
+					duration: 450,
+					delay: i * 50,
+					easing: 'cubic-bezier(0.16, 1, 0.3, 1)',
+					fill: 'forwards'
+				})
+				anim.onfinish = () => {
+					el.style.removeProperty('opacity')
+					el.style.removeProperty('transform')
 				}
-			})
+			}
 		}, {
 			rootMargin: '0px 0px -30px 0px',
 			threshold: 0.05
