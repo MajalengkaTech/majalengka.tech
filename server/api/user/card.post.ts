@@ -33,23 +33,23 @@ export default defineEventHandler(async (event) => {
 					.limit(1)
 
 				if (!validUser || !validUser.username) {
-					throw createError({ statusCode: 404, statusMessage: 'Pengguna tidak ditemukan atau belum memiliki username' })
+					throw createError({ status: 404, statusText: 'Pengguna tidak ditemukan atau belum memiliki username' })
 				}
 				targetUserId = requestedUserId
 			} else {
-				throw createError({ statusCode: 403, statusMessage: 'Hanya bisa mengunggah kartu sendiri' })
+				throw createError({ status: 403, statusText: 'Hanya bisa mengunggah kartu sendiri' })
 			}
 		}
 	}
 
 	if (!targetUserId) {
-		throw createError({ statusCode: 401, statusMessage: 'Masuk dulu untuk melanjutkan' })
+		throw createError({ status: 401, statusText: 'Masuk dulu untuk melanjutkan' })
 	}
 
 	const parts = await readMultipartFormData(event)
 	const file = parts?.find(part => part.name === 'card')
 	if (!file?.data?.length) {
-		throw createError({ statusCode: 400, statusMessage: 'Gambar kartu tidak ditemukan' })
+		throw createError({ status: 400, statusText: 'Gambar kartu tidak ditemukan' })
 	}
 
 	const data = file.data
@@ -57,7 +57,7 @@ export default defineEventHandler(async (event) => {
 	const width = data.length > 24 ? data.readUInt32BE(16) : 0
 	const height = data.length > 24 ? data.readUInt32BE(20) : 0
 	if (!isPng || width !== CARD_WIDTH || height !== CARD_HEIGHT || data.length > MAX_BYTES) {
-		throw createError({ statusCode: 400, statusMessage: 'Kartu harus berupa PNG 1200x630 dan maksimal 1,5 MB' })
+		throw createError({ status: 400, statusText: 'Kartu harus berupa PNG 1200x630 dan maksimal 1,5 MB' })
 	}
 
 	const stats = await getCreatorStats(targetUserId)

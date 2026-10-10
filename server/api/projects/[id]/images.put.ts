@@ -1,6 +1,7 @@
 import { z } from 'zod'
 import { asc, eq } from 'drizzle-orm'
 import { db, schema } from 'hub:db'
+import { defineEventHandler } from 'nuxt/server'
 import { isAdmin } from '../../../utils/admin'
 import { parseProjectId, requireSignedIn } from '../../../utils/project-access'
 import { assertThumbnailAllowed, deleteOwnedBlob } from '../../../utils/project-blob'
@@ -24,14 +25,14 @@ export default defineEventHandler(async (event) => {
 	})
 	if (!project) {
 		throw createError({
-			statusCode: 404,
-			statusMessage: 'Proyek tidak ditemukan'
+			status: 404,
+			statusText: 'Proyek tidak ditemukan'
 		})
 	}
 	if (project.userId !== String(session.user.id) && !isAdmin(session.user)) {
 		throw createError({
-			statusCode: 403,
-			statusMessage: 'Kamu tidak punya akses untuk mengubah galeri ini'
+			status: 403,
+			statusText: 'Kamu tidak punya akses untuk mengubah galeri ini'
 		})
 	}
 

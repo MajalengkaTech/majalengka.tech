@@ -1,14 +1,15 @@
 import { and, desc, eq } from 'drizzle-orm'
 import { db, schema } from 'hub:db'
+import { defineEventHandler, getRouterParam } from 'nuxt/server'
 import { projectListColumns, toProjectItem } from '../../utils/project-listing'
 import { creatorCardPath, getCreatorStats } from '../../utils/creator-stats'
 
 export default defineEventHandler(async (event) => {
-	const username = getRouterParam(event, 'username')?.trim().toLowerCase().replace(/^@/, '')
+	const username = getRouterParam(event, 'username', { decode: true })?.trim().toLowerCase().replace(/^@/, '')
 	if (!username) {
 		throw createError({
-			statusCode: 400,
-			statusMessage: 'Username tidak valid'
+			status: 400,
+			statusText: 'Username tidak valid'
 		})
 	}
 
@@ -36,12 +37,13 @@ export default defineEventHandler(async (event) => {
 
 	if (!creator || creator.banned) {
 		throw createError({
-			statusCode: 404,
-			statusMessage: 'Kreator tidak ditemukan'
+			status: 404,
+			statusText: 'Kreator tidak ditemukan'
 		})
 	}
 
-	const session = await getUserSession(event).catch(() => null)
+	const session = await getAuthSession(event).catch(() => null)
+
 	const rows = await db
 		.select(projectListColumns(session?.user?.id ? String(session.user.id) : null))
 		.from(schema.projects)

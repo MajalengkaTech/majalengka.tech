@@ -11,8 +11,8 @@ export default defineEventHandler(async (event) => {
 	const session = await getUserSession(event)
 	if (!session?.user?.id) {
 		throw createError({
-			statusCode: 401,
-			statusMessage: 'Masuk dulu untuk mengunggah gambar.'
+			status: 401,
+			statusText: 'Masuk dulu untuk mengunggah gambar.'
 		})
 	}
 
@@ -22,10 +22,10 @@ export default defineEventHandler(async (event) => {
 	if (projectId) {
 		const project = await db.query.projects.findFirst({ where: eq(schema.projects.id, projectId) })
 		if (!project) {
-			throw createError({ statusCode: 404, statusMessage: 'Proyek tidak ditemukan. Muat ulang halaman lalu coba lagi.' })
+			throw createError({ status: 404, statusText: 'Proyek tidak ditemukan. Muat ulang halaman lalu coba lagi.' })
 		}
 		if (project.userId !== ownerId && !isAdmin(session.user)) {
-			throw createError({ statusCode: 403, statusMessage: 'Kamu hanya bisa mengunggah gambar untuk proyekmu sendiri.' })
+			throw createError({ status: 403, statusText: 'Kamu hanya bisa mengunggah gambar untuk proyekmu sendiri.' })
 		}
 		ownerId = project.userId
 	}
@@ -47,8 +47,8 @@ export default defineEventHandler(async (event) => {
 	const uploaded = uploadedBlobs?.[0]
 	if (!uploaded) {
 		throw createError({
-			statusCode: 400,
-			statusMessage: 'File belum terbaca. Unggah ulang gambar JPG, PNG, WebP, atau GIF.'
+			status: 400,
+			statusText: 'File belum terbaca. Unggah ulang gambar JPG, PNG, WebP, atau GIF.'
 		})
 	}
 

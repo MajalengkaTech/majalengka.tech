@@ -1,22 +1,23 @@
 import { eq } from 'drizzle-orm'
 import { db, schema } from 'hub:db'
+import { defineEventHandler, getRouterParam } from 'nuxt/server'
 import { isAdmin } from '../../utils/admin'
 import { assertThumbnailAllowed, deleteOwnedBlob } from '../../utils/project-blob'
 
 export default defineEventHandler(async (event) => {
-	const session = await getUserSession(event)
+	const session = await getAuthSession(event)
 	if (!session?.user?.id) {
 		throw createError({
-			statusCode: 401,
-			statusMessage: 'Masuk dulu untuk melanjutkan.'
+			status: 401,
+			statusText: 'Masuk dulu untuk melanjutkan.'
 		})
 	}
 
-	const id = Number(getRouterParam(event, 'id'))
+	const id = Number(getRouterParam(event, 'id', { decode: true }))
 	if (!Number.isInteger(id) || id <= 0) {
 		throw createError({
-			statusCode: 400,
-			statusMessage: 'ID proyek tidak valid'
+			status: 400,
+			statusText: 'ID proyek tidak valid'
 		})
 	}
 
@@ -26,15 +27,15 @@ export default defineEventHandler(async (event) => {
 
 	if (!project) {
 		throw createError({
-			statusCode: 404,
-			statusMessage: 'Proyek tidak ditemukan'
+			status: 404,
+			statusText: 'Proyek tidak ditemukan'
 		})
 	}
 
 	if (project.userId !== session.user.id && !isAdmin(session.user)) {
 		throw createError({
-			statusCode: 403,
-			statusMessage: 'Kamu tidak punya akses untuk mengedit proyek ini'
+			status: 403,
+			statusText: 'Kamu tidak punya akses untuk mengedit proyek ini'
 		})
 	}
 

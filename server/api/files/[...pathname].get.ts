@@ -1,9 +1,9 @@
 export default defineEventHandler(async (event) => {
-	const pathname = getRouterParam(event, 'pathname')
+	const pathname = getRouterParam(event, 'pathname', { decode: true })
 	if (!pathname) {
 		throw createError({
-			statusCode: 400,
-			statusMessage: 'Alamat file kosong.'
+			status: 400,
+			statusText: 'Alamat file kosong.'
 		})
 	}
 
@@ -22,10 +22,11 @@ export default defineEventHandler(async (event) => {
 	} catch (error) {
 		if ((error as { statusCode?: number }).statusCode === 404) {
 			throw createError({
-				statusCode: 404,
-				statusMessage: 'Gambar tidak ditemukan. Mungkin sudah dihapus pemiliknya.'
+				status: 404,
+				statusText: 'Gambar tidak ditemukan. Mungkin sudah dihapus pemiliknya.'
 			})
 		}
+
 		throw error
 	}
 })

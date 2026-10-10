@@ -1,5 +1,6 @@
 import { count, eq } from 'drizzle-orm'
 import { db, schema } from 'hub:db'
+import { defineEventHandler } from 'nuxt/server'
 import { requireSignedIn } from '../../utils/project-access'
 import { toPrivateProfile } from '../../utils/profile'
 
@@ -12,8 +13,8 @@ export default defineEventHandler(async (event) => {
 
 	if (!user) {
 		throw createError({
-			statusCode: 404,
-			statusMessage: 'Pengguna tidak ditemukan'
+			status: 404,
+			statusText: 'Pengguna tidak ditemukan'
 		})
 	}
 

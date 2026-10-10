@@ -1,5 +1,6 @@
 import { and, count, eq } from 'drizzle-orm'
 import { db, schema } from 'hub:db'
+import { defineEventHandler } from 'nuxt/server'
 import { parseProjectId, requirePublishedProject, requireSignedIn } from '../../../utils/project-access'
 
 // Toggle apresiasi: sekali klik memberi, klik lagi menarik kembali.
@@ -11,8 +12,8 @@ export default defineEventHandler(async (event) => {
 
 	if (project.userId === userId) {
 		throw createError({
-			statusCode: 403,
-			statusMessage: 'Kamu tidak bisa mengapresiasi proyekmu sendiri'
+			status: 403,
+			statusText: 'Kamu tidak bisa mengapresiasi proyekmu sendiri'
 		})
 	}
 

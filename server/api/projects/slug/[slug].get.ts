@@ -1,18 +1,20 @@
 import { asc, eq } from 'drizzle-orm'
 import { db, schema } from 'hub:db'
+import { defineEventHandler, getRouterParam } from 'nuxt/server'
 import { isAdmin } from '../../../utils/admin'
 import { projectListColumns, toProjectItem } from '../../../utils/project-listing'
 
 export default defineEventHandler(async (event) => {
-	const slug = getRouterParam(event, 'slug')?.trim().toLowerCase()
+	const slug = getRouterParam(event, 'slug', { decode: true })?.trim().toLowerCase()
 	if (!slug) {
 		throw createError({
-			statusCode: 400,
-			statusMessage: 'Alamat proyek tidak valid'
+			status: 400,
+			statusText: 'Alamat proyek tidak valid'
 		})
 	}
 
-	const session = await getUserSession(event).catch(() => null)
+	const session = await getAuthSession(event).catch(() => null)
+
 	const currentUserId = session?.user?.id ? String(session.user.id) : null
 
 	const [row] = await db
@@ -25,8 +27,8 @@ export default defineEventHandler(async (event) => {
 	const canSeeDraft = !!row && !!session?.user && (currentUserId === row.project.userId || isAdmin(session.user))
 	if (!row || (!row.project.isPublished && !canSeeDraft)) {
 		throw createError({
-			statusCode: 404,
-			statusMessage: 'Proyek tidak ditemukan'
+			status: 404,
+			statusText: 'Proyek tidak ditemukan'
 		})
 	}
 

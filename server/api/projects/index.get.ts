@@ -1,6 +1,7 @@
 import { z } from 'zod'
 import { and, desc, eq, sql, type SQL } from 'drizzle-orm'
 import { db, schema } from 'hub:db'
+import { defineEventHandler } from 'nuxt/server'
 import { projectListColumns, toProjectItem } from '../../utils/project-listing'
 
 const querySchema = z.object({
@@ -14,7 +15,7 @@ const querySchema = z.object({
 
 export default defineEventHandler(async (event) => {
 	const query = await getQueryWith(event, querySchema)
-	const session = await getUserSession(event).catch(() => null)
+	const session = await getAuthSession(event).catch(() => null)
 	const currentUserId = session?.user?.id ? String(session.user.id) : null
 
 	const filters: SQL[] = []
@@ -22,8 +23,8 @@ export default defineEventHandler(async (event) => {
 	if (query.mine) {
 		if (!currentUserId) {
 			throw createError({
-				statusCode: 401,
-				statusMessage: 'Masuk dulu untuk melanjutkan.'
+				status: 401,
+				statusText: 'Masuk dulu untuk melanjutkan.'
 			})
 		}
 		filters.push(eq(schema.projects.userId, currentUserId))

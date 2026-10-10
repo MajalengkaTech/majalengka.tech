@@ -1,4 +1,4 @@
-import type { H3Event } from 'h3'
+import type { ServerEvent } from './validation'
 
 interface SessionUserLike {
 	id?: string | number
@@ -19,19 +19,19 @@ export function isAdmin(user?: SessionUserLike | null) {
 	return user?.role === 'admin' || isSuperAdmin(user?.id)
 }
 
-export async function requireAdminSession(event: H3Event) {
-	const session = await getUserSession(event)
+export async function requireAdminSession(event: ServerEvent) {
+	const session = await getAuthSession(event)
 	if (!session?.user?.id) {
 		throw createError({
-			statusCode: 401,
-			statusMessage: 'Masuk dulu untuk melanjutkan.'
+			status: 401,
+			statusText: 'Masuk dulu untuk melanjutkan.'
 		})
 	}
 
 	if (!isAdmin(session.user as SessionUserLike)) {
 		throw createError({
-			statusCode: 403,
-			statusMessage: 'Halaman ini khusus admin.'
+			status: 403,
+			statusText: 'Halaman ini khusus admin.'
 		})
 	}
 

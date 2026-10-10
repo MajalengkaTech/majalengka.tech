@@ -1,6 +1,7 @@
 import { z } from 'zod'
 import { and, desc, eq, isNotNull, sql } from 'drizzle-orm'
 import { db, schema } from 'hub:db'
+import { defineEventHandler } from 'nuxt/server'
 
 const querySchema = z.object({
 	terbuka: z.enum(['true', '1']).optional(),

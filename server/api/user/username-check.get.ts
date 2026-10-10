@@ -1,6 +1,7 @@
 import { z } from 'zod'
 import { and, eq, ne } from 'drizzle-orm'
 import { db, schema } from 'hub:db'
+import { defineEventHandler } from 'nuxt/server'
 import { requireSignedIn } from '../../utils/project-access'
 
 const querySchema = z.object({

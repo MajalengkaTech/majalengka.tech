@@ -1,6 +1,7 @@
 import { z } from 'zod'
 import { eq } from 'drizzle-orm'
 import { db, schema } from 'hub:db'
+import { defineEventHandler } from 'nuxt/server'
 import { requireAdminSession } from '../../../../utils/admin'
 import { parseProjectId, requirePublishedProject } from '../../../../utils/project-access'
 

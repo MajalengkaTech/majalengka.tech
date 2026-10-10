@@ -1,5 +1,6 @@
 import { desc } from 'drizzle-orm'
 import { db, schema } from 'hub:db'
+import { defineEventHandler } from 'nuxt/server'
 import { requireAdminSession } from '../../utils/admin'
 
 export default defineEventHandler(async (event) => {

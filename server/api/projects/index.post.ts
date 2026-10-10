@@ -1,5 +1,6 @@
 import { eq } from 'drizzle-orm'
 import { db, schema } from 'hub:db'
+import { defineEventHandler } from 'nuxt/server'
 import { assertThumbnailAllowed } from '../../utils/project-blob'
 
 function slugify(text: string): string {
@@ -25,11 +26,11 @@ async function findUniqueSlug(title: string) {
 }
 
 export default defineEventHandler(async (event) => {
-	const session = await getUserSession(event)
+	const session = await getAuthSession(event)
 	if (!session?.user?.id) {
 		throw createError({
-			statusCode: 401,
-			statusMessage: 'Masuk dulu untuk menambah proyek.'
+			status: 401,
+			statusText: 'Masuk dulu untuk menambah proyek.'
 		})
 	}
 

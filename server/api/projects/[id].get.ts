@@ -1,13 +1,14 @@
 import { asc, eq } from 'drizzle-orm'
 import { db, schema } from 'hub:db'
+import { defineEventHandler, getRouterParam } from 'nuxt/server'
 import { isAdmin } from '../../utils/admin'
 
 export default defineEventHandler(async (event) => {
-	const id = Number(getRouterParam(event, 'id'))
+	const id = Number(getRouterParam(event, 'id', { decode: true }))
 	if (!Number.isInteger(id) || id <= 0) {
 		throw createError({
-			statusCode: 400,
-			statusMessage: 'ID proyek tidak valid'
+			status: 400,
+			statusText: 'ID proyek tidak valid'
 		})
 	}
 
@@ -17,20 +18,21 @@ export default defineEventHandler(async (event) => {
 
 	// Draf dijawab 404, bukan 403, supaya keberadaannya tidak bocor ke orang lain.
 	if (project && !project.isPublished) {
-		const session = await getUserSession(event).catch(() => null)
+		const session = await getAuthSession(event).catch(() => null)
+
 		const canSeeDraft = !!session?.user && (session.user.id === project.userId || isAdmin(session.user))
 		if (!canSeeDraft) {
 			throw createError({
-				statusCode: 404,
-				statusMessage: 'Proyek tidak ditemukan'
+				status: 404,
+				statusText: 'Proyek tidak ditemukan'
 			})
 		}
 	}
 
 	if (!project) {
 		throw createError({
-			statusCode: 404,
-			statusMessage: 'Proyek tidak ditemukan'
+			status: 404,
+			statusText: 'Proyek tidak ditemukan'
 		})
 	}
 

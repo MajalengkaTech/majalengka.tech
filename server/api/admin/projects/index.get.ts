@@ -1,6 +1,7 @@
 import { z } from 'zod'
 import { and, desc, eq, like, or, type SQL } from 'drizzle-orm'
 import { db, schema } from 'hub:db'
+import { defineEventHandler } from 'nuxt/server'
 import { requireAdminSession } from '../../../utils/admin'
 import { projectListColumns, toProjectItem } from '../../../utils/project-listing'
 

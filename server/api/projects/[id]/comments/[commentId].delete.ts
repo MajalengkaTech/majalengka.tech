@@ -1,5 +1,6 @@
 import { and, eq } from 'drizzle-orm'
 import { db, schema } from 'hub:db'
+import { defineEventHandler, getRouterParam } from 'nuxt/server'
 import { isAdmin } from '../../../../utils/admin'
 import { parseProjectId, requireSignedIn } from '../../../../utils/project-access'
 
@@ -7,11 +8,11 @@ import { parseProjectId, requireSignedIn } from '../../../../utils/project-acces
 export default defineEventHandler(async (event) => {
 	const session = await requireSignedIn(event)
 	const projectId = parseProjectId(event)
-	const commentId = Number(getRouterParam(event, 'commentId'))
+	const commentId = Number(getRouterParam(event, 'commentId', { decode: true }))
 	if (!Number.isInteger(commentId) || commentId <= 0) {
 		throw createError({
-			statusCode: 400,
-			statusMessage: 'ID komentar tidak valid'
+			status: 400,
+			statusText: 'ID komentar tidak valid'
 		})
 	}
 
@@ -24,16 +25,16 @@ export default defineEventHandler(async (event) => {
 
 	if (!row) {
 		throw createError({
-			statusCode: 404,
-			statusMessage: 'Komentar tidak ditemukan'
+			status: 404,
+			statusText: 'Komentar tidak ditemukan'
 		})
 	}
 
 	const userId = String(session.user.id)
 	if (row.commentUserId !== userId && row.projectUserId !== userId && !isAdmin(session.user)) {
 		throw createError({
-			statusCode: 403,
-			statusMessage: 'Kamu tidak bisa menghapus komentar ini'
+			status: 403,
+			statusText: 'Kamu tidak bisa menghapus komentar ini'
 		})
 	}
 

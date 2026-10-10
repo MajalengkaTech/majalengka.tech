@@ -1,5 +1,6 @@
 import { and, eq } from 'drizzle-orm'
 import { db, schema } from 'hub:db'
+import { defineEventHandler } from 'nuxt/server'
 import { z } from 'zod'
 import { hashPassword } from 'better-auth/crypto'
 import { requireAdminSession } from '../../utils/admin'
@@ -22,8 +23,8 @@ export default defineEventHandler(async (event) => {
 
 	if (!targetUser) {
 		throw createError({
-			statusCode: 404,
-			statusMessage: 'Pengguna tidak ditemukan'
+			status: 404,
+			statusText: 'Pengguna tidak ditemukan'
 		})
 	}
 

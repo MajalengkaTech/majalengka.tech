@@ -1,5 +1,6 @@
 import { eq, inArray } from 'drizzle-orm'
 import { db, schema } from 'hub:db'
+import { defineEventHandler } from 'nuxt/server'
 import { z } from 'zod'
 import { isSuperAdmin, requireAdminSession } from '../../utils/admin'
 import { deleteOwnedBlob } from '../../utils/project-blob'
@@ -16,8 +17,8 @@ export default defineEventHandler(async (event) => {
 
 	if (session.user.id === body.userId) {
 		throw createError({
-			statusCode: 400,
-			statusMessage: 'Kamu tidak bisa menghapus akunmu sendiri dari panel admin. Minta admin lain bila perlu.'
+			status: 400,
+			statusText: 'Kamu tidak bisa menghapus akunmu sendiri dari panel admin. Minta admin lain bila perlu.'
 		})
 	}
 
@@ -28,15 +29,15 @@ export default defineEventHandler(async (event) => {
 
 	if (!targetUser) {
 		throw createError({
-			statusCode: 404,
-			statusMessage: 'Pengguna tidak ditemukan'
+			status: 404,
+			statusText: 'Pengguna tidak ditemukan'
 		})
 	}
 
 	if (isSuperAdmin(targetUser.id)) {
 		throw createError({
-			statusCode: 400,
-			statusMessage: 'Akun Super Admin utama tidak bisa dihapus.'
+			status: 400,
+			statusText: 'Akun Super Admin utama tidak bisa dihapus.'
 		})
 	}
 

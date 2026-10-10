@@ -1,5 +1,6 @@
 import { eq } from 'drizzle-orm'
 import { db, schema } from 'hub:db'
+import { defineEventHandler } from 'nuxt/server'
 import { z } from 'zod'
 import { isSuperAdmin, requireAdminSession } from '../../utils/admin'
 
@@ -16,8 +17,8 @@ export default defineEventHandler(async (event) => {
 
 	if (session.user.id === body.userId && body.banned) {
 		throw createError({
-			statusCode: 400,
-			statusMessage: 'Kamu tidak bisa memblokir akunmu sendiri. Minta admin lain bila perlu.'
+			status: 400,
+			statusText: 'Kamu tidak bisa memblokir akunmu sendiri. Minta admin lain bila perlu.'
 		})
 	}
 
@@ -28,15 +29,15 @@ export default defineEventHandler(async (event) => {
 
 	if (!targetUser) {
 		throw createError({
-			statusCode: 404,
-			statusMessage: 'Pengguna tidak ditemukan'
+			status: 404,
+			statusText: 'Pengguna tidak ditemukan'
 		})
 	}
 
 	if (isSuperAdmin(targetUser.id) && body.banned) {
 		throw createError({
-			statusCode: 400,
-			statusMessage: 'Akun Super Admin utama tidak bisa ditangguhkan.'
+			status: 400,
+			statusText: 'Akun Super Admin utama tidak bisa ditangguhkan.'
 		})
 	}
 

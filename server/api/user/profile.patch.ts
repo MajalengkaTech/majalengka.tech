@@ -1,5 +1,6 @@
 import { and, eq, ne } from 'drizzle-orm'
 import { db, schema } from 'hub:db'
+import { defineEventHandler } from 'nuxt/server'
 import { requireSignedIn } from '../../utils/project-access'
 import { toPrivateProfile } from '../../utils/profile'
 
@@ -17,8 +18,8 @@ export default defineEventHandler(async (event) => {
 			.limit(1)
 		if (taken) {
 			throw createError({
-				statusCode: 409,
-				statusMessage: `Username @${username} sudah dipakai kreator lain`
+				status: 409,
+				statusText: `Username @${username} sudah dipakai kreator lain`
 			})
 		}
 	}

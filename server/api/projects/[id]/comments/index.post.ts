@@ -1,4 +1,5 @@
 import { db, schema } from 'hub:db'
+import { defineEventHandler } from 'nuxt/server'
 import { parseProjectId, requirePublishedProject, requireSignedIn } from '../../../../utils/project-access'
 
 export default defineEventHandler(async (event) => {
