@@ -166,11 +166,12 @@ export function useCreatorCard() {
 		}
 	}
 
-	async function uploadCard(data: CreatorCardData) {
+	async function uploadCard(data: CreatorCardData, targetUserId?: string) {
 		const blob = await drawCard(data)
 		const form = new FormData()
 		form.append('card', blob, 'kartu.png')
-		return $fetch<{ url: string }>('/api/user/card', { method: 'POST', body: form })
+		const endpoint = targetUserId ? `/api/user/card?userId=${encodeURIComponent(targetUserId)}` : '/api/user/card'
+		return $fetch<{ url: string }>(endpoint, { method: 'POST', body: form })
 	}
 
 	return { busy, downloadCard, uploadCard }

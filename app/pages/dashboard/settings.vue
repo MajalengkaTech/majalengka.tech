@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { animate } from 'animejs'
 import type { FormSubmitEvent } from '@nuxt/ui'
+import type { CreatorProfile } from '~/types/project'
 
 definePageMeta({
 	layout: 'dashboard'
@@ -137,6 +138,25 @@ async function onSubmit(event: FormSubmitEvent<ProfileInput>) {
 			description: savedUsername.value ? `Profil publikmu ada di majalengka.tech/${savedUsername.value}` : 'Isi username supaya profil publikmu bisa dibuka.',
 			color: 'success'
 		})
+
+		// Sinkronisasi kartu profil baru/terbaru di latar belakang
+		if (savedUsername.value) {
+			const { uploadCard } = useCreatorCard()
+			$fetch<{ creator: CreatorProfile }>(`/api/creators/${savedUsername.value}`).then((res) => {
+				if (!res?.creator) return
+				const c = res.creator
+				uploadCard({
+					name: c.name,
+					username: c.username || savedUsername.value!,
+					avatarUrl: c.avatarUrl,
+					roleLabel: c.creatorRole ? CREATOR_ROLES[c.creatorRole as CreatorRole] : null,
+					projectCount: c.projectCount,
+					likeCount: c.likeCount,
+					rank: c.rank,
+					totalCreators: c.totalCreators
+				}).catch(() => {})
+			}).catch(() => {})
+		}
 	} catch (err: unknown) {
 		const errorResponse = err as { data?: { statusMessage?: string } }
 		toast.add({

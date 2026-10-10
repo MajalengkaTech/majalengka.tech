@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { ProjectItem } from '~/types/project'
+import type { CreatorCardInfo, CreatorProfile, ProjectItem } from '~/types/project'
 
 definePageMeta({
 	layout: 'dashboard'
@@ -11,10 +11,41 @@ useSeoMeta({
 })
 
 const { user } = useUserSession()
+const { uploadCard } = useCreatorCard()
 
 const { data: profileData, refresh: refreshProfile } = await useFetch('/api/user/profile')
 const { data: projectsData, error: projectsError, refresh: refreshProjects, status: projectsStatus } = await useFetch('/api/projects?mine=true', {
 	key: 'user-projects'
+})
+
+// Sinkronisasi otomatis kartu profil jika ada perubahan apresiasi (like), proyek, atau kartu belum ada.
+onMounted(async () => {
+	const username = (profileData.value as { user?: { username?: string } } | null)?.user?.username
+	if (!username) return
+	try {
+		const res = await $fetch<{ creator: CreatorProfile, card: CreatorCardInfo | null }>(`/api/creators/${username}`)
+		const card = res?.card
+		const c = res?.creator
+		if (!c) return
+		const changed = !card
+			|| card.projectCount !== c.projectCount
+			|| card.likeCount !== c.likeCount
+			|| card.rank !== c.rank
+		if (changed) {
+			await uploadCard({
+				name: c.name,
+				username: c.username || username,
+				avatarUrl: c.avatarUrl,
+				roleLabel: c.creatorRole ? CREATOR_ROLES[c.creatorRole as CreatorRole] : null,
+				projectCount: c.projectCount,
+				likeCount: c.likeCount,
+				rank: c.rank,
+				totalCreators: c.totalCreators
+			})
+		}
+	} catch {
+		// Abaikan jika background sync kartu gagal
+	}
 })
 
 const projects = computed<ProjectItem[]>(() => (projectsData.value?.projects as ProjectItem[]) || [])

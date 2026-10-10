@@ -53,17 +53,22 @@ async function onDownloadCard() {
 	}
 }
 
-// Gambar pratinjau link dibuat di browser pemilik dan hanya diperbarui kalau angkanya berubah.
+const isAdminUser = computed(() => (user.value as { role?: string } | null)?.role === 'admin')
+
+// Gambar pratinjau link dibuat di browser: otomatis dibuat saat kartu kosong, atau diperbarui jika data berubah oleh pemilik/admin.
 onMounted(async () => {
-	if (!isMe.value) return
 	const card = data.value?.card
 	const changed = !card
 		|| card.projectCount !== creator.value.projectCount
 		|| card.likeCount !== creator.value.likeCount
 		|| card.rank !== creator.value.rank
 	if (!changed) return
+
+	// Boleh jika: pemilik akun, atau admin, atau kartu belum pernah ada di R2 (!card)
+	if (!isMe.value && !isAdminUser.value && card) return
+
 	try {
-		await uploadCard(cardData.value)
+		await uploadCard(cardData.value, creator.value.id)
 	} catch {
 		cardSyncFailed.value = true
 	}
