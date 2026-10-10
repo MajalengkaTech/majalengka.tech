@@ -47,10 +47,31 @@
 @layer base {
 	html {
 		scrollbar-gutter: stable;
+		max-width: 100%;
+		overflow-x: clip;
 	}
 
 	body {
+		max-width: 100%;
 		overflow-x: clip;
+	}
+
+	/*
+	 * Mencegah kebocoran gulir horizontal (horizontal scroll leak) saat tautan atau teks panjang muncul di mobile (R-03 / antislop-layoutmobile):
+	 * URL panjang tanpa spasi (unbroken strings) dipaksa memecah baris secara aman tanpa memperlebar kontainer.
+	 */
+	a, p, span, dd, dt, li, code, time, label {
+		overflow-wrap: anywhere;
+		word-break: normal;
+	}
+
+	a {
+		word-break: break-word;
+	}
+
+	pre {
+		overflow-x: auto;
+		max-width: 100%;
 	}
 
 	/* Teks yang diblok memakai Kuning Mangga, aksen khas Majalengka Tech. Kontras 12,76:1 (light) dan 9,96:1 (dark). */
@@ -98,68 +119,28 @@
 	--ui-text-dimmed: var(--ui-color-neutral-400);
 }
 
-/*
- * Gerak (DESIGN.md, MOTION 2). Kelas .motion-ready dipasang skrip di <head> sebelum halaman tergambar,
- * hanya bila pengguna tidak meminta gerak dikurangi. Tanpa kelas itu tidak ada yang disembunyikan.
- */
-.motion-ready:not(.hero-seen) [data-hero] [data-hero-word] {
-	transform: translateY(110%);
-}
-
-.motion-ready:not(.hero-seen) [data-hero] :is([data-slot="headline"], [data-slot="description"], [data-slot="links"], [data-hero-media]) {
-	opacity: 0;
-}
-
-/* Cadangan bila JavaScript gagal dimuat: konten hero tetap muncul setelah 2,5 detik. */
-.motion-ready:not(.hero-seen) [data-hero] :is([data-hero-word], [data-hero-mark], [data-slot="headline"], [data-slot="description"], [data-slot="links"], [data-hero-media]) {
-	animation: hero-fallback 0s linear 2.5s forwards;
-}
-
-@keyframes hero-fallback {
-	to {
-		opacity: 1;
-		transform: none;
-		background-size: 100% 0.09em;
-	}
-}
-
-/* Garis bawah mangga di frasa sorotan hero: satu-satunya aksen di layar pertama. */
-[data-hero-mark] {
-	background-image: linear-gradient(var(--color-mango-500), var(--color-mango-500));
-	background-repeat: no-repeat;
-	background-position: 0 92%;
-	background-size: 100% 0.09em;
-}
-
-.motion-ready:not(.hero-seen) [data-hero] [data-hero-mark] {
-	background-size: 0% 0.09em;
-}
-
-.motion-ready [data-hero] [data-hero-mark] {
-	transition: background-size 700ms cubic-bezier(0.2, 0, 0, 1) 650ms;
-}
-
-.motion-ready.hero-play [data-hero] [data-hero-mark] {
-	background-size: 100% 0.09em;
-}
 
 /*
- * Transisi antarhalaman: halaman lama langsung disembunyikan, halaman baru masuk dengan fade dan naik sedikit.
- * Halaman lama tidak ikut memudar, karena gulir ke atas terjadi di awal perpindahan dan halaman lama akan terlihat meloncat.
+ * Transisi Antarhalaman & Tata Letak:
+ * Cepat, halus, dan responsif (150ms) dengan akselerasi perangkat keras,
+ * menghindari jeda/hang pada Vue transition mode 'out-in'.
  */
-.motion-ready .page-leave-active,
-.motion-ready .layout-leave-active {
-	opacity: 0;
-}
-
 .motion-ready .page-enter-active,
-.motion-ready .layout-enter-active {
-	transition: opacity 260ms cubic-bezier(0.2, 0, 0, 1), transform 260ms cubic-bezier(0.2, 0, 0, 1);
+.motion-ready .page-leave-active,
+.motion-ready .layout-enter-active,
+.motion-ready .layout-leave-active {
+	transition: opacity 150ms ease-out, transform 150ms ease-out;
 }
 
 .motion-ready .page-enter-from,
 .motion-ready .layout-enter-from {
 	opacity: 0;
-	transform: translateY(8px);
+	transform: translateY(6px);
+}
+
+.motion-ready .page-leave-to,
+.motion-ready .layout-leave-to {
+	opacity: 0;
+	transform: translateY(-4px);
 }
 

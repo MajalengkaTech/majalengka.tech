@@ -229,7 +229,7 @@ useReveal(useTemplateRef<HTMLElement>('works'))
 				<section
 					v-if="links.length"
 					aria-labelledby="judul-tautan"
-					class="flex flex-col gap-1"
+					class="flex flex-col gap-1 min-w-0"
 				>
 					<h2
 						id="judul-tautan"
@@ -248,7 +248,7 @@ useReveal(useTemplateRef<HTMLElement>('works'))
 						color="neutral"
 						variant="ghost"
 						size="sm"
-						class="justify-start"
+						class="justify-start truncate max-w-full"
 						trailing-icon="i-lucide-arrow-up-right"
 					/>
 				</section>
