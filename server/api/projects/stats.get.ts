@@ -1,5 +1,6 @@
 import { count, countDistinct, eq } from 'drizzle-orm'
 import { db, schema } from 'hub:db'
+import { defineEventHandler } from 'nuxt/server'
 
 // Angka untuk beranda dan filter Showcase; semuanya dihitung dari proyek yang sudah terbit.
 export default defineEventHandler(async () => {

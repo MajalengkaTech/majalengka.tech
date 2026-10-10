@@ -1,6 +1,5 @@
 import { z } from 'zod'
 import { eq } from 'drizzle-orm'
-import { blob } from 'hub:blob'
 import { db, schema } from 'hub:db'
 import { isAdmin } from '../utils/admin'
 
