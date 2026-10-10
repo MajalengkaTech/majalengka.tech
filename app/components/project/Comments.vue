@@ -11,9 +11,12 @@ const { loggedIn, user } = useUserSession()
 const route = useRoute()
 const toast = useToast()
 
-const { data, status, error, refresh } = await useFetch<{ comments: ProjectComment[] }>(
+const { data, status, error, refresh } = useLazyFetch<{ comments: ProjectComment[] }>(
 	() => `/api/projects/${props.projectId}/comments`,
-	{ key: `project-comments-${props.projectId}` }
+	{
+		key: `project-comments-${props.projectId}`,
+		server: false
+	}
 )
 const comments = computed(() => data.value?.comments || [])
 

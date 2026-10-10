@@ -42,10 +42,11 @@ const links = computed(() => [
 	project.value.repoUrl && { label: 'Lihat Kode', icon: 'i-simple-icons-github', to: project.value.repoUrl, color: 'neutral' as const, variant: 'outline' as const }
 ].filter(Boolean) as { label: string, icon: string, to: string, color: 'primary' | 'neutral', variant: 'solid' | 'outline' }[])
 
-const { data: otherData } = await useFetch<{ projects: ProjectItem[] }>('/api/projects', {
+const { data: otherData } = useLazyFetch<{ projects: ProjectItem[] }>('/api/projects', {
 	key: `project-others-${slug.value}`,
-	query: { author: project.value.author.username || undefined, limit: 5 },
-	immediate: Boolean(project.value.author.username)
+	query: { author: computed(() => project.value.author.username || undefined), limit: 5 },
+	immediate: Boolean(project.value.author.username),
+	server: false
 })
 const otherProjects = computed(() => (otherData.value?.projects || []).filter(p => p.id !== project.value.id).slice(0, 4))
 

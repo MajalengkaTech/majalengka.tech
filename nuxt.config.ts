@@ -60,7 +60,7 @@ export default defineNuxtConfig({
 		'/blog/**': { swr: 3600 },
 		'/tentang': { swr: 3600 },
 		'/projek': { swr: 120 },
-		'/projek/**': { swr: 300 },
+		'/projek/**': { swr: 3600 },
 		'/api/projects/stats': { swr: 120 },
 		'/api/projects': { swr: 60 },
 		'/api/files/**': { headers: { 'cache-control': 'public, max-age=31536000, immutable' } },
