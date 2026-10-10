@@ -14,65 +14,70 @@ function resolveElement(root: RevealRoot) {
 }
 
 /**
- * Memunculkan elemen [data-reveal] saat masuk layar.
- * Hanya elemen yang awalnya di bawah layar yang disembunyikan, jadi isi yang sudah terlihat saat halaman dibuka tidak berkedip.
- * Pemicunya posisi scroll, bukan IntersectionObserver, supaya elemen yang terlewati saat melompat (End, anchor, Back) tetap muncul.
+ * Memunculkan elemen [data-reveal] saat masuk layar menggunakan IntersectionObserver modern.
+ * Menghindari layout thrashing (getBoundingClientRect saat scroll) agar scrolling tetap 60fps mulus.
  */
 export function useReveal(container: MaybeRef<RevealRoot>, selector = '[data-reveal]') {
-	let hidden: HTMLElement[] = []
-	let frame = 0
-
-	function revealPassed() {
-		frame = 0
-		const limit = window.innerHeight * 0.92
-		const ready = hidden.filter(item => item.getBoundingClientRect().top < limit)
-		if (!ready.length) return
-
-		hidden = hidden.filter(item => !ready.includes(item))
-		if (!hidden.length) stop()
-
-		animate(ready, {
-			opacity: [0, 1],
-			translateY: [28, 0],
-			duration: 700,
-			delay: stagger(80),
-			ease: 'out(4)',
-			onComplete: () => {
-				for (const item of ready) {
-					item.style.removeProperty('opacity')
-					item.style.removeProperty('transform')
-				}
-			}
-		})
-	}
-
-	function onScroll() {
-		if (!frame) frame = requestAnimationFrame(revealPassed)
-	}
-
-	function stop() {
-		window.removeEventListener('scroll', onScroll)
-		window.removeEventListener('resize', onScroll)
-		if (frame) cancelAnimationFrame(frame)
-		frame = 0
-	}
+	let observer: IntersectionObserver | null = null
 
 	onMounted(() => {
 		const root = resolveElement(unref(container))
-		if (!root || !motionAllowed()) return
+		if (!root || !motionAllowed() || typeof IntersectionObserver === 'undefined') return
 
-		hidden = [...root.querySelectorAll<HTMLElement>(selector)]
-			.filter(item => item.getBoundingClientRect().top > window.innerHeight)
-		if (!hidden.length) return
+		const items = [...root.querySelectorAll<HTMLElement>(selector)]
+		if (!items.length) return
 
-		for (const item of hidden) {
-			item.style.opacity = '0'
-			item.style.transform = 'translateY(28px)'
+		// Elemen yang awalnya berada di bawah layar disembunyikan untuk animasi masuk
+		const vh = window.innerHeight
+		const hidden: HTMLElement[] = []
+
+		for (const item of items) {
+			const rect = item.getBoundingClientRect()
+			if (rect.top > vh) {
+				item.style.opacity = '0'
+				item.style.transform = 'translateY(24px)'
+				hidden.push(item)
+			}
 		}
 
-		window.addEventListener('scroll', onScroll, { passive: true })
-		window.addEventListener('resize', onScroll, { passive: true })
+		if (!hidden.length) return
+
+		observer = new IntersectionObserver((entries) => {
+			const intersecting = entries.filter(entry => entry.isIntersecting)
+			if (!intersecting.length) return
+
+			const targets = intersecting.map(entry => entry.target as HTMLElement)
+			for (const el of targets) {
+				observer?.unobserve(el)
+			}
+
+			animate(targets, {
+				opacity: [0, 1],
+				translateY: [24, 0],
+				duration: 450,
+				delay: stagger(50),
+				ease: 'out(3)',
+				onComplete: () => {
+					for (const el of targets) {
+						el.style.removeProperty('opacity')
+						el.style.removeProperty('transform')
+					}
+				}
+			})
+		}, {
+			rootMargin: '0px 0px -30px 0px',
+			threshold: 0.05
+		})
+
+		for (const item of hidden) {
+			observer.observe(item)
+		}
 	})
 
-	onBeforeUnmount(stop)
+	onBeforeUnmount(() => {
+		if (observer) {
+			observer.disconnect()
+			observer = null
+		}
+	})
 }

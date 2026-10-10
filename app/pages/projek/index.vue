@@ -60,9 +60,6 @@ const filtered = computed(() => {
 	].some(value => value?.toLowerCase().includes(q)))
 })
 
-const grid = useTemplateRef('grid')
-useReveal(grid)
-
 const chips = computed(() => {
 	const counts = statsData.value?.categories || {}
 	return categoryKeys
@@ -221,7 +218,6 @@ function resetFilters() {
 				v-for="project in filtered"
 				:key="project.id"
 				:project="project"
-				data-reveal
 			/>
 		</AnimeTransitionGroup>
 	</UContainer>

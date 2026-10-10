@@ -86,7 +86,7 @@ const links = computed(() => [
 
 		<div
 			v-if="links.length"
-			class="flex flex-col gap-1"
+			class="flex flex-col gap-1 min-w-0"
 		>
 			<UButton
 				v-for="link in links"
@@ -99,7 +99,7 @@ const links = computed(() => [
 				color="neutral"
 				variant="ghost"
 				size="sm"
-				class="justify-start"
+				class="justify-start truncate max-w-full"
 				trailing-icon="i-lucide-arrow-up-right"
 			/>
 		</div>

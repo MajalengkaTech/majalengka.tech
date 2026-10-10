@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { animate, stagger } from 'animejs'
+import { animate } from 'animejs'
 import type { ProjectItem } from '~/types/project'
 
 interface CreatorSummary {
@@ -75,36 +75,22 @@ const hero = useTemplateRef('hero')
 // Kartu di bawah layar muncul bertahap saat di-scroll, supaya grid panjang terbaca per baris.
 useReveal(useTemplateRef<HTMLElement>('home'))
 
-// Momen sambutan: judul naik per kata, lalu deskripsi, tombol, dan proyek. Hanya sekali per sesi supaya tidak mengulang di setiap kunjungan beranda.
+// Momen sambutan: Teks hero langsung tampil seketika (FCP instan), media hero diperhalus dengan transisi ringan.
 onMounted(() => {
 	const html = document.documentElement
 	const root = (hero.value as { $el?: HTMLElement } | null)?.$el
 	if (!root || !motionAllowed() || html.classList.contains('hero-seen')) return
 
-	const finish = () => {
-		try {
-			sessionStorage.setItem('mt-hero-seen', '1')
-		} catch {
-			// Mode privat bisa menolak sessionStorage; hero cukup diputar lagi di kunjungan berikutnya.
-		}
-		html.classList.add('hero-seen')
-		root.querySelectorAll<HTMLElement>('[data-hero-word], [data-slot="headline"], [data-slot="description"], [data-slot="links"], [data-hero-media]').forEach((el) => {
-			el.style.removeProperty('opacity')
-			el.style.removeProperty('transform')
-		})
+	html.classList.add('hero-seen')
+	try {
+		sessionStorage.setItem('mt-hero-seen', '1')
+	} catch {
+		// Mode privat bisa menolak sessionStorage
 	}
 
-	html.classList.add('hero-play')
-	const words = root.querySelectorAll<HTMLElement>('[data-hero-word]')
-	const support = root.querySelectorAll<HTMLElement>('[data-slot="headline"], [data-slot="description"], [data-slot="links"]')
 	const media = root.querySelector<HTMLElement>('[data-hero-media]')
-
-	animate(words, { translateY: ['110%', '0%'], duration: 850, delay: stagger(70), ease: 'out(4)' })
-	animate(support, { opacity: [0, 1], translateY: [16, 0], duration: 600, delay: stagger(110, { start: 380 }), ease: 'out(3)' })
 	if (media) {
-		animate(media, { opacity: [0, 1], scale: [0.97, 1], duration: 900, delay: 450, ease: 'out(3)', onComplete: finish })
-	} else {
-		setTimeout(finish, 1100)
+		animate(media, { opacity: [0, 1], scale: [0.98, 1], duration: 400, ease: 'out(3)' })
 	}
 })
 
@@ -148,39 +134,14 @@ defineOgImage('Saas', {
 			</template>
 
 			<template #title>
-				<template
-					v-for="(word, index) in heroTitle.before"
-					:key="`b${index}`"
-				>
-					<span class="-mb-[0.12em] inline-block overflow-hidden pb-[0.12em] align-top"><span
-						data-hero-word
-						class="inline-block"
-					>{{ word }}</span></span>{{ ' ' }}
-				</template>
+				<span>{{ heroTitle.before.join(' ') }}</span>
+				{{ heroTitle.before.length ? ' ' : '' }}
 				<span
 					v-if="heroTitle.mark.length"
-					data-hero-mark
 					class="text-primary"
-				>
-					<template
-						v-for="(word, index) in heroTitle.mark"
-						:key="`m${index}`"
-					>
-						<span class="-mb-[0.12em] inline-block overflow-hidden pb-[0.12em] align-top"><span
-							data-hero-word
-							class="inline-block"
-						>{{ word }}</span></span>{{ index < heroTitle.mark.length - 1 ? ' ' : '' }}
-					</template>
-				</span>
-				<template
-					v-for="(word, index) in heroTitle.after"
-					:key="`a${index}`"
-				>
-					{{ ' ' }}<span class="-mb-[0.12em] inline-block overflow-hidden pb-[0.12em] align-top"><span
-						data-hero-word
-						class="inline-block"
-					>{{ word }}</span></span>
-				</template>
+				>{{ heroTitle.mark.join(' ') }}</span>
+				{{ heroTitle.after.length ? ' ' : '' }}
+				<span>{{ heroTitle.after.join(' ') }}</span>
 			</template>
 
 			<template
