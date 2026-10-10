@@ -9,7 +9,6 @@ const props = defineProps<{
 
 const activeIndex = ref(0)
 const activeImage = computed(() => props.images[activeIndex.value] || props.images[0])
-const isImageLoading = ref(true)
 
 watch(() => props.images.length, () => {
 	activeIndex.value = 0
@@ -19,7 +18,6 @@ const mainImage = useTemplateRef<{ $el?: HTMLElement }>('mainImage')
 
 // Gambar baru masuk dengan fade singkat supaya pergantian terasa bersambung, bukan meloncat.
 watch(activeIndex, async () => {
-	isImageLoading.value = true
 	if (!motionAllowed()) return
 	await nextTick()
 	const image = mainImage.value?.$el
@@ -35,10 +33,6 @@ watch(activeIndex, async () => {
 		}
 	})
 })
-
-function onImageLoad() {
-	isImageLoading.value = false
-}
 
 function show(index: number) {
 	if (activeIndex.value === index) return
@@ -118,17 +112,6 @@ onKeyStroke('ArrowRight', (e) => {
 			@keydown.left.prevent="step(-1)"
 			@keydown.right.prevent="step(1)"
 		>
-			<!-- Loading skeleton shimmer saat gambar pertama kali di-decode -->
-			<div
-				v-show="isImageLoading"
-				class="absolute inset-0 z-10 flex items-center justify-center bg-elevated/80 backdrop-blur-[2px] transition-opacity duration-300"
-			>
-				<UIcon
-					name="i-tabler-loader-2"
-					class="size-8 animate-spin text-muted"
-				/>
-			</div>
-
 			<NuxtImg
 				ref="mainImage"
 				:key="activeImage.url"
@@ -137,10 +120,10 @@ onKeyStroke('ArrowRight', (e) => {
 				class="aspect-video w-full object-contain cursor-zoom-in transition-transform duration-300 group-hover:scale-[1.01]"
 				sizes="640px sm:768px md:960px lg:1024px"
 				preset="galeri"
+				placeholder
 				:loading="activeIndex === 0 ? 'eager' : 'lazy'"
 				:fetchpriority="activeIndex === 0 ? 'high' : 'auto'"
 				:preload="activeIndex === 0 ? { fetchPriority: 'high' } : false"
-				@load="onImageLoad"
 				@click="openZoom"
 			/>
 
@@ -216,6 +199,7 @@ onKeyStroke('ArrowRight', (e) => {
 					class="size-full object-cover"
 					sizes="112px"
 					preset="sampul"
+					placeholder
 					loading="lazy"
 				/>
 			</button>
@@ -232,7 +216,7 @@ onKeyStroke('ArrowRight', (e) => {
 				leave-to-class="opacity-0"
 			>
 				<div
-					v-if="isZoomOpen"
+					v-if="isZoomOpen && activeImage"
 					class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/90 p-4 backdrop-blur-md"
 					role="dialog"
 					aria-modal="true"
@@ -311,10 +295,10 @@ onKeyStroke('ArrowRight', (e) => {
 						@click.stop
 					>
 						<p
-							v-if="activeImage.alt"
+							v-if="activeImage?.alt"
 							class="max-w-xl text-sm font-medium text-white/90"
 						>
-							{{ activeImage.alt }}
+							{{ activeImage?.alt }}
 						</p>
 						<span
 							v-if="images.length > 1"
