@@ -137,6 +137,20 @@ export default defineNuxtConfig({
 		blob: true
 	},
 
+	vite: {
+		optimizeDeps: {
+			include: [
+				'zod',
+				'@vue/devtools-core',
+				'animejs'
+			],
+			exclude: [
+				'easings',
+				'spring'
+			]
+		}
+	},
+
 	eslint: {
 		config: {
 			stylistic: {
