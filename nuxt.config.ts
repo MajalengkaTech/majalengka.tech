@@ -54,12 +54,20 @@ export default defineNuxtConfig({
 	},
 
 	routeRules: {
+		'/': { swr: 60 },
 		'/docs': { redirect: '/docs/getting-started', prerender: false },
-		'/projek': { prerender: false },
-		'/projek/**': { prerender: false },
+		'/docs/**': { swr: 3600 },
+		'/blog/**': { swr: 3600 },
+		'/tentang': { swr: 3600 },
+		'/projek': { swr: 30 },
+		'/projek/**': { swr: 60 },
+		'/api/projects/stats': { swr: 60 },
+		'/api/projects': { swr: 30 },
+		'/api/files/**': { headers: { 'cache-control': 'public, max-age=31536000, immutable' } },
 		'/dashboard/**': { auth: 'user', prerender: false, ssr: false, robots: false, sitemap: false },
 		'/kelola/**': { auth: 'user', prerender: false, ssr: false, robots: false, sitemap: false },
-		'/api/**': { prerender: false, robots: false, sitemap: false }
+		'/api/admin/**': { prerender: false, robots: false, sitemap: false },
+		'/api/user/**': { prerender: false, robots: false, sitemap: false }
 	},
 
 	compatibilityDate: '2026-06-30',
