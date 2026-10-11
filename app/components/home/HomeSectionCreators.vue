@@ -12,18 +12,23 @@ const props = defineProps<{
 
 const start = ref(0)
 const total = 6 * 4
-const creatorsList = useState<CreatorItem[]>('creators-grid', () => [])
+const creators = useState<CreatorItem[]>('creators-grid', () => [])
+const failedImages = ref<Record<string, boolean>>({})
 const intersecting = ref(false)
 const containerRef = useTemplateRef<HTMLElement>('container')
 let _creators: CreatorItem[] = []
 let currentTimeout: ReturnType<typeof setTimeout> | null = null
+
+function onImageError(username: string) {
+	failedImages.value[username] = true
+}
 
 useIntersectionObserver(containerRef, ([entry]) => {
 	const isVisible = entry?.isIntersecting ?? false
 	intersecting.value = isVisible
 	if (isVisible) {
 		if (_creators.length) {
-			creatorsList.value = _creators
+			creators.value = _creators
 		}
 		startTimer()
 	} else {
@@ -34,18 +39,18 @@ useIntersectionObserver(containerRef, ([entry]) => {
 onMounted(async () => {
 	if (props.creators && props.creators.length) {
 		_creators = [...props.creators]
-		creatorsList.value = _creators
+		creators.value = _creators
 		return
 	}
 
-	if (creatorsList.value.length) return
+	if (creators.value.length) return
 
 	try {
-		const res = await $fetch<{ creators: CreatorItem[] }>('/api/creators', { query: { limit: 48 } })
+		const res = await $fetch<{ creators: CreatorItem[] }>('/api/creators', { query: { limit: total * 10 } })
 		if (res?.creators?.length) {
 			_creators = res.creators
 			if (intersecting.value) {
-				creatorsList.value = _creators
+				creators.value = _creators
 			}
 		}
 	} catch {
@@ -56,36 +61,21 @@ onMounted(async () => {
 watch(() => props.creators, (newVal) => {
 	if (newVal && newVal.length) {
 		_creators = [...newVal]
-		creatorsList.value = _creators
+		creators.value = _creators
 	}
 }, { immediate: true })
 
 onBeforeUnmount(stopTimer)
 
 const $contributors = computed(() => {
-	const list = creatorsList.value
-	if (!list.length) {
-		return Array.from({ length: total }).fill(null) as (CreatorItem | null)[]
+	if (!creators.value.length) {
+		return []
 	}
-
-	// Jika jumlah kreator >= 24, gunakan window slice
-	if (list.length >= total) {
-		return list.slice(start.value, start.value + total)
-	}
-
-	// Jika jumlah kreator < 24, isi 24 slot berulang secara harmonis
-	const filled: CreatorItem[] = []
-	let index = 0
-	while (filled.length < total) {
-		filled.push(list[index % list.length]!)
-		index++
-	}
-	return filled
+	return creators.value.slice(start.value, start.value + total)
 })
 
 function startTimer(ms = 5000) {
-	stopTimer()
-	if (creatorsList.value.length <= total) return
+	if (creators.value.length <= total) return
 	currentTimeout = setTimeout(nextContributors, ms)
 }
 
@@ -97,33 +87,23 @@ function stopTimer() {
 }
 
 function nextContributors() {
-	const newStart = (start.value + total >= creatorsList.value.length ? 0 : start.value + total)
+	const newStart = (start.value + total >= creators.value.length ? 0 : start.value + total)
 	start.value = newStart
 	startTimer()
-}
-
-function getInitial(name?: string, username?: string) {
-	const val = (name || username || '').trim()
-	if (!val) return '?'
-	const parts = val.split(/\s+/)
-	if (parts.length >= 2 && parts[0] && parts[1]) {
-		return `${parts[0][0]}${parts[1][0]}`.toUpperCase()
-	}
-	return val.slice(0, 2).toUpperCase()
 }
 </script>
 
 <template>
 	<div
 		ref="container"
-		class="grid grid-cols-6 gap-3 sm:gap-4 md:grid-cols-8 lg:grid-cols-6 xl:gap-5"
+		class="grid grid-cols-6 md:grid-cols-8 lg:grid-cols-6 gap-4 sm:gap-8 lg:gap-6 xl:gap-8 xl:p-8"
 		@mouseenter="stopTimer()"
 		@mouseleave="startTimer(2500)"
 	>
 		<div
 			v-for="(creator, index) in $contributors"
 			:key="index"
-			class="relative pt-[100%]"
+			class="pt-[100%] relative"
 		>
 			<Transition
 				name="avatar"
@@ -131,7 +111,7 @@ function getInitial(name?: string, username?: string) {
 			>
 				<NuxtLink
 					v-if="creator"
-					:key="`${creator.username}-${index}`"
+					:key="creator.username"
 					:to="`/${creator.username}`"
 					class="absolute inset-0 flex transition-all hover:z-20"
 					:style="{
@@ -140,35 +120,32 @@ function getInitial(name?: string, username?: string) {
 				>
 					<UTooltip
 						:text="creator.name || `@${creator.username}`"
-						class="size-full"
+						class="w-full"
 					>
-						<div class="relative size-full overflow-hidden rounded-xl border border-default/40 bg-muted shadow-xs transition duration-300 hover:border-primary/50 hover:shadow-md lg:hover:scale-125">
-							<NuxtImg
-								v-if="creator.avatarUrl"
-								:src="creator.avatarUrl"
-								width="80"
-								height="80"
-								format="auto"
-								:alt="creator.name || creator.username"
-								loading="lazy"
-								class="size-full bg-muted object-cover"
+						<NuxtImg
+							v-if="creator.avatarUrl && !failedImages[creator.username]"
+							:src="creator.avatarUrl"
+							height="80"
+							width="80"
+							format="auto"
+							:alt="creator.name || creator.username"
+							loading="lazy"
+							:title="creator.name || creator.username"
+							class="rounded-xl w-full h-full object-cover transition lg:hover:scale-125 bg-muted"
+							@error="onImageError(creator.username)"
+						/>
+						<!-- Fallback default icon user jika foto kosong atau gagal dimuat -->
+						<div
+							v-else
+							class="rounded-xl w-full h-full flex items-center justify-center transition lg:hover:scale-125 bg-muted text-muted select-none"
+						>
+							<UIcon
+								name="i-lucide-user"
+								class="size-6 text-muted"
 							/>
-							<div
-								v-else
-								class="flex size-full items-center justify-center bg-primary/10 font-bold text-xs text-primary transition select-none sm:text-sm"
-							>
-								{{ getInitial(creator.name, creator.username) }}
-							</div>
 						</div>
 					</UTooltip>
 				</NuxtLink>
-
-				<!-- Placeholder item saat belum termuat -->
-				<div
-					v-else
-					:key="`empty-${index}`"
-					class="absolute inset-0 rounded-xl border border-default/20 bg-muted/40"
-				/>
 			</Transition>
 		</div>
 	</div>
