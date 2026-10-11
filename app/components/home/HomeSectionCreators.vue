@@ -12,7 +12,7 @@ const props = defineProps<{
 
 const start = ref(0)
 const total = 6 * 4
-const creators = useState<CreatorItem[]>('creators-grid', () => [])
+const creatorsList = useState<CreatorItem[]>('creators-grid', () => [])
 const failedImages = ref<Record<string, boolean>>({})
 const intersecting = ref(false)
 const containerRef = useTemplateRef<HTMLElement>('container')
@@ -28,7 +28,7 @@ useIntersectionObserver(containerRef, ([entry]) => {
 	intersecting.value = isVisible
 	if (isVisible) {
 		if (_creators.length) {
-			creators.value = _creators
+			creatorsList.value = _creators
 		}
 		startTimer()
 	} else {
@@ -39,18 +39,18 @@ useIntersectionObserver(containerRef, ([entry]) => {
 onMounted(async () => {
 	if (props.creators && props.creators.length) {
 		_creators = [...props.creators]
-		creators.value = _creators
+		creatorsList.value = _creators
 		return
 	}
 
-	if (creators.value.length) return
+	if (creatorsList.value.length) return
 
 	try {
 		const res = await $fetch<{ creators: CreatorItem[] }>('/api/creators', { query: { limit: total * 10 } })
 		if (res?.creators?.length) {
 			_creators = res.creators
 			if (intersecting.value) {
-				creators.value = _creators
+				creatorsList.value = _creators
 			}
 		}
 	} catch {
@@ -61,21 +61,21 @@ onMounted(async () => {
 watch(() => props.creators, (newVal) => {
 	if (newVal && newVal.length) {
 		_creators = [...newVal]
-		creators.value = _creators
+		creatorsList.value = _creators
 	}
 }, { immediate: true })
 
 onBeforeUnmount(stopTimer)
 
 const $contributors = computed(() => {
-	if (!creators.value.length) {
+	if (!creatorsList.value.length) {
 		return []
 	}
-	return creators.value.slice(start.value, start.value + total)
+	return creatorsList.value.slice(start.value, start.value + total)
 })
 
 function startTimer(ms = 5000) {
-	if (creators.value.length <= total) return
+	if (creatorsList.value.length <= total) return
 	currentTimeout = setTimeout(nextContributors, ms)
 }
 
@@ -87,7 +87,7 @@ function stopTimer() {
 }
 
 function nextContributors() {
-	const newStart = (start.value + total >= creators.value.length ? 0 : start.value + total)
+	const newStart = (start.value + total >= creatorsList.value.length ? 0 : start.value + total)
 	start.value = newStart
 	startTimer()
 }
