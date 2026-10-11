@@ -67,6 +67,9 @@ const items = computed(() => [{
 	label: 'Showcase',
 	to: '/projek'
 }, {
+	label: 'Kreator',
+	to: '/kreator'
+}, {
 	label: 'Tentang',
 	to: '/tentang'
 }, {

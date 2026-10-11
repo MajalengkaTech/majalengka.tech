@@ -5,6 +5,9 @@ const columns = [{
 		label: 'Showcase',
 		to: '/projek'
 	}, {
+		label: 'Kreator',
+		to: '/kreator'
+	}, {
 		label: 'Pamerkan Proyekmu',
 		to: '/dashboard/projects/new'
 	}, {
