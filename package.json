@@ -12,6 +12,7 @@
 	},
 	"dependencies": {
 		"@iconify-json/lucide": "^1.2.131",
+		"@iconify-json/mage": "^1.2.4",
 		"@iconify-json/simple-icons": "^1.2.95",
 		"@iconify-json/tabler": "^1.2.40",
 		"@libsql/client": "^0.18.0",

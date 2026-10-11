@@ -23,15 +23,47 @@ const isMe = computed(() => (user.value as { id?: string } | null)?.id === creat
 const roleLabel = computed(() => creator.value.creatorRole ? CREATOR_ROLES[creator.value.creatorRole as CreatorRole] : null)
 const skills = computed(() => splitTags(creator.value.skills))
 
-const links = computed(() => [
-	creator.value.websiteUrl && { label: 'Portofolio', icon: 'i-lucide-globe', to: creator.value.websiteUrl },
-	creator.value.designUrl && { label: 'Dribbble / Behance', icon: 'i-lucide-pen-tool', to: creator.value.designUrl },
-	creator.value.githubUsername && { label: 'GitHub', icon: 'i-simple-icons-github', to: `https://github.com/${creator.value.githubUsername}` },
-	creator.value.linkedinUrl && { label: 'LinkedIn', icon: 'i-simple-icons-linkedin', to: creator.value.linkedinUrl }
-].filter(Boolean) as { label: string, icon: string, to: string }[])
+const links = computed(() => {
+	const result: { label: string, icon: string, to: string }[] = []
+
+	if (creator.value.websiteUrl) {
+		result.push({ label: 'Portofolio', icon: 'i-mage-globe', to: creator.value.websiteUrl })
+	}
+	if (creator.value.githubUsername) {
+		result.push({ label: 'GitHub', icon: 'i-mage-github', to: `https://github.com/${creator.value.githubUsername.replace(/^@/, '')}` })
+	}
+
+	const seenUrls = new Set(result.map(r => r.to))
+
+	if (Array.isArray(creator.value.socialLinks)) {
+		for (const item of creator.value.socialLinks) {
+			if (item?.url && !seenUrls.has(item.url)) {
+				const conf = getSocialPlatformConfig(item.platform)
+				result.push({
+					label: item.label || conf.label,
+					icon: conf.icon,
+					to: item.url
+				})
+				seenUrls.add(item.url)
+			}
+		}
+	}
+
+	if (creator.value.designUrl && !seenUrls.has(creator.value.designUrl)) {
+		result.push({ label: 'Dribbble / Behance', icon: 'i-mage-dribbble', to: creator.value.designUrl })
+		seenUrls.add(creator.value.designUrl)
+	}
+
+	if (creator.value.linkedinUrl && !seenUrls.has(creator.value.linkedinUrl)) {
+		result.push({ label: 'LinkedIn', icon: 'i-mage-linkedin', to: creator.value.linkedinUrl })
+		seenUrls.add(creator.value.linkedinUrl)
+	}
+
+	return result
+})
 
 const cardData = computed<CreatorCardData>(() => ({
-	name: creator.value.name,
+	name: `@${creator.value.username || username.value}`,
 	username: creator.value.username || username.value,
 	avatarUrl: creator.value.avatarUrl,
 	roleLabel: roleLabel.value,
@@ -79,23 +111,23 @@ const profileUrl = origin + route.path
 const { shareLink } = useShareLink()
 
 function shareProfile() {
-	return shareLink({ title: `${creator.value.name} di Majalengka Tech`, url: profileUrl })
+	return shareLink({ title: `@${creator.value.username} di Majalengka Tech`, url: profileUrl })
 }
 
 const seoDescription = computed(() => creator.value.bio
 	|| [roleLabel.value, creator.value.location].filter(Boolean).join(' dari ')
-	|| `Proyek ${creator.value.name} di Majalengka Tech`)
+	|| `Proyek @${creator.value.username} di Majalengka Tech`)
 
 const cardImage = data.value?.card ? origin + data.value.card.url : undefined
 
 useSeoMeta({
-	title: () => `${creator.value.name} (@${creator.value.username})`,
+	title: () => `@${creator.value.username} - Kreator Majalengka Tech`,
 	description: seoDescription,
 	ogDescription: seoDescription,
 	ogImage: cardImage,
 	ogImageWidth: cardImage ? 1200 : undefined,
 	ogImageHeight: cardImage ? 630 : undefined,
-	ogImageAlt: cardImage ? `Kartu kreator ${creator.value.name} di Majalengka Tech` : undefined,
+	ogImageAlt: cardImage ? `Kartu kreator @${creator.value.username} di Majalengka Tech` : undefined,
 	twitterCard: cardImage ? 'summary_large_image' : 'summary'
 })
 
@@ -109,16 +141,13 @@ useReveal(useTemplateRef<HTMLElement>('works'))
 			<div class="flex flex-col gap-5 sm:flex-row sm:items-center sm:gap-6">
 				<UAvatar
 					:src="creator.avatarUrl || undefined"
-					:alt="creator.name"
+					:alt="`@${creator.username}`"
 					class="size-24 text-3xl sm:size-28"
 				/>
 				<div class="flex min-w-0 flex-col gap-2">
 					<h1 class="text-3xl font-bold tracking-tight text-balance text-highlighted sm:text-4xl">
-						{{ creator.name }}
-					</h1>
-					<p class="text-muted">
 						@{{ creator.username }}
-					</p>
+					</h1>
 					<div
 						v-if="roleLabel || creator.location || creator.openToWork"
 						class="flex flex-wrap gap-1.5 pt-1"

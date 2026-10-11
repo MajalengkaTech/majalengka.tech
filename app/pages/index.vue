@@ -237,8 +237,8 @@ defineOgImage('Saas', {
 
 		<UPageSection
 			id="showcaseData"
-			headline="Showcase"
-			title="Real-world Web Applications built with Nuxt"
+			headline="Showcase Proyek"
+			title="Aplikasi & Produk Digital Buatan Developer Majalengka"
 			:links="[{
 				label: 'Lihat Semua Proyek',
 				to: '/projek',

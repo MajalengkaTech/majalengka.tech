@@ -3,6 +3,7 @@ import { db, schema } from 'hub:db'
 import { defineEventHandler, getRouterParam } from 'nuxt/server'
 import { isAdmin } from '../../../utils/admin'
 import { projectListColumns, toProjectItem } from '../../../utils/project-listing'
+import { parseSocialLinks } from '../../../utils/profile'
 
 export default defineEventHandler(async (event) => {
 	const slug = getRouterParam(event, 'slug', { decode: true })?.trim().toLowerCase()
@@ -47,7 +48,8 @@ export default defineEventHandler(async (event) => {
 			openToWork: schema.user.openToWork,
 			websiteUrl: schema.user.websiteUrl,
 			designUrl: schema.user.designUrl,
-			linkedinUrl: schema.user.linkedinUrl
+			linkedinUrl: schema.user.linkedinUrl,
+			socialLinks: schema.user.socialLinks
 		})
 			.from(schema.user)
 			.where(eq(schema.user.id, row.project.userId))
@@ -55,10 +57,15 @@ export default defineEventHandler(async (event) => {
 	])
 
 	const item = toProjectItem(row)
+	const authorData = authorProfile[0]
 	return {
 		project: {
 			...item,
-			author: { ...item.author, ...(authorProfile[0] || {}) },
+			author: {
+				...item.author,
+				...(authorData || {}),
+				socialLinks: parseSocialLinks(authorData?.socialLinks)
+			},
 			images,
 			isOwner: currentUserId === row.project.userId,
 			// Hanya untuk tampilan tombol; endpoint ubah dan hapus tetap memeriksa sendiri.

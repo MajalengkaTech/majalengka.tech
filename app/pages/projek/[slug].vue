@@ -157,7 +157,7 @@ useReveal(useTemplateRef<HTMLElement>('others'))
 				<div class="flex items-center gap-3">
 					<UAvatar
 						:src="project.author.avatarUrl || undefined"
-						:alt="project.author.name"
+						:alt="project.author.username ? `@${project.author.username}` : project.author.name"
 						size="md"
 					/>
 					<p class="text-sm text-muted">
@@ -166,7 +166,7 @@ useReveal(useTemplateRef<HTMLElement>('others'))
 							v-if="project.author.username"
 							:to="`/${project.author.username}`"
 							class="rounded-sm font-semibold text-highlighted outline-primary/25 hover:text-primary focus-visible:outline-3"
-						>{{ project.author.name }}</NuxtLink>
+						>@{{ project.author.username }}</NuxtLink>
 						<span
 							v-else
 							class="font-semibold text-highlighted"
@@ -324,7 +324,7 @@ useReveal(useTemplateRef<HTMLElement>('others'))
 				id="judul-karya-lain"
 				class="text-xl font-bold text-highlighted"
 			>
-				Proyek lain dari {{ project.author.name }}
+				Proyek lain dari @{{ project.author.username || project.author.name }}
 			</h2>
 			<div
 				ref="others"

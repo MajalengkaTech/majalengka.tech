@@ -6,6 +6,7 @@
       "name": "majalengka-tech",
       "dependencies": {
         "@iconify-json/lucide": "^1.2.131",
+        "@iconify-json/mage": "^1.2.4",
         "@iconify-json/simple-icons": "^1.2.95",
         "@iconify-json/tabler": "^1.2.40",
         "@libsql/client": "^0.18.0",
@@ -270,6 +271,8 @@
     "@humanwhocodes/retry": ["@humanwhocodes/retry@0.4.3", "", {}, "sha512-bV0Tgo9K4hfPCek+aMAn81RppFKv2ySDQeMoSZuvTASywNTnVJCArCZE2FWqpvIatKu7VMRLWlR1EazvVhDyhQ=="],
 
     "@iconify-json/lucide": ["@iconify-json/lucide@1.2.132", "", { "dependencies": { "@iconify/types": "*" } }, "sha512-YgblweuQSz0AVG+zPvfECiYrJeTEFSKEthFSfwVB3OMJrL3dJ6QS0gX2akImqg3IEMRK1wVooAEAPbd7Kzj4FA=="],
+
+    "@iconify-json/mage": ["@iconify-json/mage@1.2.4", "", { "dependencies": { "@iconify/types": "*" } }, "sha512-QZnjHtV/RP9/bF6n7bHSnXMPX/MW5dpHqOH2pEHiEytUx76OKrUZ55YBFwrAxPz5f3BoCeWMY1wyEQQD36Bkkw=="],
 
     "@iconify-json/simple-icons": ["@iconify-json/simple-icons@1.2.96", "", { "dependencies": { "@iconify/types": "*" } }, "sha512-/FmCYo/H5rIywTLV/P6OYsr0rg/31vuc8jYq0QnkOZl6m7PWIs+h5oAnSTT2cqRhOsMaKqbXcdkka6tnZ1WiUA=="],
 

@@ -11,14 +11,19 @@ useSeoMeta({
 	description: 'Buat akun untuk memamerkan proyek dan profilmu sebagai developer atau desainer Majalengka.'
 })
 
-const { loggedIn } = useUserSession()
+const { loggedIn, user } = useUserSession()
 const authClient = useAuthClient()
 const toast = useToast()
 const loading = ref(false)
 
 watchEffect(() => {
 	if (loggedIn.value) {
-		navigateTo('/dashboard')
+		const u = user.value as { username?: string | null } | null
+		if (!u?.username) {
+			navigateTo('/dashboard/settings?setup=username')
+		} else {
+			navigateTo('/dashboard')
+		}
 	}
 })
 
@@ -48,7 +53,7 @@ const providers = [{
 	onClick: async () => {
 		await authClient?.signIn.social({
 			provider: 'github',
-			callbackURL: '/dashboard'
+			callbackURL: '/dashboard/settings?setup=username'
 		})
 	}
 }, {
@@ -58,7 +63,7 @@ const providers = [{
 	onClick: async () => {
 		await authClient?.signIn.social({
 			provider: 'google',
-			callbackURL: '/dashboard'
+			callbackURL: '/dashboard/settings?setup=username'
 		})
 	}
 }]
@@ -79,7 +84,7 @@ async function onSubmit(payload: FormSubmitEvent<Schema>) {
 			name: payload.data.name,
 			email: payload.data.email,
 			password: payload.data.password,
-			callbackURL: '/dashboard'
+			callbackURL: '/dashboard/settings?setup=username'
 		})
 
 		if (error) {
@@ -93,10 +98,10 @@ async function onSubmit(payload: FormSubmitEvent<Schema>) {
 
 		toast.add({
 			title: 'Akunmu sudah dibuat',
-			description: `Selamat datang di Majalengka Tech, ${payload.data.name}!`,
+			description: 'Langkah penting: lengkapi username untuk profil publikmu.',
 			color: 'success'
 		})
-		await navigateTo('/dashboard')
+		await navigateTo('/dashboard/settings?setup=username')
 	} catch (err: unknown) {
 		const errorMessage = err instanceof Error ? err.message : 'Terjadi kesalahan saat mendaftar.'
 		toast.add({

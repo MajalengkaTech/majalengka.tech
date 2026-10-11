@@ -1,3 +1,5 @@
+import type { SocialLinkItem } from '~~/shared/utils/profile-schema'
+
 export interface ProjectAuthor {
 	id: string | number
 	name: string
@@ -49,6 +51,7 @@ export interface ProjectDetail extends ProjectItem {
 		websiteUrl?: string | null
 		designUrl?: string | null
 		linkedinUrl?: string | null
+		socialLinks?: SocialLinkItem[] | null
 	}
 }
 
@@ -79,6 +82,7 @@ export interface CreatorProfile {
 	websiteUrl: string | null
 	designUrl: string | null
 	linkedinUrl: string | null
+	socialLinks?: SocialLinkItem[] | null
 	createdAt: string | Date
 	projectCount: number
 	likeCount: number

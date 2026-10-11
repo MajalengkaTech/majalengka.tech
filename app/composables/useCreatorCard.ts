@@ -39,7 +39,8 @@ function fitText(ctx: CanvasRenderingContext2D, text: string, maxWidth: number) 
 }
 
 function initials(name: string) {
-	return name.split(/\s+/).filter(Boolean).slice(0, 2).map(part => part[0]!.toUpperCase()).join('')
+	const clean = name.replace(/^@/, '').trim()
+	return clean.split(/\s+/).filter(Boolean).slice(0, 2).map(part => part[0]!.toUpperCase()).join('')
 }
 
 async function drawCard(data: CreatorCardData) {
@@ -94,11 +95,12 @@ async function drawCard(data: CreatorCardData) {
 	ctx.textBaseline = 'alphabetic'
 	ctx.fillStyle = COLORS.text
 	ctx.font = `700 46px ${HEADING_FONT}`
-	ctx.fillText(fitText(ctx, data.name, 470), 64, 400)
-	ctx.fillStyle = COLORS.muted
-	ctx.font = `400 26px ${BODY_FONT}`
-	const handle = data.roleLabel ? `@${data.username} · ${data.roleLabel}` : `@${data.username}`
-	ctx.fillText(fitText(ctx, handle, 470), 64, 444)
+	ctx.fillText(fitText(ctx, `@${data.username}`, 470), 64, 400)
+	if (data.roleLabel) {
+		ctx.fillStyle = COLORS.muted
+		ctx.font = `400 26px ${BODY_FONT}`
+		ctx.fillText(fitText(ctx, data.roleLabel, 470), 64, 444)
+	}
 
 	const tiles = [
 		{ value: data.projectCount, label: 'Proyek terbit', color: COLORS.text },

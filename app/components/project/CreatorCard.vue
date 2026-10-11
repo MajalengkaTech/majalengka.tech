@@ -10,12 +10,44 @@ const roleLabel = computed(() => {
 	return role ? CREATOR_ROLES[role] : null
 })
 
-const links = computed(() => [
-	props.author.websiteUrl && { label: 'Portofolio', icon: 'i-lucide-globe', to: props.author.websiteUrl },
-	props.author.designUrl && { label: 'Dribbble / Behance', icon: 'i-lucide-pen-tool', to: props.author.designUrl },
-	props.author.githubUsername && { label: 'GitHub', icon: 'i-simple-icons-github', to: `https://github.com/${props.author.githubUsername}` },
-	props.author.linkedinUrl && { label: 'LinkedIn', icon: 'i-simple-icons-linkedin', to: props.author.linkedinUrl }
-].filter(Boolean) as { label: string, icon: string, to: string }[])
+const links = computed(() => {
+	const result: { label: string, icon: string, to: string }[] = []
+
+	if (props.author.websiteUrl) {
+		result.push({ label: 'Portofolio', icon: 'i-mage-globe', to: props.author.websiteUrl })
+	}
+	if (props.author.githubUsername) {
+		result.push({ label: 'GitHub', icon: 'i-mage-github', to: `https://github.com/${props.author.githubUsername.replace(/^@/, '')}` })
+	}
+
+	const seenUrls = new Set(result.map(r => r.to))
+
+	if (Array.isArray(props.author.socialLinks)) {
+		for (const item of props.author.socialLinks) {
+			if (item?.url && !seenUrls.has(item.url)) {
+				const conf = getSocialPlatformConfig(item.platform)
+				result.push({
+					label: item.label || conf.label,
+					icon: conf.icon,
+					to: item.url
+				})
+				seenUrls.add(item.url)
+			}
+		}
+	}
+
+	if (props.author.designUrl && !seenUrls.has(props.author.designUrl)) {
+		result.push({ label: 'Dribbble / Behance', icon: 'i-mage-dribbble', to: props.author.designUrl })
+		seenUrls.add(props.author.designUrl)
+	}
+
+	if (props.author.linkedinUrl && !seenUrls.has(props.author.linkedinUrl)) {
+		result.push({ label: 'LinkedIn', icon: 'i-mage-linkedin', to: props.author.linkedinUrl })
+		seenUrls.add(props.author.linkedinUrl)
+	}
+
+	return result
+})
 </script>
 
 <template>
@@ -26,18 +58,12 @@ const links = computed(() => [
 		<div class="flex items-center gap-3">
 			<UAvatar
 				:src="author.avatarUrl || undefined"
-				:alt="author.name"
+				:alt="author.username ? `@${author.username}` : author.name"
 				size="xl"
 			/>
 			<div class="min-w-0">
 				<p class="truncate font-semibold text-highlighted">
-					{{ author.name }}
-				</p>
-				<p
-					v-if="author.username"
-					class="truncate text-sm text-muted"
-				>
-					@{{ author.username }}
+					{{ author.username ? `@${author.username}` : author.name }}
 				</p>
 			</div>
 		</div>

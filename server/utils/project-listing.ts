@@ -43,7 +43,7 @@ export function toProjectItem(row: ProjectListRow) {
 		author: row.author?.id
 			? {
 					id: row.author.id,
-					name: row.author.name || 'Kreator Majalengka',
+					name: row.author.username ? `@${row.author.username}` : (row.author.name || 'Kreator Majalengka'),
 					username: row.author.username,
 					avatarUrl: row.author.image,
 					creatorRole: row.author.creatorRole,

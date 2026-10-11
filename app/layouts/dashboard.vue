@@ -5,6 +5,11 @@ const open = ref(false)
 
 const { user } = useUserSession()
 
+const hasUsername = computed(() => {
+	const username = (user.value as { username?: string | null } | null)?.username
+	return Boolean(username && username.trim())
+})
+
 const isAdmin = computed(() => {
 	return (user.value as { role?: string } | null)?.role === 'admin'
 })
@@ -16,6 +21,7 @@ const navLinks = computed<NavigationMenuItem[][]>(() => {
 			icon: 'i-lucide-layout-dashboard',
 			to: '/dashboard',
 			exact: true,
+			disabled: !hasUsername.value,
 			onSelect: () => {
 				open.value = false
 			}
@@ -24,6 +30,7 @@ const navLinks = computed<NavigationMenuItem[][]>(() => {
 			label: 'Proyek Saya',
 			icon: 'i-lucide-folder-git-2',
 			to: '/dashboard/projects',
+			disabled: !hasUsername.value,
 			onSelect: () => {
 				open.value = false
 			}
@@ -32,6 +39,7 @@ const navLinks = computed<NavigationMenuItem[][]>(() => {
 			label: 'Edit Profil',
 			icon: 'i-lucide-user-cog',
 			to: '/dashboard/settings',
+			badge: !hasUsername.value ? 'Wajib' : undefined,
 			onSelect: () => {
 				open.value = false
 			}
@@ -44,6 +52,7 @@ const navLinks = computed<NavigationMenuItem[][]>(() => {
 			icon: 'i-lucide-shield-alert',
 			to: '/kelola',
 			exact: true,
+			disabled: !hasUsername.value,
 			onSelect: () => {
 				open.value = false
 			}
@@ -51,6 +60,7 @@ const navLinks = computed<NavigationMenuItem[][]>(() => {
 			label: 'Kelola Proyek',
 			icon: 'i-lucide-folder-cog',
 			to: '/kelola/proyek',
+			disabled: !hasUsername.value,
 			onSelect: () => {
 				open.value = false
 			}

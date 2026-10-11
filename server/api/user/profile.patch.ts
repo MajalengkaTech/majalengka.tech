@@ -8,20 +8,25 @@ export default defineEventHandler(async (event) => {
 	const session = await requireSignedIn(event)
 	const userId = String(session.user.id)
 	const body = await readBodyWith(event, profileInputSchema)
-	const username = body.username || null
+	const username = body.username.trim().toLowerCase()
 
-	if (username) {
-		const [taken] = await db
-			.select({ id: schema.user.id })
-			.from(schema.user)
-			.where(and(eq(schema.user.username, username), ne(schema.user.id, userId)))
-			.limit(1)
-		if (taken) {
-			throw createError({
-				status: 409,
-				statusText: `Username @${username} sudah dipakai kreator lain`
-			})
-		}
+	if (!username) {
+		throw createError({
+			status: 400,
+			statusText: 'Username wajib diisi'
+		})
+	}
+
+	const [taken] = await db
+		.select({ id: schema.user.id })
+		.from(schema.user)
+		.where(and(eq(schema.user.username, username), ne(schema.user.id, userId)))
+		.limit(1)
+	if (taken) {
+		throw createError({
+			status: 409,
+			statusText: `Username @${username} sudah dipakai kreator lain`
+		})
 	}
 
 	const text = (value?: string | null) => value?.trim() || null
@@ -41,6 +46,20 @@ export default defineEventHandler(async (event) => {
 	if (body.websiteUrl !== undefined) changes.websiteUrl = text(body.websiteUrl)
 	if (body.designUrl !== undefined) changes.designUrl = text(body.designUrl)
 	if (body.linkedinUrl !== undefined) changes.linkedinUrl = text(body.linkedinUrl)
+	if (body.socialLinks !== undefined) {
+		const validList = Array.isArray(body.socialLinks)
+			? body.socialLinks.filter(item => item && typeof item === 'object' && item.url)
+			: []
+		changes.socialLinks = validList.length ? JSON.stringify(validList) : null
+		const linkedInItem = validList.find(item => item.platform === 'linkedin')
+		if (linkedInItem && body.linkedinUrl === undefined) {
+			changes.linkedinUrl = linkedInItem.url
+		}
+		const designItem = validList.find(item => item.platform === 'dribbble' || item.platform === 'behance')
+		if (designItem && body.designUrl === undefined) {
+			changes.designUrl = designItem.url
+		}
+	}
 
 	const [updatedUser] = await db.update(schema.user)
 		.set(changes)

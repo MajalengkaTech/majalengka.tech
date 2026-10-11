@@ -33,11 +33,27 @@ export const usernameSchema = z.string()
 
 const optionalUrl = (message: string) => z.string().url(message).or(z.literal('')).optional().nullable()
 
+const optionalUrlOrFilePath = (message: string) =>
+	z.string()
+		.trim()
+		.refine(val => !val || /^https?:\/\//i.test(val) || val.startsWith('/api/files/'), { message })
+		.or(z.literal(''))
+		.optional()
+		.nullable()
+
+export const socialLinkItemSchema = z.object({
+	platform: z.string().trim().max(30),
+	url: z.string().trim().url('URL tautan tidak valid'),
+	label: z.string().trim().max(50).optional()
+})
+
+export type SocialLinkItem = z.infer<typeof socialLinkItemSchema>
+
 export const profileInputSchema = z.object({
 	name: z.string().trim().min(2, 'Nama minimal 2 karakter').max(100, 'Nama maksimal 100 karakter'),
-	username: usernameSchema.or(z.literal('')).optional().nullable(),
+	username: usernameSchema,
 	bio: z.string().max(500, 'Bio maksimal 500 karakter').optional().nullable(),
-	avatarUrl: optionalUrl('URL avatar tidak valid'),
+	avatarUrl: optionalUrlOrFilePath('URL foto profil tidak valid'),
 	creatorRole: z.enum(creatorRoleValues).optional().nullable(),
 	location: z.string().max(80, 'Lokasi maksimal 80 karakter').optional().nullable(),
 	skills: z.string().max(200, 'Skill maksimal 200 karakter').optional().nullable(),
@@ -45,7 +61,8 @@ export const profileInputSchema = z.object({
 	githubUsername: z.string().max(50, 'Username GitHub maksimal 50 karakter').optional().nullable(),
 	websiteUrl: optionalUrl('URL website harus diawali https:// atau http://'),
 	designUrl: optionalUrl('URL Dribbble atau Behance tidak valid'),
-	linkedinUrl: optionalUrl('URL LinkedIn tidak valid')
+	linkedinUrl: optionalUrl('URL LinkedIn tidak valid'),
+	socialLinks: z.array(socialLinkItemSchema).max(20).optional().nullable()
 })
 
 export type ProfileInput = z.output<typeof profileInputSchema>

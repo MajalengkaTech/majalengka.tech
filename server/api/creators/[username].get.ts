@@ -3,6 +3,7 @@ import { db, schema } from 'hub:db'
 import { defineEventHandler, getRouterParam } from 'nuxt/server'
 import { projectListColumns, toProjectItem } from '../../utils/project-listing'
 import { creatorCardPath, getCreatorStats } from '../../utils/creator-stats'
+import { parseSocialLinks } from '../../utils/profile'
 
 export default defineEventHandler(async (event) => {
 	const username = getRouterParam(event, 'username', { decode: true })?.trim().toLowerCase().replace(/^@/, '')
@@ -28,6 +29,7 @@ export default defineEventHandler(async (event) => {
 			websiteUrl: schema.user.websiteUrl,
 			designUrl: schema.user.designUrl,
 			linkedinUrl: schema.user.linkedinUrl,
+			socialLinks: schema.user.socialLinks,
 			banned: schema.user.banned,
 			createdAt: schema.user.createdAt
 		})
@@ -58,6 +60,8 @@ export default defineEventHandler(async (event) => {
 	return {
 		creator: {
 			...profile,
+			name: profile.username ? `@${profile.username}` : (profile.name || 'Kreator Majalengka'),
+			socialLinks: parseSocialLinks(profile.socialLinks),
 			...stats
 		},
 		card: await readCardInfo(creator.id),

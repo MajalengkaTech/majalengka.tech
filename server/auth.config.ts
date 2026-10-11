@@ -54,6 +54,11 @@ export default defineServerAuth(({ runtimeConfig }) => ({
 				type: 'string',
 				required: false,
 				input: false
+			},
+			socialLinks: {
+				type: 'string',
+				required: false,
+				input: false
 			}
 		}
 	},

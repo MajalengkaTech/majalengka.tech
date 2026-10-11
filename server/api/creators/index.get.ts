@@ -43,6 +43,11 @@ export default defineEventHandler(async (event) => {
 		.limit(query.limit)
 
 	return {
-		creators: rows.map(row => ({ ...row, projectCount: Number(row.projectCount) || 0, openToWork: Boolean(row.openToWork) }))
+		creators: rows.map(row => ({
+			...row,
+			name: row.username ? `@${row.username}` : (row.name || 'Kreator'),
+			projectCount: Number(row.projectCount) || 0,
+			openToWork: Boolean(row.openToWork)
+		}))
 	}
 })

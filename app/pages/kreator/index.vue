@@ -37,13 +37,9 @@ function onImageError(username: string) {
 	failedImages.value[username] = true
 }
 
-function getInitial(name?: string, username?: string) {
-	const val = (name || username || '').trim()
+function getInitial(username?: string) {
+	const val = (username || '').replace(/^@/, '').trim()
 	if (!val) return '?'
-	const parts = val.split(/\s+/)
-	if (parts.length >= 2 && parts[0] && parts[1]) {
-		return `${parts[0][0]}${parts[1][0]}`.toUpperCase()
-	}
 	return val.slice(0, 2).toUpperCase()
 }
 
@@ -146,7 +142,7 @@ const vIntersectionObserver = {
 									v-if="creator.avatarUrl && !failedImages[creator.username]"
 									class="size-24 md:size-28 rounded-full ring-4 ring-muted transition-transform duration-300 group-hover:scale-110 object-cover bg-muted"
 									:src="creator.avatarUrl"
-									:alt="creator.name || creator.username"
+									:alt="'@' + creator.username"
 									loading="lazy"
 									@error="onImageError(creator.username)"
 								>
@@ -155,7 +151,7 @@ const vIntersectionObserver = {
 									v-else
 									class="size-24 md:size-28 rounded-full ring-4 ring-muted transition-transform duration-300 group-hover:scale-110 flex items-center justify-center bg-primary/10 text-primary font-bold text-xl md:text-2xl select-none"
 								>
-									{{ getInitial(creator.name, creator.username) }}
+									{{ getInitial(creator.username) }}
 								</div>
 							</NuxtLink>
 						</div>
@@ -166,12 +162,9 @@ const vIntersectionObserver = {
 								class="hover:underline"
 							>
 								<h3 class="font-bold text-lg text-highlighted truncate">
-									{{ creator.name || creator.username }}
+									@{{ creator.username }}
 								</h3>
 							</NuxtLink>
-							<p class="text-sm text-muted truncate">
-								@{{ creator.username }}
-							</p>
 							<div class="mt-2 flex flex-wrap items-center justify-center gap-1.5">
 								<UBadge
 									v-if="creator.creatorRole"
@@ -198,7 +191,7 @@ const vIntersectionObserver = {
 								v-if="creator.githubUsername"
 								:to="`https://github.com/${creator.githubUsername}`"
 								target="_blank"
-								icon="i-simple-icons-github"
+								icon="i-mage-github"
 								color="neutral"
 								variant="ghost"
 								size="sm"
@@ -208,7 +201,7 @@ const vIntersectionObserver = {
 								v-if="creator.linkedinUrl"
 								:to="creator.linkedinUrl"
 								target="_blank"
-								icon="i-simple-icons-linkedin"
+								icon="i-mage-linkedin"
 								color="neutral"
 								variant="ghost"
 								size="sm"
@@ -218,7 +211,7 @@ const vIntersectionObserver = {
 								v-if="creator.websiteUrl"
 								:to="creator.websiteUrl"
 								target="_blank"
-								icon="i-lucide-globe"
+								icon="i-mage-globe"
 								color="neutral"
 								variant="ghost"
 								size="sm"

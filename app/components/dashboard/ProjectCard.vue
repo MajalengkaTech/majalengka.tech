@@ -24,7 +24,7 @@ const quickLink = computed(() => {
 	const { demoUrl, repoUrl, author, title } = props.project
 	if (demoUrl) return { to: demoUrl, external: true, icon: 'i-lucide-arrow-up-right', label: `Buka demo ${title}` }
 	if (repoUrl) return { to: repoUrl, external: true, icon: 'i-lucide-arrow-up-right', label: `Lihat kode sumber ${title}` }
-	if (author?.username) return { to: `/${author.username}`, external: false, icon: 'i-lucide-arrow-right', label: `Lihat profil ${author.name}` }
+	if (author?.username) return { to: `/${author.username}`, external: false, icon: 'i-lucide-arrow-right', label: `Lihat profil @${author.username}` }
 	return null
 })
 
@@ -187,7 +187,7 @@ const actionItems = computed(() => [
 			>
 				<UAvatar
 					:src="project.author.avatarUrl || undefined"
-					:alt="project.author.name"
+					:alt="project.author.username ? `@${project.author.username}` : project.author.name"
 					size="3xs"
 					class="shrink-0 ring-1 ring-default/60"
 				/>
@@ -196,7 +196,7 @@ const actionItems = computed(() => [
 					:to="`/${project.author.username}`"
 					class="truncate rounded-sm text-xs text-muted outline-primary/25 transition-colors hover:text-primary focus-visible:outline-3"
 				>
-					{{ project.author.name }}
+					@{{ project.author.username }}
 				</NuxtLink>
 				<span
 					v-else

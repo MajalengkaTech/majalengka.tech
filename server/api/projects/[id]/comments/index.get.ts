@@ -32,7 +32,7 @@ export default defineEventHandler(async (event) => {
 			updatedAt: row.updatedAt,
 			author: {
 				id: row.authorId,
-				name: row.authorName || 'Kreator Majalengka',
+				name: row.authorUsername ? `@${row.authorUsername}` : (row.authorName || 'Kreator Majalengka'),
 				username: row.authorUsername,
 				avatarUrl: row.authorImage
 			}

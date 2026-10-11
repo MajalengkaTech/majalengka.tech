@@ -1,8 +1,23 @@
 import type { schema } from 'hub:db'
+import type { SocialLinkItem } from '~~/shared/utils/profile-schema'
 
 type UserRecord = typeof schema.user.$inferSelect
 
+export function parseSocialLinks(raw: string | null | undefined): SocialLinkItem[] {
+	if (!raw) return []
+	try {
+		const parsed = JSON.parse(raw)
+		if (Array.isArray(parsed)) {
+			return parsed.filter(item => item && typeof item === 'object' && item.url)
+		}
+	} catch {
+		return []
+	}
+	return []
+}
+
 export function toPrivateProfile(user: UserRecord) {
+	const userWithSocial = user as UserRecord & { socialLinks?: string | null }
 	return {
 		id: user.id,
 		name: user.name,
@@ -18,6 +33,7 @@ export function toPrivateProfile(user: UserRecord) {
 		websiteUrl: user.websiteUrl || null,
 		designUrl: user.designUrl || null,
 		linkedinUrl: user.linkedinUrl || null,
+		socialLinks: parseSocialLinks(userWithSocial.socialLinks),
 		role: user.role || 'user',
 		createdAt: user.createdAt
 	}

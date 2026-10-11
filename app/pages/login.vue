@@ -11,7 +11,7 @@ useSeoMeta({
 	description: 'Masuk untuk mengelola proyek dan profil kreatormu di Majalengka Tech.'
 })
 
-const { loggedIn } = useUserSession()
+const { loggedIn, user } = useUserSession()
 const authClient = useAuthClient()
 const toast = useToast()
 const loading = ref(false)
@@ -20,6 +20,11 @@ const route = useRoute()
 // Redirect jika sudah login
 watchEffect(() => {
 	if (loggedIn.value) {
+		const u = user.value as { username?: string | null } | null
+		if (!u?.username) {
+			navigateTo('/dashboard/settings?setup=username')
+			return
+		}
 		const destination = (route.query.redirect as string) || '/dashboard'
 		navigateTo(destination)
 	}

@@ -119,7 +119,7 @@ function nextContributors() {
 					}"
 				>
 					<UTooltip
-						:text="creator.name || `@${creator.username}`"
+						:text="'@' + creator.username"
 						class="w-full"
 					>
 						<NuxtImg
@@ -128,9 +128,9 @@ function nextContributors() {
 							height="80"
 							width="80"
 							format="auto"
-							:alt="creator.name || creator.username"
+							:alt="'@' + creator.username"
 							loading="lazy"
-							:title="creator.name || creator.username"
+							:title="'@' + creator.username"
 							class="rounded-xl w-full h-full object-cover transition lg:hover:scale-125 bg-muted"
 							@error="onImageError(creator.username)"
 						/>

@@ -10,7 +10,7 @@ defineProps<{
 	<!-- Kartu sengaja selalu gelap di kedua tema, supaya sama dengan gambar yang dibagikan. -->
 	<figure
 		class="overflow-hidden rounded-xl bg-[#000033] p-6 text-white sm:p-8"
-		:aria-label="`Kartu kreator ${data.name}`"
+		:aria-label="`Kartu kreator @${data.username}`"
 	>
 		<div class="flex items-center gap-2 text-sm font-semibold">
 			<img
@@ -25,17 +25,18 @@ defineProps<{
 			<div class="flex items-center gap-4 md:flex-col md:items-start">
 				<UAvatar
 					:src="data.avatarUrl || undefined"
-					:alt="data.name"
+					:alt="`@${data.username}`"
 					class="size-20 text-2xl ring-4 ring-[#00017B] md:size-28 md:text-4xl"
 				/>
 				<div class="min-w-0">
 					<p class="truncate text-2xl font-bold md:text-3xl">
-						{{ data.name }}
+						@{{ data.username }}
 					</p>
-					<p class="truncate text-[#99BAFE]">
-						@{{ data.username }}<template v-if="data.roleLabel">
-							· {{ data.roleLabel }}
-						</template>
+					<p
+						v-if="data.roleLabel"
+						class="truncate text-[#99BAFE]"
+					>
+						{{ data.roleLabel }}
 					</p>
 				</div>
 			</div>
