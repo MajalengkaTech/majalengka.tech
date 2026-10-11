@@ -354,7 +354,7 @@ defineOgImage('Saas', {
 			<template #links>
 				<div class="mt-6 flex flex-wrap items-center gap-3">
 					<UButton
-						to="/projek"
+						to="/kreator"
 						color="neutral"
 						size="lg"
 						icon="i-lucide-users"

@@ -5,7 +5,7 @@ import { defineEventHandler } from 'nuxt/server'
 
 const querySchema = z.object({
 	terbuka: z.enum(['true', '1']).optional(),
-	limit: z.coerce.number().int().min(1).max(48).default(12)
+	limit: z.coerce.number().int().min(1).max(100).default(24)
 })
 
 // Hanya kreator yang punya username dan minimal satu proyek terbit, urut dari yang terakhir menerbitkan.
@@ -26,6 +26,9 @@ export default defineEventHandler(async (event) => {
 			creatorRole: user.creatorRole,
 			location: user.location,
 			openToWork: user.openToWork,
+			githubUsername: user.githubUsername,
+			websiteUrl: user.websiteUrl,
+			linkedinUrl: user.linkedinUrl,
 			projectCount: projectCount.as('project_count'),
 			coverUrl: sql<string | null>`(select p.thumbnail_url from projects p where p.user_id = "user"."id" and p.is_published = 1 and p.thumbnail_url is not null order by p.created_at desc limit 1)`.as('cover_url')
 		})

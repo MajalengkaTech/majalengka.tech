@@ -5,6 +5,10 @@ export const navLinks: NavigationMenuItem[] = [{
 	icon: 'i-lucide-layout-grid',
 	to: '/projek'
 }, {
+	label: 'Kreator',
+	icon: 'i-lucide-users',
+	to: '/kreator'
+}, {
 	label: 'Tentang',
 	icon: 'i-lucide-info',
 	to: '/tentang'
