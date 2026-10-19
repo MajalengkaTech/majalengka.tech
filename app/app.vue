@@ -93,8 +93,10 @@ const { data: files } = useLazyAsyncData('search', () => queryCollectionSearchSe
 const { data: blogPosts } = useLazyAsyncData('search-posts', () => queryCollection('posts').all(), {
 	server: false
 })
+// Hanya dipakai palet pencarian di browser; tidak diambil saat render server supaya tiap halaman hemat CPU.
 const { data: projectsData, refresh: refreshSearchProjects } = useLazyFetch('/api/projects', {
-	key: 'search-projects'
+	key: 'search-projects',
+	server: false
 })
 
 // Daftar proyek diambil sekali saat situs dibuka, jadi proyek yang baru diunggah perlu diambil ulang saat pencarian dibuka.
