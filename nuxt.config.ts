@@ -61,8 +61,9 @@ export default defineNuxtConfig({
 		'/tentang': { swr: 3600 },
 		'/projek': { swr: 120 },
 		'/projek/**': { swr: 3600 },
+		// Jangan pasang swr/cache di route API yang punya handler POST atau butuh sesi: cache Nitro membungkus
+		// semua method di route itu dan membuang cookie, sehingga POST /api/projects pernah membalas hasil cache GET.
 		'/api/projects/stats': { swr: 120 },
-		'/api/projects': { swr: 60 },
 		'/api/files/**': { headers: { 'cache-control': 'public, max-age=31536000, immutable' } },
 		'/dashboard/**': { auth: 'user', prerender: false, ssr: false, robots: false, sitemap: false },
 		'/kelola/**': { auth: 'user', prerender: false, ssr: false, robots: false, sitemap: false },
