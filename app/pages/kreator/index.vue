@@ -11,6 +11,7 @@ interface Creator {
 	websiteUrl?: string | null
 	linkedinUrl?: string | null
 	projectCount: number
+	likeCount: number
 	coverUrl: string | null
 }
 
@@ -25,6 +26,12 @@ const { data: creatorData, status } = await useFetch<{ creators: Creator[] }>('/
 })
 
 const creators = computed(() => creatorData.value?.creators || [])
+
+// Kreator paling produktif: proyek terbit terbanyak; kalau seri, apresiasi terbanyak, lalu yang terakhir menerbitkan (urutan API).
+const topCreator = computed(() => [...creators.value]
+	.sort((a, b) => b.projectCount - a.projectCount || b.likeCount - a.likeCount)[0])
+
+const roleLabel = (role: string | null) => role ? CREATOR_ROLES[role as CreatorRole] || role : null
 
 // Load More Logic (Infinite Scroll)
 const ITEMS_PER_PAGE = 12
@@ -120,6 +127,75 @@ const vIntersectionObserver = {
 			:ui="{ container: '!pb-10 !pt-6 text-center' }"
 		/>
 
+		<section
+			v-if="topCreator"
+			aria-labelledby="kreator-teratas"
+			class="rounded-2xl border border-default bg-elevated/50 p-6 sm:p-8"
+		>
+			<div class="flex flex-col items-center gap-6 text-center sm:flex-row sm:text-left">
+				<component
+					:is="topCreator.username ? NuxtLink : 'div'"
+					:to="profileLink(topCreator)"
+					class="shrink-0"
+				>
+					<img
+						v-if="topCreator.avatarUrl && !failedImages[topCreator.id]"
+						:src="avatarSrc(topCreator.avatarUrl, 320)"
+						:alt="topCreator.name"
+						class="size-28 rounded-full bg-muted object-cover ring-4 ring-primary/30 sm:size-32"
+						@error="onImageError(topCreator.id)"
+					>
+					<div
+						v-else
+						class="flex size-28 select-none items-center justify-center rounded-full bg-primary/10 text-3xl font-bold text-primary ring-4 ring-primary/30 sm:size-32"
+					>
+						{{ getInitial(topCreator.name) }}
+					</div>
+				</component>
+
+				<div class="min-w-0 flex-1">
+					<UBadge
+						label="Kreator paling produktif"
+						icon="i-lucide-trophy"
+						color="primary"
+						variant="subtle"
+					/>
+					<h2
+						id="kreator-teratas"
+						class="mt-3 truncate text-2xl font-bold text-highlighted sm:text-3xl"
+					>
+						{{ topCreator.name }}
+					</h2>
+					<p
+						v-if="roleLabel(topCreator.creatorRole) || topCreator.location"
+						class="mt-1 text-muted"
+					>
+						{{ [roleLabel(topCreator.creatorRole), topCreator.location].filter(Boolean).join(' · ') }}
+					</p>
+					<div class="mt-4 flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm text-muted sm:justify-start">
+						<span><strong class="text-lg tabular-nums text-highlighted">{{ topCreator.projectCount }}</strong> proyek terbit</span>
+						<span><strong class="text-lg tabular-nums text-highlighted">{{ topCreator.likeCount }}</strong> apresiasi diterima</span>
+					</div>
+				</div>
+
+				<UButton
+					v-if="topCreator.username"
+					:to="profileLink(topCreator)"
+					label="Lihat Profil"
+					trailing-icon="i-lucide-arrow-right"
+					class="shrink-0"
+				/>
+				<UBadge
+					v-else
+					label="Belum punya username"
+					icon="i-lucide-user-x"
+					color="neutral"
+					variant="outline"
+					class="shrink-0"
+				/>
+			</div>
+		</section>
+
 		<!-- Grid Daftar Kreator -->
 		<div
 			v-if="displayedCreators.length"
@@ -135,7 +211,12 @@ const vIntersectionObserver = {
 				:style="{ transitionDelay: `${(index % 6) * 80}ms` }"
 			>
 				<UCard
-					class="flex flex-col h-full group hover:ring-2 hover:ring-primary/50 transition-shadow dark:hover:shadow-primary/10 hover:shadow-xl"
+					class="flex flex-col h-full transition-shadow"
+					:class="creator.username
+						? 'group hover:ring-2 hover:ring-primary/50 dark:hover:shadow-primary/10 hover:shadow-xl'
+						: 'opacity-70'"
+					:aria-disabled="creator.username ? undefined : 'true'"
+					:title="creator.username ? undefined : 'Kreator ini belum punya username, jadi profilnya belum bisa dibuka'"
 					:ui="{ body: 'flex-1 flex flex-col', footer: 'mt-auto' }"
 				>
 					<div class="flex flex-col items-center gap-4 text-center">
@@ -176,11 +257,10 @@ const vIntersectionObserver = {
 							<div class="mt-2 flex flex-wrap items-center justify-center gap-1.5">
 								<UBadge
 									v-if="creator.creatorRole"
-									:label="creator.creatorRole"
+									:label="roleLabel(creator.creatorRole)!"
 									size="xs"
 									color="neutral"
 									variant="subtle"
-									class="capitalize"
 								/>
 								<UBadge
 									v-if="creator.projectCount"
@@ -194,7 +274,20 @@ const vIntersectionObserver = {
 					</div>
 
 					<template #footer>
-						<div class="flex justify-center items-center gap-1">
+						<p
+							v-if="!creator.username"
+							class="flex items-center justify-center gap-1.5 text-xs text-muted"
+						>
+							<UIcon
+								name="i-lucide-user-x"
+								class="size-4"
+							/>
+							Belum punya username
+						</p>
+						<div
+							v-else
+							class="flex justify-center items-center gap-1"
+						>
 							<UButton
 								v-if="creator.githubUsername"
 								:to="`https://github.com/${creator.githubUsername}`"
