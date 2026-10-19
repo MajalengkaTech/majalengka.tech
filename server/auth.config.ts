@@ -1,5 +1,6 @@
 import { defineServerAuth } from '@nuxtjs/better-auth/config'
 import { admin } from 'better-auth/plugins'
+import { hashUserPassword, verifyUserPassword } from './lib/password'
 
 export default defineServerAuth(({ runtimeConfig }) => ({
 	trustedOrigins: ['http://localhost:3000', 'https://majalengka.tech'],
@@ -63,7 +64,11 @@ export default defineServerAuth(({ runtimeConfig }) => ({
 		}
 	},
 	emailAndPassword: {
-		enabled: true
+		enabled: true,
+		password: {
+			hash: hashUserPassword,
+			verify: verifyUserPassword
+		}
 	},
 	socialProviders: {
 		github: {

@@ -1,14 +1,21 @@
 <script setup lang="ts">
 const { user, signOut } = useUserSession()
 const colorMode = useColorMode()
+const toast = useToast()
 
 defineProps<{
 	collapsed?: boolean
 }>()
 
+// Selalu kembali ke beranda, juga saat request logout gagal; replace supaya tombol Back tidak membuka dashboard lagi.
 async function handleLogout() {
-	await signOut()
-	await navigateTo('/login')
+	try {
+		await signOut()
+	} catch {
+		toast.add({ title: 'Gagal keluar', description: 'Sesi belum terhapus. Coba keluar lagi sebentar.', color: 'error' })
+	} finally {
+		await navigateTo('/', { replace: true })
+	}
 }
 
 function toggleColorMode() {

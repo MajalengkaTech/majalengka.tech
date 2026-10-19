@@ -162,13 +162,17 @@ defineOgImage('Saas', {
 				<span>{{ heroTitle.after.join(' ') }}</span>
 			</template>
 
-			<template
-				v-if="stats.totalProjects > 0"
-				#headline
-			>
-				<span class="text-sm font-medium text-muted">
-					{{ stats.totalProjects }} proyek dari {{ stats.totalCreators }} kreator
-				</span>
+			<template #headline>
+				<NuxtLink
+					to="/tentang"
+					class="inline-flex items-center gap-1.5 rounded-full border border-default px-3 py-1 text-sm font-medium text-muted transition-colors hover:text-highlighted"
+				>
+					<UIcon
+						name="i-lucide-sparkles"
+						class="size-4 text-primary"
+					/>
+					Gratis untuk kreator Majalengka, kodenya terbuka
+				</NuxtLink>
 			</template>
 
 			<div
