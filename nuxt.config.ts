@@ -1,4 +1,22 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
+import { existsSync, readdirSync } from 'node:fs'
+import { join, relative } from 'node:path'
+
+// Halaman panduan dan blog di-prerender jadi file statis (tanpa CPU Worker). crawlLinks dimatikan,
+// jadi rutenya dibaca dari folder content: awalan angka ("1.docs") dibuang dan index.md jadi rute induknya.
+function contentRoutes(folder: string) {
+	const root = join('content', folder)
+	if (!existsSync(root)) return []
+	const files = readdirSync(root, { recursive: true, withFileTypes: true })
+		.filter(entry => entry.isFile() && entry.name.endsWith('.md'))
+		.map(entry => relative('content', join(entry.parentPath, entry.name)))
+	return files.map((file) => {
+		const path = file.replaceAll('\\', '/').replace(/\.md$/, '').split('/').map(part => part.replace(/^\d+\./, ''))
+		if (path.at(-1) === 'index') path.pop()
+		return `/${path.join('/')}`
+	})
+}
+
 export default defineNuxtConfig({
 	modules: [
 		'@nuxt/eslint',
@@ -54,13 +72,13 @@ export default defineNuxtConfig({
 	},
 
 	routeRules: {
-		'/': { swr: 60 },
+		// Halaman publik dinamis (/, /projek, /kreator, /tentang, profil) di-cache di edge oleh server/middleware/edge-cache.ts.
+		// Aturan swr lama dihapus: cache memorinya per isolate jarang kena, dan revalidasinya ikut memakan CPU request.
 		'/docs': { redirect: '/docs/getting-started', prerender: false },
-		'/docs/**': { swr: 3600 },
-		'/blog/**': { swr: 3600 },
-		'/tentang': { swr: 3600 },
-		'/projek': { swr: 120 },
-		'/projek/**': { swr: 3600 },
+		'/docs/**': { prerender: true },
+		'/blog': { prerender: true },
+		'/blog/**': { prerender: true },
+		'/changelog': { prerender: true },
 		// Jangan pasang swr/cache di route API yang punya handler POST atau butuh sesi: cache Nitro membungkus
 		// semua method di route itu dan membuang cookie, sehingga POST /api/projects pernah membalas hasil cache GET.
 		'/api/projects/stats': { swr: 120 },
@@ -127,7 +145,11 @@ export default defineNuxtConfig({
 		prerender: {
 			routes: [
 				'/llms.txt',
-				'/llms-full.txt'
+				'/llms-full.txt',
+				'/blog',
+				'/changelog',
+				...contentRoutes('1.docs'),
+				...contentRoutes('3.blog')
 			],
 			crawlLinks: false,
 			ignore: [
