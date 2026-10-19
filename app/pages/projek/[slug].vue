@@ -35,7 +35,7 @@ const images = computed(() => {
 
 const tags = computed(() => splitTags(project.value.tags))
 const category = computed(() => categoryLabel(project.value.category))
-const storyParagraphs = computed(() => project.value.description.split(/\n{2,}/).map(p => p.trim()).filter(Boolean))
+const storyHtml = computed(() => renderStory(project.value.description))
 
 const links = computed(() => [
 	project.value.demoUrl && { label: 'Coba Demo', icon: 'i-lucide-external-link', to: project.value.demoUrl, color: 'primary' as const, variant: 'solid' as const },
@@ -88,7 +88,7 @@ const breadcrumb = computed(() => [
 	{ label: project.value.title }
 ])
 
-const seoDescription = computed(() => project.value.tagline || project.value.description.slice(0, 155))
+const seoDescription = computed(() => project.value.tagline || storyPlainText(project.value.description))
 // Gambar pratinjau link memakai sampul proyek; OG image runtime tidak dipakai karena batas CPU Workers Free.
 const coverUrl = images.value[0]?.url
 const ogImage = coverUrl ? (coverUrl.startsWith('/') ? useRequestURL().origin + coverUrl : coverUrl) : undefined
@@ -252,15 +252,13 @@ useReveal(useTemplateRef<HTMLElement>('others'))
 					>
 						Cerita di balik proyek
 					</h2>
-					<div class="flex max-w-prose flex-col gap-4 text-base/7 text-default">
-						<p
-							v-for="(paragraph, index) in storyParagraphs"
-							:key="index"
-							class="whitespace-pre-line break-words"
-						>
-							{{ paragraph }}
-						</p>
-					</div>
+					<!-- Aman untuk v-html: renderStory meng-escape semua HTML mentah dan hanya mengizinkan link http(s)/mailto. -->
+					<!-- eslint-disable vue/no-v-html -->
+					<div
+						class="story-content max-w-prose break-words text-base/7 text-default"
+						v-html="storyHtml"
+					/>
+					<!-- eslint-enable vue/no-v-html -->
 				</section>
 
 				<dl

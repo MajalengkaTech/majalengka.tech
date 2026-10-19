@@ -153,7 +153,7 @@ const searchGroups = computed<SearchGroup[]>(() => {
 			items: projects.map(p => ({
 				id: `project-${p.id}`,
 				label: p.title,
-				description: p.tagline || p.description,
+				description: p.tagline || storyPlainText(p.description, 120),
 				icon: 'i-lucide-folder-git-2',
 				to: `/projek/${p.slug}`,
 				suffix: p.tags?.split(',')[0]?.trim() || p.author?.name || 'Proyek'
