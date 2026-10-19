@@ -24,8 +24,11 @@ export function edgeCache() {
 	return (globalThis as { caches?: { default?: EdgeCache } }).caches?.default
 }
 
+// ID build ikut di kunci: setelah deploy, HTML lama (yang menautkan CSS/JS build lama, sudah 404) tidak disajikan lagi.
 export function edgeCacheKey(event: H3Event) {
-	return new Request(getRequestURL(event).toString(), { method: 'GET' })
+	const url = getRequestURL(event)
+	url.searchParams.set('__build', String(useRuntimeConfig().app.buildId || 'dev'))
+	return new Request(url.toString(), { method: 'GET' })
 }
 
 // Detik simpan untuk request ini, atau null kalau tidak boleh di-cache.
