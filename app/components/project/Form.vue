@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { FormSubmitEvent } from '@nuxt/ui'
+import type { FileUploadItem, FormSubmitEvent } from '@nuxt/ui'
 import type { ProjectImage, ProjectItem } from '~/types/project'
 
 type EditableProject = ProjectItem & { images?: ProjectImage[] }
@@ -62,14 +62,15 @@ function validateCategory(value: { category?: string | null }) {
 const categoryItems = Object.entries(PROJECT_CATEGORIES).map(([value, label]) => ({ value, label }))
 
 // UFileUpload hanya dipakai untuk memilih atau menarik file; gambar langsung diunggah dan ditampilkan di pratinjau sendiri.
-async function onCoverSelected(file: File | null | undefined) {
-	if (!file) return
+// Sejak Nuxt UI 4.12 v-model UFileUpload bisa berisi item non-File; hanya File asli yang bisa diunggah.
+async function onCoverSelected(file: File | FileUploadItem | null | undefined) {
+	if (!(file instanceof File)) return
 	const url = await uploadImage(file)
 	if (url) state.thumbnailUrl = url
 }
 
-async function onGallerySelected(files: File[] | null | undefined) {
-	const list = (files || []).slice(0, MAX_GALLERY - gallery.value.length)
+async function onGallerySelected(files: (File | FileUploadItem)[] | null | undefined) {
+	const list = (files || []).filter((file): file is File => file instanceof File).slice(0, MAX_GALLERY - gallery.value.length)
 	for (const file of list) {
 		const url = await uploadImage(file)
 		if (url) gallery.value.push({ url, alt: '' })
