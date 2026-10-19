@@ -154,6 +154,11 @@ async function onSubmit(event: FormSubmitEvent<ProjectInput>) {
 			? await $fetch<{ project: { id: number, slug: string, isPublished: boolean } }>(`/api/projects/${props.project!.id}`, { method: 'PUT', body })
 			: await $fetch<{ project: { id: number, slug: string, isPublished: boolean } }>('/api/projects', { method: 'POST', body })
 
+		// Respons tanpa data proyek berarti server tidak menyimpan apa pun; jangan sampai terbaca sebagai isian yang salah.
+		if (!res?.project?.id) {
+			throw { data: { statusMessage: 'Server tidak mengembalikan data proyek. Coba simpan lagi sebentar.' } }
+		}
+
 		await $fetch(`/api/projects/${res.project.id}/images`, {
 			method: 'PUT',
 			body: { images: gallery.value.map(image => ({ url: image.url, alt: image.alt || null })) }
