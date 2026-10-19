@@ -151,6 +151,9 @@ export default defineNuxtConfig({
 		}
 	},
 
+	// Nuxt SEO v6 ikut memasang AI Ready, padahal llms.txt sudah dibuat nuxt-llms.
+	aiReady: false,
+
 	eslint: {
 		config: {
 			stylistic: {
@@ -258,5 +261,8 @@ export default defineNuxtConfig({
 			'/kelola/**',
 			'/api/**'
 		]
-	}
+	},
+
+	// Nuxt SEO v6 ikut memasang Skew Protection; belum dikonfigurasi untuk Cloudflare, jadi dimatikan dulu.
+	skewProtection: false
 })
