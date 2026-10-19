@@ -2,7 +2,7 @@
 export interface CreatorItem {
 	id?: string
 	name?: string
-	username: string
+	username: string | null
 	avatarUrl?: string | null
 }
 
@@ -19,8 +19,13 @@ const containerRef = useTemplateRef<HTMLElement>('container')
 let _creators: CreatorItem[] = []
 let currentTimeout: ReturnType<typeof setTimeout> | null = null
 
-function onImageError(username: string) {
-	failedImages.value[username] = true
+// Pengguna tanpa username belum punya halaman profil, jadi avatarnya tidak ditautkan.
+const NuxtLink = resolveComponent('NuxtLink')
+const creatorKey = (creator: CreatorItem) => creator.id || creator.username || ''
+const creatorLabel = (creator: CreatorItem) => creator.username ? `@${creator.username}` : (creator.name || 'Kreator')
+
+function onImageError(key: string) {
+	failedImages.value[key] = true
 }
 
 useIntersectionObserver(containerRef, ([entry]) => {
@@ -46,7 +51,7 @@ onMounted(async () => {
 	if (creatorsList.value.length) return
 
 	try {
-		const res = await $fetch<{ creators: CreatorItem[] }>('/api/creators', { query: { limit: total * 10 } })
+		const res = await $fetch<{ creators: CreatorItem[] }>('/api/creators', { query: { limit: 100 } })
 		if (res?.creators?.length) {
 			_creators = res.creators
 			if (intersecting.value) {
@@ -109,30 +114,31 @@ function nextContributors() {
 				name="avatar"
 				mode="out-in"
 			>
-				<NuxtLink
+				<component
+					:is="creator.username ? NuxtLink : 'div'"
 					v-if="creator"
-					:key="creator.username"
-					:to="`/${creator.username}`"
+					:key="creatorKey(creator)"
+					:to="creator.username ? `/${creator.username}` : undefined"
 					class="absolute inset-0 flex transition-all hover:z-20"
 					:style="{
 						transitionDelay: `${((index % 8) + Math.floor(index / 8)) * 20}ms`
 					}"
 				>
 					<UTooltip
-						:text="'@' + creator.username"
+						:text="creatorLabel(creator)"
 						class="w-full"
 					>
 						<NuxtImg
-							v-if="creator.avatarUrl && !failedImages[creator.username]"
+							v-if="creator.avatarUrl && !failedImages[creatorKey(creator)]"
 							:src="creator.avatarUrl"
 							height="80"
 							width="80"
 							format="auto"
-							:alt="'@' + creator.username"
+							:alt="creatorLabel(creator)"
 							loading="lazy"
-							:title="'@' + creator.username"
+							:title="creatorLabel(creator)"
 							class="rounded-xl w-full h-full object-cover transition lg:hover:scale-125 bg-muted"
-							@error="onImageError(creator.username)"
+							@error="onImageError(creatorKey(creator))"
 						/>
 						<!-- Fallback default icon user jika foto kosong atau gagal dimuat -->
 						<div
@@ -145,7 +151,7 @@ function nextContributors() {
 							/>
 						</div>
 					</UTooltip>
-				</NuxtLink>
+				</component>
 			</Transition>
 		</div>
 	</div>

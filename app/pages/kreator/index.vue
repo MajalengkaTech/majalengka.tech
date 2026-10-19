@@ -2,7 +2,7 @@
 interface Creator {
 	id: string
 	name: string
-	username: string
+	username: string | null
 	avatarUrl: string | null
 	creatorRole: string | null
 	location: string | null
@@ -33,12 +33,16 @@ const displayedCreators = ref<Creator[]>([])
 const isLoading = ref(false)
 const failedImages = ref<Record<string, boolean>>({})
 
-function onImageError(username: string) {
-	failedImages.value[username] = true
+// Pengguna tanpa username belum punya halaman profil, jadi kartunya tidak ditautkan.
+const NuxtLink = resolveComponent('NuxtLink')
+const profileLink = (creator: Creator) => creator.username ? `/${creator.username}` : undefined
+
+function onImageError(id: string) {
+	failedImages.value[id] = true
 }
 
-function getInitial(username?: string) {
-	const val = (username || '').replace(/^@/, '').trim()
+function getInitial(name?: string) {
+	const val = (name || '').replace(/^@/, '').trim()
 	if (!val) return '?'
 	return val.slice(0, 2).toUpperCase()
 }
@@ -123,7 +127,7 @@ const vIntersectionObserver = {
 		>
 			<div
 				v-for="(creator, index) in displayedCreators"
-				:key="creator.username"
+				:key="creator.id"
 				v-intersection-observer
 				:data-id="'creator-' + index"
 				class="transition-all duration-700 ease-out h-full"
@@ -136,35 +140,39 @@ const vIntersectionObserver = {
 				>
 					<div class="flex flex-col items-center gap-4 text-center">
 						<div class="relative pt-4">
-							<NuxtLink :to="`/${creator.username}`">
+							<component
+								:is="creator.username ? NuxtLink : 'div'"
+								:to="profileLink(creator)"
+							>
 								<!-- Jika ada gambar dan tidak error, tampilkan foto -->
 								<img
-									v-if="creator.avatarUrl && !failedImages[creator.username]"
+									v-if="creator.avatarUrl && !failedImages[creator.id]"
 									class="size-24 md:size-28 rounded-full ring-4 ring-muted transition-transform duration-300 group-hover:scale-110 object-cover bg-muted"
 									:src="creator.avatarUrl"
-									:alt="'@' + creator.username"
+									:alt="creator.name"
 									loading="lazy"
-									@error="onImageError(creator.username)"
+									@error="onImageError(creator.id)"
 								>
 								<!-- Fallback: Gunakan Inisial jika foto kosong atau gagal load -->
 								<div
 									v-else
 									class="size-24 md:size-28 rounded-full ring-4 ring-muted transition-transform duration-300 group-hover:scale-110 flex items-center justify-center bg-primary/10 text-primary font-bold text-xl md:text-2xl select-none"
 								>
-									{{ getInitial(creator.username) }}
+									{{ getInitial(creator.name) }}
 								</div>
-							</NuxtLink>
+							</component>
 						</div>
 
 						<div class="min-w-0 w-full px-2">
-							<NuxtLink
-								:to="`/${creator.username}`"
-								class="hover:underline"
+							<component
+								:is="creator.username ? NuxtLink : 'div'"
+								:to="profileLink(creator)"
+								:class="{ 'hover:underline': creator.username }"
 							>
 								<h3 class="font-bold text-lg text-highlighted truncate">
-									@{{ creator.username }}
+									{{ creator.name }}
 								</h3>
-							</NuxtLink>
+							</component>
 							<div class="mt-2 flex flex-wrap items-center justify-center gap-1.5">
 								<UBadge
 									v-if="creator.creatorRole"
@@ -218,7 +226,8 @@ const vIntersectionObserver = {
 								aria-label="Website"
 							/>
 							<UButton
-								:to="`/${creator.username}`"
+								v-if="creator.username"
+								:to="profileLink(creator)"
 								icon="i-lucide-arrow-right"
 								color="neutral"
 								variant="ghost"

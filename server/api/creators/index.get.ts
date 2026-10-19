@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { and, desc, eq, isNotNull, sql } from 'drizzle-orm'
+import { and, desc, eq, sql } from 'drizzle-orm'
 import { db, schema } from 'hub:db'
 import { defineEventHandler } from 'nuxt/server'
 
@@ -8,7 +8,8 @@ const querySchema = z.object({
 	limit: z.coerce.number().int().min(1).max(100).default(24)
 })
 
-// Hanya kreator yang punya username dan minimal satu proyek terbit, urut dari yang terakhir menerbitkan.
+// Semua pengguna yang tidak diblokir. Yang punya proyek terbit tampil lebih dulu (urut dari yang terakhir menerbitkan),
+// sisanya urut dari yang terakhir mendaftar. Pengguna tanpa username tetap tampil, tapi belum punya halaman profil.
 export default defineEventHandler(async (event) => {
 	const query = await getQueryWith(event, querySchema)
 	const { user } = schema
@@ -34,12 +35,11 @@ export default defineEventHandler(async (event) => {
 		})
 		.from(user)
 		.where(and(
-			isNotNull(user.username),
 			sql`coalesce(${user.banned}, 0) = 0`,
-			sql`${projectCount} > 0`,
 			query.terbuka ? eq(user.openToWork, true) : undefined
 		))
-		.orderBy(desc(lastPublished))
+		// SQLite menaruh NULL di akhir pada urutan DESC, jadi pengguna tanpa proyek terbit otomatis di belakang.
+		.orderBy(desc(lastPublished), desc(user.createdAt))
 		.limit(query.limit)
 
 	return {
