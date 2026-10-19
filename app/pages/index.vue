@@ -4,7 +4,7 @@ import type { ProjectItem } from '~/types/project'
 interface CreatorSummary {
 	id: string
 	name: string
-	username: string
+	username: string | null
 	avatarUrl: string | null
 	creatorRole: string | null
 	location: string | null
