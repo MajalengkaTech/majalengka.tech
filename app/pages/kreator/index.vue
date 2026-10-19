@@ -148,7 +148,7 @@ const vIntersectionObserver = {
 								<img
 									v-if="creator.avatarUrl && !failedImages[creator.id]"
 									class="size-24 md:size-28 rounded-full ring-4 ring-muted transition-transform duration-300 group-hover:scale-110 object-cover bg-muted"
-									:src="creator.avatarUrl"
+									:src="avatarSrc(creator.avatarUrl)"
 									:alt="creator.name"
 									loading="lazy"
 									@error="onImageError(creator.id)"

@@ -151,7 +151,7 @@ watch(profileCompletion, (value) => {
 				<div class="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
 					<div class="flex items-center gap-4">
 						<UAvatar
-							:src="profileData?.user?.avatarUrl || (user as { image?: string })?.image || undefined"
+							:src="avatarSrc(profileData?.user?.avatarUrl || (user as { image?: string })?.image)"
 							:alt="user?.name || 'Kreator'"
 							size="3xl"
 							class="ring-2 ring-primary/40 shadow-md"

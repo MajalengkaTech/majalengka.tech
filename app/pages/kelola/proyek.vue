@@ -180,7 +180,7 @@ async function deleteProject() {
 						<div class="aspect-video w-24 shrink-0 overflow-hidden rounded-sm bg-elevated">
 							<NuxtImg
 								v-if="project.thumbnailUrl"
-								:src="project.thumbnailUrl"
+								:src="fileSrc(project.thumbnailUrl)"
 								alt=""
 								class="size-full object-cover"
 								sizes="80px"

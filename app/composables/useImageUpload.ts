@@ -18,7 +18,7 @@ export function useImageUpload(projectId?: MaybeRefOrGetter<number | undefined>)
 		}
 
 		const formData = new FormData()
-		formData.append('file', file)
+		formData.append('file', file, safeUploadName(file.name))
 		uploading.value++
 		try {
 			const id = toValue(projectId)

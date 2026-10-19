@@ -140,7 +140,7 @@ useReveal(useTemplateRef<HTMLElement>('works'))
 		<header class="grid gap-8 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
 			<div class="flex flex-col gap-5 sm:flex-row sm:items-center sm:gap-6">
 				<UAvatar
-					:src="creator.avatarUrl || undefined"
+					:src="avatarSrc(creator.avatarUrl)"
 					:alt="`@${creator.username}`"
 					class="size-24 text-3xl sm:size-28"
 				/>

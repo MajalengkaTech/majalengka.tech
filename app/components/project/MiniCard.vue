@@ -14,7 +14,7 @@ defineProps<{
 		<div class="aspect-video overflow-hidden rounded-md border border-default bg-elevated">
 			<NuxtImg
 				v-if="project.thumbnailUrl"
-				:src="project.thumbnailUrl"
+				:src="fileSrc(project.thumbnailUrl)"
 				:alt="project.title"
 				class="size-full object-cover transition-transform duration-300 group-hover:scale-[1.03] motion-reduce:transition-none"
 				sizes="320px sm:33vw lg:280px"

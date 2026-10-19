@@ -76,7 +76,7 @@ useReveal(useTemplateRef<HTMLElement>('about'))
 					class="group relative block aspect-4/3 overflow-hidden rounded-lg bg-elevated outline-primary/40 outline-offset-2 focus-visible:outline-3"
 				>
 					<NuxtImg
-						:src="project.thumbnailUrl!"
+						:src="fileSrc(project.thumbnailUrl!)"
 						alt=""
 						class="absolute inset-0 size-full object-cover transition-transform duration-500 group-hover:scale-[1.03] motion-reduce:transition-none"
 						sizes="320px"

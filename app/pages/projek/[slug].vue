@@ -156,7 +156,7 @@ useReveal(useTemplateRef<HTMLElement>('others'))
 			<div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
 				<div class="flex items-center gap-3">
 					<UAvatar
-						:src="project.author.avatarUrl || undefined"
+						:src="avatarSrc(project.author.avatarUrl, 128)"
 						:alt="project.author.username ? `@${project.author.username}` : project.author.name"
 						size="md"
 					/>
