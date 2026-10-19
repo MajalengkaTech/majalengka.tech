@@ -42,13 +42,15 @@
 
 /*
  * Pengaman gerak: lebar halaman tidak bergeser saat scrollbar muncul atau hilang (misalnya di jeda transisi out-in),
- * dan elemen yang sesaat membesar lewat efek pegas tidak memunculkan scroll horizontal. clip tidak membuat wadah scroll baru, jadi header sticky tetap bekerja.
+ * dan elemen yang sesaat membesar lewat efek pegas tidak memunculkan scroll horizontal.
+ * overflow-x sengaja hanya di body: selama overflow html tetap visible, overflow body diteruskan ke viewport. Kunci scroll
+ * menu, modal, dan pencarian (body overflow: hidden) jadi mengunci viewport. Kalau html ikut di-clip, body sendiri yang
+ * berubah jadi wadah scroll, header sticky terlempar ke atas halaman, dan menu avatar baru terlihat setelah scroll ke atas.
  */
 @layer base {
 	html {
 		scrollbar-gutter: stable;
 		max-width: 100%;
-		overflow-x: clip;
 	}
 
 	body {
