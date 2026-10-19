@@ -115,7 +115,7 @@ onKeyStroke('ArrowRight', (e) => {
 			<NuxtImg
 				ref="mainImage"
 				:key="activeImage.url"
-				:src="activeImage.url"
+				:src="fileSrc(activeImage.url)"
 				:alt="activeImage.alt || `Tampilan ${title}`"
 				class="aspect-video w-full object-contain cursor-zoom-in transition-transform duration-300 group-hover:scale-[1.01]"
 				sizes="640px sm:768px md:960px lg:1024px"
@@ -194,7 +194,7 @@ onKeyStroke('ArrowRight', (e) => {
 				@click="show(index)"
 			>
 				<NuxtImg
-					:src="image.url"
+					:src="fileSrc(image.url)"
 					alt=""
 					class="size-full object-cover"
 					sizes="112px"
@@ -255,7 +255,7 @@ onKeyStroke('ArrowRight', (e) => {
 						@click.stop
 					>
 						<img
-							:src="activeImage.url"
+							:src="fileSrc(activeImage.url)"
 							:alt="activeImage.alt || title"
 							class="max-h-[85vh] max-w-[95vw] rounded-md object-contain transition-transform duration-300 select-none shadow-2xl"
 							:class="isZoomedIn ? 'scale-150 cursor-zoom-out' : 'scale-100 cursor-zoom-in'"

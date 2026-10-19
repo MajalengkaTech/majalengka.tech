@@ -293,7 +293,7 @@ async function onSubmit(event: FormSubmitEvent<ProjectInput>) {
 								class="relative aspect-video w-full max-w-md overflow-hidden rounded-md border border-default bg-elevated"
 							>
 								<NuxtImg
-									:src="state.thumbnailUrl"
+									:src="fileSrc(state.thumbnailUrl)"
 									alt="Pratinjau gambar sampul"
 									class="size-full object-cover"
 									sizes="448px"
@@ -354,7 +354,7 @@ async function onSubmit(event: FormSubmitEvent<ProjectInput>) {
 								class="flex flex-col gap-3 rounded-md border border-default p-3 sm:flex-row sm:items-center"
 							>
 								<NuxtImg
-									:src="image.url"
+									:src="fileSrc(image.url)"
 									:alt="image.alt || `Gambar galeri ${index + 1}`"
 									class="aspect-video w-full rounded-sm object-cover sm:w-32"
 									sizes="128px"

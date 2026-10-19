@@ -182,7 +182,7 @@ defineOgImage('Saas', {
 					:aria-label="`${project.title} oleh ${project.author?.name}`"
 				>
 					<NuxtImg
-						:src="project.thumbnailUrl!"
+						:src="fileSrc(project.thumbnailUrl!)"
 						alt=""
 						class="absolute inset-0 size-full object-cover transition-transform duration-500 group-hover:scale-[1.03] motion-reduce:transition-none"
 						sizes="320px"
@@ -298,7 +298,7 @@ defineOgImage('Saas', {
 						/>
 					</template>
 					<NuxtImg
-						:src="item.thumbnailUrl || '/og-default.png'"
+						:src="fileSrc(item.thumbnailUrl) || '/og-default.png'"
 						:alt="item.title"
 						width="646"
 						height="363"

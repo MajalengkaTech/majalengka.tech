@@ -130,7 +130,7 @@ function nextContributors() {
 					>
 						<NuxtImg
 							v-if="creator.avatarUrl && !failedImages[creatorKey(creator)]"
-							:src="creator.avatarUrl"
+							:src="avatarSrc(creator.avatarUrl, 160)"
 							height="80"
 							width="80"
 							format="auto"

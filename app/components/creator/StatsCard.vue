@@ -24,7 +24,7 @@ defineProps<{
 		<div class="mt-6 grid grid-cols-1 gap-6 md:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)] md:items-center">
 			<div class="flex items-center gap-4 md:flex-col md:items-start">
 				<UAvatar
-					:src="data.avatarUrl || undefined"
+					:src="avatarSrc(data.avatarUrl)"
 					:alt="`@${data.username}`"
 					class="size-20 text-2xl ring-4 ring-[#00017B] md:size-28 md:text-4xl"
 				/>

@@ -57,7 +57,7 @@ const links = computed(() => {
 	>
 		<div class="flex items-center gap-3">
 			<UAvatar
-				:src="author.avatarUrl || undefined"
+				:src="avatarSrc(author.avatarUrl)"
 				:alt="author.username ? `@${author.username}` : author.name"
 				size="xl"
 			/>

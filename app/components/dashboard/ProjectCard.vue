@@ -63,7 +63,7 @@ const actionItems = computed(() => [
 			>
 				<NuxtImg
 					v-if="project.thumbnailUrl"
-					:src="project.thumbnailUrl"
+					:src="fileSrc(project.thumbnailUrl)"
 					alt=""
 					class="absolute inset-0 size-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.04] motion-reduce:transition-none"
 					loading="lazy"
