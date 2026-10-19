@@ -5,6 +5,7 @@ const route = useRoute()
 const navigation = inject<Ref<ContentNavigationItem[]>>('navigation')
 const { open: searchOpen } = useContentSearch()
 const { loggedIn, user, signOut } = useUserSession()
+const toast = useToast()
 
 const open = ref(false)
 const isDocs = computed(() => route.path === '/docs' || route.path.startsWith('/docs/'))
@@ -15,9 +16,15 @@ watch(searchOpen, (value) => {
 	}
 })
 
+// Selalu kembali ke beranda, juga saat request logout gagal; replace supaya tombol Back tidak membuka dashboard lagi.
 async function handleLogout() {
-	await signOut()
-	await navigateTo('/')
+	try {
+		await signOut()
+	} catch {
+		toast.add({ title: 'Gagal keluar', description: 'Sesi belum terhapus. Coba keluar lagi sebentar.', color: 'error' })
+	} finally {
+		await navigateTo('/', { replace: true })
+	}
 }
 
 const userMenuItems = computed(() => [

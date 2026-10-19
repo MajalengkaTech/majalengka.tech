@@ -65,7 +65,9 @@ export default defineNuxtConfig({
 		// semua method di route itu dan membuang cookie, sehingga POST /api/projects pernah membalas hasil cache GET.
 		'/api/projects/stats': { swr: 120 },
 		'/api/files/**': { headers: { 'cache-control': 'public, max-age=31536000, immutable' } },
+		'/dashboard': { auth: 'user', prerender: false, ssr: false, robots: false, sitemap: false },
 		'/dashboard/**': { auth: 'user', prerender: false, ssr: false, robots: false, sitemap: false },
+		'/kelola': { auth: 'user', prerender: false, ssr: false, robots: false, sitemap: false },
 		'/kelola/**': { auth: 'user', prerender: false, ssr: false, robots: false, sitemap: false },
 		'/api/admin/**': { prerender: false, robots: false, sitemap: false },
 		'/api/user/**': { prerender: false, robots: false, sitemap: false }
@@ -90,6 +92,10 @@ export default defineNuxtConfig({
 			},
 			wrangler: {
 				name: 'majalengka-tech',
+				// Workers Logs supaya error seperti 1102 (batas CPU/memori) bisa dilacak dari dashboard Cloudflare.
+				observability: {
+					enabled: true
+				},
 				vars: {
 					BETTER_AUTH_URL: 'https://majalengka.tech',
 					NUXT_PUBLIC_SITE_URL: 'https://majalengka.tech'
