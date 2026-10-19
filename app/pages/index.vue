@@ -21,16 +21,19 @@ interface ShowcaseStats {
 
 const { data: page } = await useAsyncData('index', () => queryCollection('index').first())
 
-const [stats$, featured$, latest$, creators$] = await Promise.all([
+const [stats$, featured$, latest$, creators$, topLiked$] = await Promise.all([
 	useFetch<ShowcaseStats>('/api/projects/stats', { key: 'home-stats' }),
 	useFetch<{ projects: ProjectItem[] }>('/api/projects', { key: 'home-featured', query: { featured: 1, limit: 4 } }),
 	useFetch<{ projects: ProjectItem[] }>('/api/projects', { key: 'home-latest', query: { limit: 6 } }),
-	useFetch<{ creators: CreatorSummary[] }>('/api/creators', { key: 'home-creators', query: { limit: 48 } })
+	useFetch<{ creators: CreatorSummary[] }>('/api/creators', { key: 'home-creators', query: { limit: 48 } }),
+	useFetch<{ projects: ProjectItem[] }>('/api/projects', { key: 'home-top-liked', query: { sort: 'populer', limit: 3 } })
 ])
 
 const featured = computed(() => featured$.data.value?.projects || [])
 const latest = computed(() => latest$.data.value?.projects || [])
 const creators = computed(() => creators$.data.value?.creators || [])
+// Peringkat hanya untuk proyek yang sudah pernah diapresiasi.
+const topLiked = computed(() => (topLiked$.data.value?.projects || []).filter(project => (project.likeCount || 0) > 0))
 const stats = computed(() => stats$.data.value || { totalProjects: 0, totalCreators: 0, categories: {} })
 
 const isMounted = ref(false)
@@ -309,6 +312,29 @@ defineOgImage('Saas', {
 					/>
 				</UPageCard>
 			</UCarousel>
+		</UPageSection>
+
+		<UPageSection
+			v-if="topLiked.length"
+			:ui="{ container: 'py-12 sm:py-16 lg:py-20' }"
+		>
+			<template #headline>
+				<span class="inline-flex items-center gap-1.5 font-semibold text-primary">
+					<UIcon
+						name="i-lucide-heart"
+						class="size-4"
+					/>
+					Peringkat Apresiasi
+				</span>
+			</template>
+			<template #title>
+				Proyek paling banyak disukai
+			</template>
+			<template #description>
+				Diurutkan dari jumlah apresiasi yang diberikan anggota Majalengka Tech.
+			</template>
+
+			<HomeTopLiked :projects="topLiked" />
 		</UPageSection>
 
 		<UPageSection

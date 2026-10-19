@@ -48,6 +48,16 @@ const { data, status, error, refresh } = await useFetch<{ projects: ProjectItem[
 })
 
 const projects = computed(() => data.value?.projects || [])
+
+// Sorotan memakai urutan populer dari server supaya tidak bergantung pada filter dan urutan yang sedang dipilih.
+const { data: topData } = await useFetch<{ projects: ProjectItem[] }>('/api/projects', {
+	key: 'showcase-top-liked',
+	query: { sort: 'populer', limit: 1 }
+})
+const topProject = computed(() => {
+	const project = topData.value?.projects[0]
+	return project && (project.likeCount || 0) > 0 ? project : undefined
+})
 const filtered = computed(() => {
 	const q = search.value.trim().toLowerCase()
 	if (!q) return projects.value
@@ -102,6 +112,11 @@ function resetFilters() {
 				class="self-start sm:self-auto"
 			/>
 		</header>
+
+		<ProjectSpotlight
+			v-if="topProject && !isFiltering"
+			:project="topProject"
+		/>
 
 		<div class="flex flex-col gap-4 border-y border-default py-4">
 			<nav

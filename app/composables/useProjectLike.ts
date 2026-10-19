@@ -9,13 +9,12 @@ export function useProjectLike() {
 	const { loggedIn } = useUserSession()
 	const route = useRoute()
 	const toast = useToast()
-	const pendingIds = ref<number[]>([])
+	// Nomor klik terakhir per proyek: hanya jawaban server untuk klik terakhir yang boleh mengubah tampilan.
+	const latestClick = new Map<number, number>()
+	// Request per proyek dikirim berurutan supaya urutan tiba di server sama dengan urutan klik.
+	const queue = new Map<number, Promise<unknown>>()
 
-	function isPending(id: number) {
-		return pendingIds.value.includes(id)
-	}
-
-	// Ikon hati membesar sesaat setelah apresiasi tersimpan, sebagai tanda aksinya berhasil (bukan saat masih menunggu server).
+	// Ikon hati membesar saat diklik, tanpa menunggu server, seperti tombol suka di media sosial.
 	async function popIcon(button: HTMLElement | null) {
 		if (!button || !motionAllowed()) return
 		await nextTick()
@@ -43,21 +42,30 @@ export function useProjectLike() {
 			})
 			return
 		}
-		if (isPending(project.id)) return
-
 		const previous = { liked: Boolean(project.likedByMe), count: project.likeCount || 0 }
-		project.likedByMe = !previous.liked
-		project.likeCount = Math.max(0, previous.count + (previous.liked ? -1 : 1))
-		pendingIds.value.push(project.id)
+		const liked = !previous.liked
+		project.likedByMe = liked
+		project.likeCount = Math.max(0, previous.count + (liked ? 1 : -1))
+		if (liked) popIcon(button)
+
+		const click = (latestClick.get(project.id) || 0) + 1
+		latestClick.set(project.id, click)
 
 		try {
-			const res = await $fetch<{ liked: boolean, likeCount: number }>(`/api/projects/${project.id}/like`, {
-				method: 'POST'
-			})
+			// Status yang diinginkan ikut dikirim, jadi klik beruntun tidak saling membatalkan di server.
+			const request = (queue.get(project.id) || Promise.resolve())
+				.catch(() => {})
+				.then(() => $fetch<{ liked: boolean, likeCount: number }>(`/api/projects/${project.id}/like`, {
+					method: 'POST',
+					body: { liked }
+				}))
+			queue.set(project.id, request)
+			const res = await request
+			if (latestClick.get(project.id) !== click) return
 			project.likedByMe = res.liked
 			project.likeCount = res.likeCount
-			if (res.liked) popIcon(button)
 		} catch (err: unknown) {
+			if (latestClick.get(project.id) !== click) return
 			project.likedByMe = previous.liked
 			project.likeCount = previous.count
 			const errorResponse = err as { data?: { statusMessage?: string } }
@@ -66,10 +74,8 @@ export function useProjectLike() {
 				description: errorResponse.data?.statusMessage || 'Periksa koneksimu lalu coba lagi.',
 				color: 'error'
 			})
-		} finally {
-			pendingIds.value = pendingIds.value.filter(id => id !== project.id)
 		}
 	}
 
-	return { toggleLike, isPending }
+	return { toggleLike }
 }

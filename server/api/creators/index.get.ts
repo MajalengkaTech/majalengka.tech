@@ -8,8 +8,8 @@ const querySchema = z.object({
 	limit: z.coerce.number().int().min(1).max(100).default(24)
 })
 
-// Semua pengguna yang tidak diblokir. Yang punya proyek terbit tampil lebih dulu (urut dari yang terakhir menerbitkan),
-// sisanya urut dari yang terakhir mendaftar. Pengguna tanpa username tetap tampil, tapi belum punya halaman profil.
+// Pengguna yang tidak diblokir dan punya minimal satu proyek terbit, urut dari yang terakhir menerbitkan.
+// Pengguna tanpa username tetap tampil dengan nama asli, tapi belum punya halaman profil.
 export default defineEventHandler(async (event) => {
 	const query = await getQueryWith(event, querySchema)
 	const { user } = schema
@@ -17,6 +17,7 @@ export default defineEventHandler(async (event) => {
 
 	const projectCount = sql<number>`(select count(*) from projects p where p.user_id = "user"."id" and p.is_published = 1)`
 	const lastPublished = sql<number>`(select max(p.created_at) from projects p where p.user_id = "user"."id" and p.is_published = 1)`
+	const likeCount = sql<number>`(select count(*) from project_likes pl join projects p on p.id = pl.project_id where p.user_id = "user"."id" and p.is_published = 1)`
 
 	const rows = await db
 		.select({
@@ -31,15 +32,16 @@ export default defineEventHandler(async (event) => {
 			websiteUrl: user.websiteUrl,
 			linkedinUrl: user.linkedinUrl,
 			projectCount: projectCount.as('project_count'),
+			likeCount: likeCount.as('like_count'),
 			coverUrl: sql<string | null>`(select p.thumbnail_url from projects p where p.user_id = "user"."id" and p.is_published = 1 and p.thumbnail_url is not null order by p.created_at desc limit 1)`.as('cover_url')
 		})
 		.from(user)
 		.where(and(
 			sql`coalesce(${user.banned}, 0) = 0`,
+			sql`${projectCount} > 0`,
 			query.terbuka ? eq(user.openToWork, true) : undefined
 		))
-		// SQLite menaruh NULL di akhir pada urutan DESC, jadi pengguna tanpa proyek terbit otomatis di belakang.
-		.orderBy(desc(lastPublished), desc(user.createdAt))
+		.orderBy(desc(lastPublished))
 		.limit(query.limit)
 
 	return {
@@ -47,6 +49,7 @@ export default defineEventHandler(async (event) => {
 			...row,
 			name: row.username ? `@${row.username}` : (row.name || 'Kreator'),
 			projectCount: Number(row.projectCount) || 0,
+			likeCount: Number(row.likeCount) || 0,
 			openToWork: Boolean(row.openToWork)
 		}))
 	}
