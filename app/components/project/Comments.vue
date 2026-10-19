@@ -80,7 +80,7 @@ async function removeComment(comment: ProjectComment) {
 	>
 		<h2
 			id="judul-komentar"
-			class="text-xl font-bold text-highlighted"
+			class="scroll-mt-24 text-xl font-bold text-highlighted"
 		>
 			Komentar
 			<span
