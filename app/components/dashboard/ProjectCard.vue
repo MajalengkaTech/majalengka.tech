@@ -13,7 +13,8 @@ const emit = defineEmits<{
 }>()
 
 const { user } = useUserSession()
-const { toggleLike } = useProjectLike()
+const { toggleLike, likeState } = useProjectLike()
+const like = computed(() => likeState(props.project))
 
 const detailPath = computed(() => `/projek/${props.project.slug}`)
 const isOwn = computed(() => (user.value as { id?: string } | null)?.id === String(props.project.userId))
@@ -157,25 +158,25 @@ const actionItems = computed(() => [
 				<div class="-mt-0.5 flex shrink-0 items-center">
 					<UButton
 						v-if="!editable && !isOwn"
-						:icon="project.likedByMe ? 'i-tabler-heart-filled' : 'i-tabler-heart'"
-						:label="String(project.likeCount || 0)"
-						:color="project.likedByMe ? 'primary' : 'neutral'"
+						:icon="like.liked ? 'i-tabler-heart-filled' : 'i-tabler-heart'"
+						:label="String(like.count)"
+						:color="like.liked ? 'primary' : 'neutral'"
 						variant="ghost"
 						size="xs"
-						:aria-pressed="project.likedByMe"
-						:aria-label="project.likedByMe ? `Tarik apresiasi untuk ${project.title}` : `Beri apresiasi untuk ${project.title}`"
+						:aria-pressed="like.liked"
+						:aria-label="like.liked ? `Tarik apresiasi untuk ${project.title}` : `Beri apresiasi untuk ${project.title}`"
 						@click="toggleLike(project, $event)"
 					/>
 					<span
 						v-else
 						class="inline-flex items-center gap-1 px-1.5 text-xs text-muted"
-						:aria-label="`${project.likeCount || 0} apresiasi`"
+						:aria-label="`${like.count} apresiasi`"
 					>
 						<UIcon
 							name="i-tabler-heart"
 							class="size-3.5"
 						/>
-						{{ project.likeCount || 0 }}
+						{{ like.count }}
 					</span>
 				</div>
 			</div>

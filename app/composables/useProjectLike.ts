@@ -9,6 +9,19 @@ export function useProjectLike() {
 	const { loggedIn } = useUserSession()
 	const route = useRoute()
 	const toast = useToast()
+	// Data useFetch di Nuxt 4 berupa shallowRef: mengubah project.likedByMe tidak memicu render ulang.
+	// Status apresiasi disimpan di state bersama ini, jadi kartu dan halaman detail langsung ikut berubah.
+	const likes = useState<Record<number, { liked: boolean, count: number }>>('project-likes', () => ({}))
+
+	function likeState(project: LikeableProject) {
+		return likes.value[project.id] ?? { liked: Boolean(project.likedByMe), count: project.likeCount || 0 }
+	}
+
+	function setLike(project: LikeableProject, liked: boolean, count: number) {
+		likes.value[project.id] = { liked, count: Math.max(0, count) }
+		project.likedByMe = liked
+		project.likeCount = Math.max(0, count)
+	}
 	// Nomor klik terakhir per proyek: hanya jawaban server untuk klik terakhir yang boleh mengubah tampilan.
 	const latestClick = new Map<number, number>()
 	// Request per proyek dikirim berurutan supaya urutan tiba di server sama dengan urutan klik.
@@ -42,10 +55,9 @@ export function useProjectLike() {
 			})
 			return
 		}
-		const previous = { liked: Boolean(project.likedByMe), count: project.likeCount || 0 }
+		const previous = likeState(project)
 		const liked = !previous.liked
-		project.likedByMe = liked
-		project.likeCount = Math.max(0, previous.count + (liked ? 1 : -1))
+		setLike(project, liked, previous.count + (liked ? 1 : -1))
 		if (liked) popIcon(button)
 
 		const click = (latestClick.get(project.id) || 0) + 1
@@ -62,12 +74,10 @@ export function useProjectLike() {
 			queue.set(project.id, request)
 			const res = await request
 			if (latestClick.get(project.id) !== click) return
-			project.likedByMe = res.liked
-			project.likeCount = res.likeCount
+			setLike(project, res.liked, res.likeCount)
 		} catch (err: unknown) {
 			if (latestClick.get(project.id) !== click) return
-			project.likedByMe = previous.liked
-			project.likeCount = previous.count
+			setLike(project, previous.liked, previous.count)
 			const errorResponse = err as { data?: { statusMessage?: string } }
 			toast.add({
 				title: 'Apresiasi belum tersimpan',
@@ -77,5 +87,5 @@ export function useProjectLike() {
 		}
 	}
 
-	return { toggleLike }
+	return { toggleLike, likeState }
 }

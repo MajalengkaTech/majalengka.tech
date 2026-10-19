@@ -216,7 +216,6 @@ const vIntersectionObserver = {
 						? 'group hover:ring-2 hover:ring-primary/50 dark:hover:shadow-primary/10 hover:shadow-xl'
 						: 'opacity-70'"
 					:aria-disabled="creator.username ? undefined : 'true'"
-					:title="creator.username ? undefined : 'Kreator ini belum punya username, jadi profilnya belum bisa dibuka'"
 					:ui="{ body: 'flex-1 flex flex-col', footer: 'mt-auto' }"
 				>
 					<div class="flex flex-col items-center gap-4 text-center">
@@ -269,25 +268,23 @@ const vIntersectionObserver = {
 									color="primary"
 									variant="soft"
 								/>
+								<UBadge
+									v-if="!creator.username"
+									label="Belum punya username"
+									icon="i-lucide-user-x"
+									size="xs"
+									color="neutral"
+									variant="outline"
+								/>
 							</div>
 						</div>
 					</div>
 
-					<template #footer>
-						<p
-							v-if="!creator.username"
-							class="flex items-center justify-center gap-1.5 text-xs text-muted"
-						>
-							<UIcon
-								name="i-lucide-user-x"
-								class="size-4"
-							/>
-							Belum punya username
-						</p>
-						<div
-							v-else
-							class="flex justify-center items-center gap-1"
-						>
+					<template
+						v-if="creator.username"
+						#footer
+					>
+						<div class="flex justify-center items-center gap-1">
 							<UButton
 								v-if="creator.githubUsername"
 								:to="`https://github.com/${creator.githubUsername}`"

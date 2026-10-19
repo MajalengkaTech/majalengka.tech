@@ -17,7 +17,8 @@ if (error.value || !data.value?.project) {
 }
 
 const project = computed(() => data.value!.project)
-const { toggleLike } = useProjectLike()
+const { toggleLike, likeState } = useProjectLike()
+const like = computed(() => likeState(project.value))
 
 // Thumbnail tampil pertama, lalu galeri; URL yang sama tidak diulang.
 const images = computed(() => {
@@ -179,11 +180,11 @@ useReveal(useTemplateRef<HTMLElement>('others'))
 				<div class="flex flex-wrap items-center gap-2">
 					<UButton
 						v-if="!project.isOwner && project.isPublished"
-						:icon="project.likedByMe ? 'i-tabler-heart-filled' : 'i-tabler-heart'"
-						:label="project.likeCount ? `${project.likeCount} apresiasi` : 'Beri Apresiasi'"
-						:color="project.likedByMe ? 'primary' : 'neutral'"
-						:variant="project.likedByMe ? 'solid' : 'outline'"
-						:aria-pressed="project.likedByMe"
+						:icon="like.liked ? 'i-tabler-heart-filled' : 'i-tabler-heart'"
+						:label="like.count ? `${like.count} apresiasi` : 'Beri Apresiasi'"
+						:color="like.liked ? 'primary' : 'neutral'"
+						:variant="like.liked ? 'solid' : 'outline'"
+						:aria-pressed="like.liked"
 						@click="toggleLike(project, $event)"
 					/>
 					<span
@@ -194,7 +195,7 @@ useReveal(useTemplateRef<HTMLElement>('others'))
 							name="i-tabler-heart"
 							class="size-4"
 						/>
-						{{ project.likeCount || 0 }} apresiasi
+						{{ like.count }} apresiasi
 					</span>
 					<UButton
 						v-for="link in links"

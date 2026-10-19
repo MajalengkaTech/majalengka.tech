@@ -320,7 +320,7 @@ defineOgImage('Saas', {
 
 		<UPageSection
 			v-if="topLiked.length"
-			:ui="{ container: 'py-12 sm:py-16 lg:py-20' }"
+			:ui="{ container: 'py-12 sm:py-16 lg:py-20', headline: 'justify-center' }"
 		>
 			<template #headline>
 				<span class="inline-flex items-center gap-1.5 font-semibold text-primary">
