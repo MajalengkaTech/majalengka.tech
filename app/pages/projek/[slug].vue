@@ -17,7 +17,7 @@ if (error.value || !data.value?.project) {
 }
 
 const project = computed(() => data.value!.project)
-const { toggleLike, isPending } = useProjectLike()
+const { toggleLike } = useProjectLike()
 
 // Thumbnail tampil pertama, lalu galeri; URL yang sama tidak diulang.
 const images = computed(() => {
@@ -184,7 +184,6 @@ useReveal(useTemplateRef<HTMLElement>('others'))
 						:color="project.likedByMe ? 'primary' : 'neutral'"
 						:variant="project.likedByMe ? 'solid' : 'outline'"
 						:aria-pressed="project.likedByMe"
-						:loading="isPending(project.id)"
 						@click="toggleLike(project, $event)"
 					/>
 					<span

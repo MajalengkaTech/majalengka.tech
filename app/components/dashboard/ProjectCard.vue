@@ -13,7 +13,7 @@ const emit = defineEmits<{
 }>()
 
 const { user } = useUserSession()
-const { toggleLike, isPending } = useProjectLike()
+const { toggleLike } = useProjectLike()
 
 const detailPath = computed(() => `/projek/${props.project.slug}`)
 const isOwn = computed(() => (user.value as { id?: string } | null)?.id === String(props.project.userId))
@@ -164,7 +164,6 @@ const actionItems = computed(() => [
 						size="xs"
 						:aria-pressed="project.likedByMe"
 						:aria-label="project.likedByMe ? `Tarik apresiasi untuk ${project.title}` : `Beri apresiasi untuk ${project.title}`"
-						:loading="isPending(project.id)"
 						@click="toggleLike(project, $event)"
 					/>
 					<span
