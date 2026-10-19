@@ -166,3 +166,77 @@
 	border-color: #0014a8 !important;
 }
 
+
+/* Cerita proyek: markdown hasil renderStory() di halaman detail proyek. */
+.story-content > * + * {
+	margin-top: 1rem;
+}
+
+.story-content h3 {
+	margin-top: 1.75rem;
+	font-size: 1.25rem;
+	font-weight: 700;
+	color: var(--ui-text-highlighted);
+}
+
+.story-content h4 {
+	margin-top: 1.5rem;
+	font-size: 1.0625rem;
+	font-weight: 600;
+	color: var(--ui-text-highlighted);
+}
+
+.story-content ul {
+	list-style: disc;
+	padding-left: 1.5rem;
+}
+
+.story-content ol {
+	list-style: decimal;
+	padding-left: 1.5rem;
+}
+
+.story-content li + li {
+	margin-top: 0.25rem;
+}
+
+.story-content strong {
+	font-weight: 600;
+	color: var(--ui-text-highlighted);
+}
+
+.story-content a {
+	color: var(--ui-primary);
+	text-decoration: underline;
+	text-underline-offset: 3px;
+}
+
+.story-content :not(pre) > code {
+	border-radius: 0.25rem;
+	background-color: var(--ui-bg-elevated);
+	padding: 0.1em 0.35em;
+	font-family: var(--font-mono);
+	font-size: 0.875em;
+}
+
+.story-content pre {
+	overflow-x: auto;
+	border: 1px solid var(--ui-border);
+	border-radius: 0.5rem;
+	background-color: var(--ui-bg-elevated);
+	padding: 1rem;
+	font-family: var(--font-mono);
+	font-size: 0.875rem;
+	line-height: 1.6;
+}
+
+.story-content blockquote {
+	border-left: 3px solid var(--ui-primary);
+	padding-left: 1rem;
+	color: var(--ui-text-muted);
+	font-style: italic;
+}
+
+.story-content hr {
+	border-color: var(--ui-border);
+}

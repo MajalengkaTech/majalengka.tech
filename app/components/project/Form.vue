@@ -257,15 +257,12 @@ async function onSubmit(event: FormSubmitEvent<ProjectInput>) {
 						label="Cerita di balik proyek"
 						name="description"
 						required
-						description="Masalah apa yang diselesaikan, bagaimana prosesnya, dan apa yang kamu pelajari. Pisahkan paragraf dengan baris kosong."
+						description="Masalah apa yang diselesaikan, bagaimana prosesnya, dan apa yang kamu pelajari. Pakai toolbar untuk tebal, miring, daftar, atau kode."
 						:hint="`${state.description.length}/5000`"
 					>
-						<UTextarea
+						<ProjectStoryEditor
 							v-model="state.description"
-							:rows="6"
-							autoresize
-							:maxrows="20"
-							class="w-full"
+							placeholder="Ceritakan masalahnya, prosesnya, dan pelajaran dari proyek ini..."
 						/>
 					</UFormField>
 				</div>

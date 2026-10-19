@@ -149,7 +149,13 @@ export default defineNuxtConfig({
 			include: [
 				'zod',
 				'@vue/devtools-core',
-				'animejs'
+				'animejs',
+				// Editor cerita proyek (TipTap): satu instance prosemirror supaya tidak muncul galat plugin ganda di dev.
+				'@nuxt/ui > prosemirror-state',
+				'@nuxt/ui > prosemirror-transform',
+				'@nuxt/ui > prosemirror-model',
+				'@nuxt/ui > prosemirror-view',
+				'@nuxt/ui > prosemirror-gapcursor'
 			],
 			exclude: [
 				'easings',
