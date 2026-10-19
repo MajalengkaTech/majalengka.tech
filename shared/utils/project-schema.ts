@@ -3,6 +3,7 @@ import { z } from 'zod'
 export const PROJECT_CATEGORIES = {
 	'web': 'Aplikasi Web',
 	'mobile': 'Aplikasi Mobile',
+	'desktop': 'Aplikasi Desktop',
 	'uiux': 'Desain UI/UX',
 	'grafis': 'Desain Grafis & Branding',
 	'open-source': 'Open Source & Library',
