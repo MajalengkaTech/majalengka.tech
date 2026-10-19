@@ -105,6 +105,25 @@ useSeoMeta({
 
 // Proyek lain dari kreator yang sama muncul saat pembaca sampai di bagian bawah.
 useReveal(useTemplateRef<HTMLElement>('others'))
+
+// Bar aksi bawah muncul setelah baris aksi di bawah judul tergulung keluar layar, lalu bersembunyi lagi di area
+// komentar dan di akhir halaman supaya tidak menutupi kolom dan tombol kirim komentar. Yang diamati elemen milik
+// halaman ini sendiri: elemen di dalam komponen anak bisa diganti saat hydration sehingga observer-nya tidak bereaksi.
+const actionsVisible = ref(true)
+const commentsVisible = ref(false)
+const endVisible = ref(false)
+// Baris aksi yang sudah tertutup navbar dihitung tidak terlihat.
+useIntersectionObserver(useTemplateRef<HTMLElement>('actions'), ([entry]) => {
+	actionsVisible.value = entry?.isIntersecting ?? false
+}, { rootMargin: '-64px 0px 0px 0px' })
+// Komentar baru dihitung terlihat setelah masuk 70% atas layar; bar hanya menutupi strip kecil di dasar layar.
+useIntersectionObserver(useTemplateRef<HTMLElement>('commentsArea'), ([entry]) => {
+	commentsVisible.value = entry?.isIntersecting ?? false
+}, { rootMargin: '0px 0px -30% 0px' })
+useIntersectionObserver(useTemplateRef<HTMLElement>('pageEnd'), ([entry]) => {
+	endVisible.value = entry?.isIntersecting ?? false
+})
+const dockHidden = computed(() => actionsVisible.value || commentsVisible.value || endVisible.value)
 </script>
 
 <template>
@@ -153,89 +172,90 @@ useReveal(useTemplateRef<HTMLElement>('others'))
 					{{ project.tagline }}
 				</p>
 			</div>
-		</header>
 
-		<!-- Kreator dan aksi (apresiasi, demo, kode, bagikan) menempel di bawah navbar saat halaman digulir. -->
-		<div class="sticky top-(--ui-header-height) z-20 -mx-4 -mt-4 flex flex-col gap-3 border-b border-default bg-default/90 px-4 py-3 backdrop-blur sm:-mx-6 sm:-mt-6 sm:px-6 lg:-mx-8 lg:flex-row lg:items-center lg:justify-between lg:px-8">
-			<div class="flex min-w-0 items-center gap-3">
-				<UAvatar
-					:src="avatarSrc(project.author.avatarUrl, 128)"
-					:alt="project.author.username ? `@${project.author.username}` : project.author.name"
-					size="md"
-				/>
-				<p class="text-sm text-muted">
-					oleh
-					<NuxtLink
-						v-if="project.author.username"
-						:to="`/${project.author.username}`"
-						class="rounded-sm font-semibold text-highlighted outline-primary/25 hover:text-primary focus-visible:outline-3"
-					>@{{ project.author.username }}</NuxtLink>
+			<div
+				ref="actions"
+				class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between"
+			>
+				<div class="flex items-center gap-3">
+					<UAvatar
+						:src="avatarSrc(project.author.avatarUrl, 128)"
+						:alt="project.author.username ? `@${project.author.username}` : project.author.name"
+						size="md"
+					/>
+					<p class="text-sm text-muted">
+						oleh
+						<NuxtLink
+							v-if="project.author.username"
+							:to="`/${project.author.username}`"
+							class="rounded-sm font-semibold text-highlighted outline-primary/25 hover:text-primary focus-visible:outline-3"
+						>@{{ project.author.username }}</NuxtLink>
+						<span
+							v-else
+							class="font-semibold text-highlighted"
+						>{{ project.author.name }}</span>
+						<span aria-hidden="true"> · </span>
+						<time :datetime="new Date(project.createdAt).toISOString()">{{ formatTanggal(project.createdAt) }}</time>
+					</p>
+				</div>
+
+				<div class="flex flex-wrap items-center gap-2">
+					<UButton
+						v-if="!project.isOwner && project.isPublished"
+						:icon="like.liked ? 'i-tabler-heart-filled' : 'i-tabler-heart'"
+						:label="like.count ? `${like.count} apresiasi` : 'Beri Apresiasi'"
+						:color="like.liked ? 'primary' : 'neutral'"
+						:variant="like.liked ? 'solid' : 'outline'"
+						:aria-pressed="like.liked"
+						@click="toggleLike(project, $event)"
+					/>
 					<span
 						v-else
-						class="font-semibold text-highlighted"
-					>{{ project.author.name }}</span>
-					<span aria-hidden="true"> · </span>
-					<time :datetime="new Date(project.createdAt).toISOString()">{{ formatTanggal(project.createdAt) }}</time>
-				</p>
-			</div>
-
-			<!-- Di layar kecil tombol tetap satu baris dan bisa digeser, supaya bar yang menempel tidak terlalu tinggi. -->
-			<div class="-mx-1 flex items-center gap-2 overflow-x-auto px-1 *:shrink-0 lg:overflow-visible">
-				<UButton
-					v-if="!project.isOwner && project.isPublished"
-					:icon="like.liked ? 'i-tabler-heart-filled' : 'i-tabler-heart'"
-					:label="like.count ? `${like.count} apresiasi` : 'Beri Apresiasi'"
-					:color="like.liked ? 'primary' : 'neutral'"
-					:variant="like.liked ? 'solid' : 'outline'"
-					:aria-pressed="like.liked"
-					@click="toggleLike(project, $event)"
-				/>
-				<span
-					v-else
-					class="inline-flex items-center gap-1.5 px-1 text-sm text-muted"
-				>
-					<UIcon
-						name="i-tabler-heart"
-						class="size-4"
-					/>
-					{{ like.count }} apresiasi
-				</span>
-				<UButton
-					v-for="link in links"
-					:key="link.to"
-					:label="link.label"
-					:icon="link.icon"
-					:to="link.to"
-					target="_blank"
-					rel="noopener"
-					:color="link.color"
-					:variant="link.variant"
-				/>
-				<UButton
-					icon="i-lucide-share-2"
-					label="Bagikan"
-					color="neutral"
-					variant="ghost"
-					@click="shareProject"
-				/>
-				<template v-if="project.canManage">
+						class="inline-flex items-center gap-1.5 px-1 text-sm text-muted"
+					>
+						<UIcon
+							name="i-tabler-heart"
+							class="size-4"
+						/>
+						{{ like.count }} apresiasi
+					</span>
 					<UButton
-						icon="i-lucide-pencil"
-						label="Edit"
+						v-for="link in links"
+						:key="link.to"
+						:label="link.label"
+						:icon="link.icon"
+						:to="link.to"
+						target="_blank"
+						rel="noopener"
+						:color="link.color"
+						:variant="link.variant"
+					/>
+					<UButton
+						icon="i-lucide-share-2"
+						label="Bagikan"
 						color="neutral"
 						variant="ghost"
-						:to="`/dashboard/projects/${project.id}`"
+						@click="shareProject"
 					/>
-					<UButton
-						icon="i-lucide-trash-2"
-						label="Hapus"
-						color="error"
-						variant="ghost"
-						@click="deleteOpen = true"
-					/>
-				</template>
+					<template v-if="project.canManage">
+						<UButton
+							icon="i-lucide-pencil"
+							label="Edit"
+							color="neutral"
+							variant="ghost"
+							:to="`/dashboard/projects/${project.id}`"
+						/>
+						<UButton
+							icon="i-lucide-trash-2"
+							label="Hapus"
+							color="error"
+							variant="ghost"
+							@click="deleteOpen = true"
+						/>
+					</template>
+				</div>
 			</div>
-		</div>
+		</header>
 
 		<ProjectGallery
 			:images="images"
@@ -291,12 +311,16 @@ useReveal(useTemplateRef<HTMLElement>('others'))
 					</div>
 				</dl>
 
-				<ProjectComments
+				<div
 					v-if="project.isPublished"
-					:project-id="project.id"
-					:project-owner-id="project.userId"
+					ref="commentsArea"
 					class="border-t border-default pt-8"
-				/>
+				>
+					<ProjectComments
+						:project-id="project.id"
+						:project-owner-id="project.userId"
+					/>
+				</div>
 				<section
 					v-else
 					class="border-t border-default pt-8"
@@ -363,5 +387,18 @@ useReveal(useTemplateRef<HTMLElement>('others'))
 				</div>
 			</template>
 		</UModal>
+
+		<div
+			ref="pageEnd"
+			aria-hidden="true"
+			class="-mt-8 h-px sm:-mt-10"
+		/>
+
+		<ProjectActionDock
+			:project="project"
+			:hidden="dockHidden"
+			@share="shareProject"
+			@delete="deleteOpen = true"
+		/>
 	</UContainer>
 </template>
