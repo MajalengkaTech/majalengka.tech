@@ -4,7 +4,8 @@ import type { ContentNavigationItem } from '@nuxt/content'
 const route = useRoute()
 const navigation = inject<Ref<ContentNavigationItem[]>>('navigation')
 const { open: searchOpen } = useContentSearch()
-const { loggedIn, user, signOut } = useUserSession()
+const { signOut } = useUserSession()
+const { loggedIn, user } = useSessionView()
 const toast = useToast()
 
 const open = ref(false)

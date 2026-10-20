@@ -2,7 +2,7 @@
 import type { CreatorCardData, CreatorCardInfo, CreatorProfile, ProjectItem } from '~/types/project'
 
 const route = useRoute()
-const { user } = useUserSession()
+const { user } = useSessionView()
 const username = computed(() => String(route.params.username).toLowerCase())
 
 const { data, error } = await useFetch<{ creator: CreatorProfile, card: CreatorCardInfo | null, projects: ProjectItem[] }>(() => `/api/creators/${username.value}`, {

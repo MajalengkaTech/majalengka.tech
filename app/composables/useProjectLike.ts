@@ -22,6 +22,21 @@ export function useProjectLike() {
 		project.likedByMe = liked
 		project.likeCount = Math.max(0, count)
 	}
+
+	// HTML dari cache edge dirender untuk pengunjung anonim, jadi status apresiasimu di kartu diambil terpisah.
+	async function loadMyLikes(projects: LikeableProject[]) {
+		if (!projects.length) return
+		const { liked } = await $fetch<{ liked: number[] }>('/api/user/likes', {
+			query: { ids: projects.map(project => project.id).join(',') }
+		}).catch(() => ({ liked: [] as number[] }))
+		const mine = new Set(liked)
+		for (const project of projects) {
+			// Proyek yang sudah diklik selama request berjalan memakai hasil kliknya sendiri.
+			if (likes.value[project.id] || !mine.has(project.id)) continue
+			likes.value[project.id] = { liked: true, count: project.likeCount || 0 }
+		}
+	}
+
 	// Nomor klik terakhir per proyek: hanya jawaban server untuk klik terakhir yang boleh mengubah tampilan.
 	const latestClick = new Map<number, number>()
 	// Request per proyek dikirim berurutan supaya urutan tiba di server sama dengan urutan klik.
@@ -87,5 +102,5 @@ export function useProjectLike() {
 		}
 	}
 
-	return { toggleLike, likeState }
+	return { toggleLike, likeState, loadMyLikes }
 }

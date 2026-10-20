@@ -58,6 +58,9 @@ const topProject = computed(() => {
 	const project = topData.value?.projects[0]
 	return project && (project.likeCount || 0) > 0 ? project : undefined
 })
+
+const { loadMyLikes } = useProjectLike()
+onCachedPageSignIn(() => loadMyLikes([...projects.value, ...(topProject.value ? [topProject.value] : [])]))
 const filtered = computed(() => {
 	const q = search.value.trim().toLowerCase()
 	if (!q) return projects.value
@@ -201,6 +204,8 @@ function resetFilters() {
 			</div>
 		</div>
 
+		<!-- Saat filter berubah: kartu yang tersisa bergeser ke posisi barunya, yang hilang memudar, yang baru masuk.
+			Komentar ini sengaja di luar rantai v-if/v-else: di dev, komentar di antara cabangnya bikin hydration mismatch. -->
 		<div
 			v-if="status === 'pending' && !projects.length"
 			class="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3"
@@ -232,7 +237,6 @@ function resetFilters() {
 				: [{ label: 'Pamerkan Proyekmu', icon: 'i-lucide-folder-plus', to: '/dashboard/projects/new' }]"
 		/>
 
-		<!-- Saat filter berubah: kartu yang tersisa bergeser ke posisi barunya, yang hilang memudar, yang baru masuk. -->
 		<AnimeTransitionGroup
 			v-else
 			ref="grid"

@@ -1,4 +1,6 @@
-const dateFormatter = new Intl.DateTimeFormat('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })
+// Zona waktu dikunci: server Cloudflare berjalan di UTC, jadi tanpa ini proyek yang dibuat pukul 00.00–07.00 WIB
+// tampil dengan tanggal kemarin di HTML server dan tanggal hari ini di browser (hydration mismatch).
+const dateFormatter = new Intl.DateTimeFormat('id-ID', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Asia/Jakarta' })
 const relativeFormatter = new Intl.RelativeTimeFormat('id-ID', { numeric: 'auto' })
 
 const RELATIVE_STEPS: [Intl.RelativeTimeFormatUnit, number][] = [

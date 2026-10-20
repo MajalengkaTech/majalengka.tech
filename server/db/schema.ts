@@ -57,6 +57,12 @@ export const projectComments = sqliteTable('project_comments', {
 	index('project_comments_project_idx').on(table.projectId, table.createdAt)
 ])
 
+// Nomor versi data publik. Naik setiap ada perubahan lewat API dan ikut jadi kunci cache edge (server/lib/edge-cache.ts).
+export const cacheVersions = sqliteTable('cache_versions', {
+	key: text('key').primaryKey(),
+	version: integer('version').notNull().default(0)
+})
+
 export type ProjectRecord = typeof projects.$inferSelect
 export type NewProjectRecord = typeof projects.$inferInsert
 export type ProjectImageRecord = typeof projectImages.$inferSelect

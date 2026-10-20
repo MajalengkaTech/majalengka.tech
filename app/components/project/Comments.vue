@@ -7,7 +7,7 @@ const props = defineProps<{
 	projectOwnerId: string | number
 }>()
 
-const { loggedIn, user } = useUserSession()
+const { loggedIn, user } = useSessionView()
 const route = useRoute()
 const toast = useToast()
 
@@ -137,8 +137,9 @@ async function removeComment(comment: ProjectComment) {
 			:actions="[{ label: 'Masuk', to: `/login?redirect=${encodeURIComponent(route.fullPath)}`, color: 'neutral', variant: 'outline' }]"
 		/>
 
+		<!-- Komentar hanya diambil di browser: server merender status idle, browser sudah pending saat hidrasi. -->
 		<div
-			v-if="status === 'pending' && !comments.length"
+			v-if="(status === 'idle' || status === 'pending') && !comments.length"
 			class="flex flex-col gap-4"
 		>
 			<USkeleton
@@ -165,49 +166,52 @@ async function removeComment(comment: ProjectComment) {
 			Belum ada komentar. Jadilah yang pertama memberi tanggapan.
 		</p>
 
-		<!-- Selalu dirender (disembunyikan saat kosong) supaya komentar pertama pun ikut animasi masuk. -->
-		<AnimeTransitionGroup
-			v-if="!error"
-			v-show="comments.length"
-			tag="ul"
-			enter-animation="mt-item"
-			leave-animation="mt-item"
-			move-animation="mt-item"
-			class="relative flex flex-col divide-y divide-default"
-		>
-			<li
-				v-for="comment in comments"
-				:key="comment.id"
-				class="flex gap-3 py-4 first:pt-0"
+		<!-- Selalu dirender (disembunyikan saat kosong) supaya komentar pertama pun ikut animasi masuk.
+			Hanya di browser: SSR TransitionGroup kosong menulis node komentar yang tidak ada di browser (hydration mismatch). -->
+		<ClientOnly>
+			<AnimeTransitionGroup
+				v-if="!error"
+				v-show="comments.length"
+				tag="ul"
+				enter-animation="mt-item"
+				leave-animation="mt-item"
+				move-animation="mt-item"
+				class="relative flex flex-col divide-y divide-default"
 			>
-				<UAvatar
-					:src="comment.author.avatarUrl || undefined"
-					:alt="comment.author.name"
-					size="md"
-				/>
-				<div class="min-w-0 flex-1">
-					<div class="flex flex-wrap items-baseline gap-x-2">
-						<span class="font-medium text-highlighted">{{ comment.author.name }}</span>
-						<time
-							:datetime="new Date(comment.createdAt).toISOString()"
-							class="text-xs text-muted"
-						>{{ waktuRelatif(comment.createdAt) }}</time>
+				<li
+					v-for="comment in comments"
+					:key="comment.id"
+					class="flex gap-3 py-4 first:pt-0"
+				>
+					<UAvatar
+						:src="comment.author.avatarUrl || undefined"
+						:alt="comment.author.name"
+						size="md"
+					/>
+					<div class="min-w-0 flex-1">
+						<div class="flex flex-wrap items-baseline gap-x-2">
+							<span class="font-medium text-highlighted">{{ comment.author.name }}</span>
+							<time
+								:datetime="new Date(comment.createdAt).toISOString()"
+								class="text-xs text-muted"
+							>{{ waktuRelatif(comment.createdAt) }}</time>
+						</div>
+						<p class="mt-1 text-sm text-default whitespace-pre-line break-words">
+							{{ comment.body }}
+						</p>
 					</div>
-					<p class="mt-1 text-sm text-default whitespace-pre-line break-words">
-						{{ comment.body }}
-					</p>
-				</div>
-				<UButton
-					v-if="canDelete(comment)"
-					icon="i-lucide-trash-2"
-					color="neutral"
-					variant="ghost"
-					size="sm"
-					:loading="deletingId === comment.id"
-					:aria-label="`Hapus komentar dari ${comment.author.name}`"
-					@click="removeComment(comment)"
-				/>
-			</li>
-		</AnimeTransitionGroup>
+					<UButton
+						v-if="canDelete(comment)"
+						icon="i-lucide-trash-2"
+						color="neutral"
+						variant="ghost"
+						size="sm"
+						:loading="deletingId === comment.id"
+						:aria-label="`Hapus komentar dari ${comment.author.name}`"
+						@click="removeComment(comment)"
+					/>
+				</li>
+			</AnimeTransitionGroup>
+		</ClientOnly>
 	</section>
 </template>
