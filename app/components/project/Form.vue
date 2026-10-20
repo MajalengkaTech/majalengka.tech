@@ -193,7 +193,8 @@ async function onSubmit(event: FormSubmitEvent<ProjectInput>) {
 		@submit="onSubmit"
 	>
 		<div class="flex min-w-0 flex-col gap-6">
-			<UCard>
+			<!-- overflow-visible supaya toolbar editor cerita bisa menempel saat halaman digulir. -->
+			<UCard :ui="{ root: 'overflow-visible' }">
 				<template #header>
 					<h2 class="text-base font-bold text-highlighted">
 						Tentang proyek

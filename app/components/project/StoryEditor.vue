@@ -48,13 +48,15 @@ const items: EditorToolbarItem[][] = [
 			link: { openOnClick: false }
 		}"
 		:placeholder="placeholder"
-		class="w-full overflow-hidden rounded-md border border-accented bg-default focus-within:border-primary"
-		:ui="{ base: 'min-h-48 max-h-[32rem] overflow-y-auto px-4 py-3 sm:px-5' }"
+		class="w-full rounded-md border border-accented bg-default focus-within:border-primary"
+		:ui="{ base: 'min-h-48 px-4 py-3 sm:px-5' }"
 	>
+		<!-- Toolbar menempel di atas area yang digulir saat cerita panjang. Editor tidak punya scroll sendiri dan
+			tidak memakai overflow-hidden (juga kartu pembungkusnya di Form.vue), karena keduanya mematikan sticky. -->
 		<UEditorToolbar
 			:editor="editor"
 			:items="items"
-			class="sticky top-0 z-10 overflow-x-auto border-b border-default bg-default px-2 py-1.5"
+			class="sticky top-0 z-10 overflow-x-auto rounded-t-md border-b border-default bg-default px-2 py-1.5"
 		/>
 	</UEditor>
 </template>
