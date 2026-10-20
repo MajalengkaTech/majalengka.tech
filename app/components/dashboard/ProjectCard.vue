@@ -12,7 +12,7 @@ const emit = defineEmits<{
 	delete: [id: number]
 }>()
 
-const { user } = useUserSession()
+const { user } = useSessionView()
 const { toggleLike, likeState } = useProjectLike()
 const like = computed(() => likeState(props.project))
 

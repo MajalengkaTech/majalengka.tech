@@ -204,6 +204,8 @@ function resetFilters() {
 			</div>
 		</div>
 
+		<!-- Saat filter berubah: kartu yang tersisa bergeser ke posisi barunya, yang hilang memudar, yang baru masuk.
+			Komentar ini sengaja di luar rantai v-if/v-else: di dev, komentar di antara cabangnya bikin hydration mismatch. -->
 		<div
 			v-if="status === 'pending' && !projects.length"
 			class="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3"
@@ -235,7 +237,6 @@ function resetFilters() {
 				: [{ label: 'Pamerkan Proyekmu', icon: 'i-lucide-folder-plus', to: '/dashboard/projects/new' }]"
 		/>
 
-		<!-- Saat filter berubah: kartu yang tersisa bergeser ke posisi barunya, yang hilang memudar, yang baru masuk. -->
 		<AnimeTransitionGroup
 			v-else
 			ref="grid"

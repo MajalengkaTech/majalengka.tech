@@ -1,24 +1,22 @@
-<script setup lang="ts">
-defineOptions({
-	inheritAttrs: false
-})
+<script lang="ts">
+import { TransitionGroup, defineComponent, h } from 'vue'
 
-const props = withDefaults(defineProps<{
-	tag?: string
-}>(), {
-	tag: 'div'
+// Render function, bukan <TransitionGroup><slot /></TransitionGroup>: dengan slot di template, SSR menulis
+// penanda fragmen (<!--[-->) di antara anak-anaknya, sedangkan TransitionGroup di browser meratakan fragmen,
+// sehingga jumlah node server dan browser beda (hydration mismatch). Lewat h(), server memakai logika yang sama.
+export default defineComponent({
+	inheritAttrs: false,
+	props: {
+		tag: {
+			type: String,
+			default: 'div'
+		}
+	},
+	setup(props, { attrs, slots }) {
+		return () => h(TransitionGroup, { ...attrs, tag: props.tag, name: 'list' }, slots)
+	}
 })
 </script>
-
-<template>
-	<TransitionGroup
-		:tag="props.tag"
-		name="list"
-		v-bind="$attrs"
-	>
-		<slot />
-	</TransitionGroup>
-</template>
 
 <style scoped>
 .list-enter-active,
