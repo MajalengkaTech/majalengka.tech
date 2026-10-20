@@ -6,5 +6,16 @@ export function onCachedPageSignIn(load: () => unknown) {
 	// Navigasi di browser sudah mengambil data dengan cookie sesi, jadi hanya halaman pertama yang perlu ini.
 	if (!nuxtApp.isHydrating || !nuxtApp.payload.isCached) return
 	const { loggedIn } = useUserSession()
-	whenever(loggedIn, () => load(), { once: true })
+
+	let active = true
+	let stop: (() => void) | undefined
+	onBeforeUnmount(() => {
+		active = false
+		stop?.()
+	})
+	// Selama hidrasi, refresh() dari useFetch hanya mengembalikan data payload tanpa request baru, jadi tunggu
+	// hidrasi selesai. Sesi bisa sudah terbaca saat itu, jadi status sekarang juga diperiksa (immediate).
+	onNuxtReady(() => {
+		if (active) stop = whenever(loggedIn, () => load(), { once: true, immediate: true })
+	})
 }
