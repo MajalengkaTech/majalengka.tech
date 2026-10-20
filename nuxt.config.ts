@@ -72,8 +72,8 @@ export default defineNuxtConfig({
 	},
 
 	routeRules: {
-		// Halaman publik dinamis (/, /projek, /kreator, /tentang, profil) di-cache di edge oleh server/middleware/edge-cache.ts.
-		// Aturan swr lama dihapus: cache memorinya per isolate jarang kena, dan revalidasinya ikut memakan CPU request.
+		// Halaman publik dinamis (/, /projek, /kreator, /tentang, profil) di-cache di edge oleh server/middleware/edge-cache.ts,
+		// dengan kunci yang memuat versi data supaya selalu terbaru. Jangan pasang swr di sini: datanya bisa tertinggal.
 		'/docs': { redirect: '/docs/getting-started', prerender: false },
 		'/docs/**': { prerender: true },
 		'/blog': { prerender: true },
@@ -81,7 +81,6 @@ export default defineNuxtConfig({
 		'/changelog': { prerender: true },
 		// Jangan pasang swr/cache di route API yang punya handler POST atau butuh sesi: cache Nitro membungkus
 		// semua method di route itu dan membuang cookie, sehingga POST /api/projects pernah membalas hasil cache GET.
-		'/api/projects/stats': { swr: 120 },
 		'/api/files/**': { headers: { 'cache-control': 'public, max-age=31536000, immutable' } },
 		'/dashboard': { auth: 'user', prerender: false, ssr: false, robots: false, sitemap: false },
 		'/dashboard/**': { auth: 'user', prerender: false, ssr: false, robots: false, sitemap: false },

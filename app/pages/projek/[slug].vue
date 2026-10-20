@@ -4,9 +4,11 @@ import type { ProjectDetail, ProjectItem } from '~/types/project'
 const route = useRoute()
 const slug = computed(() => String(route.params.slug))
 
-const { data, error } = await useFetch<{ project: ProjectDetail }>(() => `/api/projects/slug/${slug.value}`, {
+const { data, error, refresh } = await useFetch<{ project: ProjectDetail }>(() => `/api/projects/slug/${slug.value}`, {
 	key: `project-detail-${slug.value}`
 })
+// Versi cache edge tidak tahu kamu pemilik atau sudah mengapresiasi; ambil ulang dengan sesimu.
+onCachedPageSignIn(refresh)
 
 if (error.value || !data.value?.project) {
 	throw createError({

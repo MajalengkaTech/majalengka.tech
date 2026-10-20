@@ -36,6 +36,9 @@ const creators = computed(() => creators$.data.value?.creators || [])
 const topLiked = computed(() => (topLiked$.data.value?.projects || []).filter(project => (project.likeCount || 0) > 0))
 const stats = computed(() => stats$.data.value || { totalProjects: 0, totalCreators: 0, categories: {} })
 
+const { loadMyLikes } = useProjectLike()
+onCachedPageSignIn(() => loadMyLikes([...featured.value, ...latest.value, ...topLiked.value]))
+
 const isMounted = ref(false)
 onMounted(() => {
 	isMounted.value = true

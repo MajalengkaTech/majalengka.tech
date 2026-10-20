@@ -58,6 +58,9 @@ const topProject = computed(() => {
 	const project = topData.value?.projects[0]
 	return project && (project.likeCount || 0) > 0 ? project : undefined
 })
+
+const { loadMyLikes } = useProjectLike()
+onCachedPageSignIn(() => loadMyLikes([...projects.value, ...(topProject.value ? [topProject.value] : [])]))
 const filtered = computed(() => {
 	const q = search.value.trim().toLowerCase()
 	if (!q) return projects.value

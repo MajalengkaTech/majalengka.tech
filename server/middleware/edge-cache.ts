@@ -1,5 +1,5 @@
 import { defineEventHandler, setResponseHeader } from 'h3'
-import { edgeCache, edgeCacheKey, edgeCacheTtl } from '../lib/edge-cache'
+import { edgeCache, edgeCacheKey, edgeCacheTtl, hasSession, readCacheVersion } from '../lib/edge-cache'
 
 // Menyajikan HTML halaman publik dari cache edge sebelum Nuxt merender ulang (lihat server/lib/edge-cache.ts).
 // Memakai h3 langsung (bukan nuxt/server) karena hook beforeResponse di plugin pasangannya memberi H3Event yang sama.
@@ -8,15 +8,21 @@ export default defineEventHandler(async (event) => {
 	const cache = edgeCache()
 	if (!ttl || !cache) return
 
-	const hit = await cache.match(edgeCacheKey(event)).catch(() => undefined)
+	// Versi dibaca sebelum render. Kalau data berubah selama render, versinya sudah naik dan hasil render ini
+	// tidak akan dibaca lagi. Tabel versi belum ada atau D1 gagal: lewati cache daripada menyajikan data lama.
+	const version = await readCacheVersion().catch(() => null)
+	if (version === null) return
+
+	const hit = await cache.match(edgeCacheKey(event, version)).catch(() => undefined)
 	if (!hit) {
-		// Disimpan oleh server/plugins/edge-cache.ts setelah render selesai.
-		event.context.edgeCacheTtl = ttl
+		// Render untuk pengguna yang login berisi data pribadi, jadi hanya render anonim yang disimpan
+		// oleh server/plugins/edge-cache.ts.
+		if (!hasSession(event)) event.context.edgeCache = { ttl, version }
 		setResponseHeader(event, 'x-edge-cache', 'MISS')
 		return
 	}
 
-	// Browser tidak ikut menyimpan, supaya setelah login halaman langsung tampil versi pribadi.
+	// Browser tidak ikut menyimpan, supaya perubahan data dan versi pribadi setelah login langsung terlihat.
 	const headers = new Headers(hit.headers)
 	headers.set('cache-control', 'public, max-age=0, must-revalidate')
 	headers.set('x-edge-cache', 'HIT')
