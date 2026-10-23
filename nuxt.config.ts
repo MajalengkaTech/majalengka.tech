@@ -93,54 +93,7 @@ export default defineNuxtConfig({
 	compatibilityDate: '2026-06-30',
 
 	nitro: {
-		preset: 'cloudflare_module',
-		cloudflare: {
-			deployConfig: true,
-			pages: {
-				routes: {
-					exclude: [
-						'/assets/*',
-						'/images/*',
-						'/__og-image__/*',
-						'/_og/*',
-						'/*.{js,css,png,jpg,jpeg,webp,svg,ico,json}'
-					]
-				}
-			},
-			wrangler: {
-				name: 'majalengka-tech',
-				// Workers Logs supaya error seperti 1102 (batas CPU/memori) bisa dilacak dari dashboard Cloudflare.
-				observability: {
-					enabled: true
-				},
-				vars: {
-					BETTER_AUTH_URL: 'https://majalengka.tech',
-					NUXT_PUBLIC_SITE_URL: 'https://majalengka.tech'
-				},
-				routes: [
-					{
-						pattern: 'majalengka.tech',
-						custom_domain: true
-					}
-				],
-				d1_databases: [
-					{
-						binding: 'DB',
-						database_name: 'majalengka-tech-db',
-						database_id: process.env.CLOUDFLARE_D1_DATABASE_ID || '84289e0a-899d-41a7-ab83-cf488e91d29d',
-						// D1 produksi mencatat migrasi di tabel bawaan wrangler; path relatif terhadap .output/server/wrangler.json.
-						migrations_table: 'd1_migrations',
-						migrations_dir: '../../server/db/migrations/sqlite'
-					}
-				],
-				r2_buckets: [
-					{
-						binding: 'BLOB',
-						bucket_name: 'majalengkatech'
-					}
-				]
-			}
-		},
+		preset: process.env.NITRO_PRESET || 'node-server',
 		prerender: {
 			routes: [
 				'/llms.txt',
@@ -161,8 +114,15 @@ export default defineNuxtConfig({
 	},
 
 	hub: {
-		db: 'sqlite',
+		db: {
+			dialect: 'sqlite',
+			applyMigrationsDuringBuild: false
+		},
 		blob: true
+	},
+
+	linkChecker: {
+		enabled: false
 	},
 
 	vite: {
@@ -201,29 +161,28 @@ export default defineNuxtConfig({
 	},
 
 	image: {
-		provider: process.env.NODE_ENV === 'production' ? 'cloudflare' : 'ipx',
-		cloudflare: {
-			baseURL: 'https://majalengka.tech'
+		provider: process.env.CLOUDINARY_CLOUD_NAME ? 'cloudinary' : 'ipx',
+		cloudinary: {
+			baseURL: `https://res.cloudinary.com/${process.env.CLOUDINARY_CLOUD_NAME || 'majalengka-tech'}/image/upload/`
 		},
 		quality: 80,
 		format: ['avif', 'webp'],
-		// Nuxt Image v2 tidak punya breakpoint xs, jadi ukuran default di prop sizes ditulis dalam px (vw tanpa prefix dihitung jadi 1px).
-		// Cloudflare memilih AVIF atau WebP sendiri dari header Accept (f=auto); IPX di lokal tidak mengenal 'auto'.
 		presets: {
 			sampul: {
 				modifiers: {
-					format: process.env.NODE_ENV === 'production' ? 'auto' : 'webp',
+					format: process.env.CLOUDINARY_CLOUD_NAME ? 'auto' : 'webp',
 					fit: 'cover'
 				}
 			},
 			galeri: {
 				modifiers: {
-					format: process.env.NODE_ENV === 'production' ? 'auto' : 'webp',
+					format: process.env.CLOUDINARY_CLOUD_NAME ? 'auto' : 'webp',
 					fit: 'contain'
 				}
 			}
 		},
 		domains: [
+			'res.cloudinary.com',
 			'images.unsplash.com',
 			'avatars.githubusercontent.com',
 			'lh3.googleusercontent.com'
