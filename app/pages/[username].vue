@@ -104,7 +104,11 @@ useSeoMeta({
 	ogImageWidth: 1200,
 	ogImageHeight: 630,
 	ogImageAlt: () => `Kartu kreator @${creator.value.username} di Majalengka Tech`,
-	twitterCard: 'summary_large_image'
+	twitterCard: 'summary_large_image',
+	twitterTitle: () => `@${creator.value.username} - Kreator Majalengka Tech`,
+	twitterDescription: seoDescription,
+	twitterImage: cardImageUrl,
+	twitterImageAlt: () => `Kartu kreator @${creator.value.username} di Majalengka Tech`
 })
 
 // Proyek di bawah layar muncul bertahap saat di-scroll.
