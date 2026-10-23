@@ -54,6 +54,11 @@ export default defineAppConfig({
 			slots: {
 				base: 'transition-[color,background-color,border-color,box-shadow,transform] duration-150 motion-safe:active:scale-[0.97]'
 			}
+		},
+		avatar: {
+			defaultVariants: {
+				as: { img: 'img' }
+			}
 		}
 	}
 })

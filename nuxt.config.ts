@@ -174,7 +174,7 @@ export default defineNuxtConfig({
 	},
 
 	image: {
-		provider: (process.env.NUXT_CLOUDINARY_CLOUD_NAME || process.env.CLOUDINARY_CLOUD_NAME) ? 'cloudinary' : 'ipx',
+		provider: 'ipx',
 		cloudinary: {
 			baseURL: `https://res.cloudinary.com/${process.env.NUXT_CLOUDINARY_CLOUD_NAME || process.env.CLOUDINARY_CLOUD_NAME || 'daton7ry4'}/image/upload/`
 		},

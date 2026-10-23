@@ -76,7 +76,7 @@ const cardData = computed<CreatorCardData>(() => ({
 const isShareModalOpen = ref(false)
 const origin = useRequestURL().origin
 const profileUrl = origin + route.path
-const cardImageUrl = computed(() => `${origin}/api/creators/${creator.value.username || username.value}/card.png`)
+const cardImageUrl = computed(() => `${origin}/api/creators/${creator.value.username || username.value}/card.png?v=${creator.value.projectCount}_${creator.value.likeCount}`)
 
 const { shareLink } = useShareLink()
 

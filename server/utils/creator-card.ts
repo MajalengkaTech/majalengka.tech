@@ -119,7 +119,10 @@ export async function generateCreatorCardPng(data: CreatorCardRenderData): Promi
 	const svg = await generateCreatorCardSvg(data)
 	const resvg = new Resvg(svg, {
 		fitTo: { mode: 'width', value: 1200 },
-		font: { loadSystemFonts: true }
+		font: {
+			loadSystemFonts: true,
+			defaultFontFamily: 'DejaVu Sans'
+		}
 	})
 	return Buffer.from(resvg.render().asPng())
 }
