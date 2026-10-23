@@ -73,42 +73,20 @@ const cardData = computed<CreatorCardData>(() => ({
 	totalCreators: creator.value.totalCreators
 }))
 
-const { busy: cardBusy, downloadCard, uploadCard } = useCreatorCard()
-const toast = useToast()
-const cardSyncFailed = ref(false)
-
-async function onDownloadCard() {
-	try {
-		await downloadCard(cardData.value)
-	} catch {
-		toast.add({ title: 'Kartu belum bisa diunduh', description: 'Coba muat ulang halaman lalu unduh lagi.', color: 'error' })
-	}
-}
-
-const isAdminUser = computed(() => (user.value as { role?: string } | null)?.role === 'admin')
-
-// Gambar pratinjau link dibuat di browser: otomatis dibuat saat kartu kosong, atau diperbarui jika data berubah oleh pemilik/admin.
-onMounted(async () => {
-	const card = data.value?.card
-	const changed = !card
-		|| card.projectCount !== creator.value.projectCount
-		|| card.likeCount !== creator.value.likeCount
-		|| card.rank !== creator.value.rank
-	if (!changed) return
-
-	// Boleh jika: pemilik akun, atau admin, atau kartu belum pernah ada di R2 (!card)
-	if (!isMe.value && !isAdminUser.value && card) return
-
-	try {
-		await uploadCard(cardData.value, creator.value.id)
-	} catch {
-		cardSyncFailed.value = true
-	}
-})
-
+const isShareModalOpen = ref(false)
 const origin = useRequestURL().origin
 const profileUrl = origin + route.path
+const cardImageUrl = computed(() => `${origin}/api/creators/${creator.value.username || username.value}/card.png`)
+
 const { shareLink } = useShareLink()
+
+function onDownloadCard() {
+	const a = document.createElement('a')
+	a.href = cardImageUrl.value
+	a.download = `kartu-${creator.value.username || username.value}-majalengka-tech.png`
+	a.target = '_blank'
+	a.click()
+}
 
 function shareProfile() {
 	return shareLink({ title: `@${creator.value.username} di Majalengka Tech`, url: profileUrl })
@@ -118,17 +96,15 @@ const seoDescription = computed(() => creator.value.bio
 	|| [roleLabel.value, creator.value.location].filter(Boolean).join(' dari ')
 	|| `Proyek @${creator.value.username} di Majalengka Tech`)
 
-const cardImage = data.value?.card ? origin + data.value.card.url : undefined
-
 useSeoMeta({
 	title: () => `@${creator.value.username} - Kreator Majalengka Tech`,
 	description: seoDescription,
 	ogDescription: seoDescription,
-	ogImage: cardImage,
-	ogImageWidth: cardImage ? 1200 : undefined,
-	ogImageHeight: cardImage ? 630 : undefined,
-	ogImageAlt: cardImage ? `Kartu kreator @${creator.value.username} di Majalengka Tech` : undefined,
-	twitterCard: cardImage ? 'summary_large_image' : 'summary'
+	ogImage: cardImageUrl,
+	ogImageWidth: 1200,
+	ogImageHeight: 630,
+	ogImageAlt: () => `Kartu kreator @${creator.value.username} di Majalengka Tech`,
+	twitterCard: 'summary_large_image'
 })
 
 // Proyek di bawah layar muncul bertahap saat di-scroll.
@@ -197,11 +173,17 @@ useReveal(useTemplateRef<HTMLElement>('works'))
 			<CreatorStatsCard :data="cardData" />
 			<div class="flex flex-wrap items-center gap-2">
 				<UButton
+					label="Pasang di GitHub"
+					icon="i-simple-icons-github"
+					color="primary"
+					variant="solid"
+					@click="isShareModalOpen = true"
+				/>
+				<UButton
 					label="Unduh Kartu"
 					icon="i-lucide-download"
 					color="neutral"
 					variant="outline"
-					:loading="cardBusy"
 					@click="onDownloadCard"
 				/>
 				<UButton
@@ -211,13 +193,12 @@ useReveal(useTemplateRef<HTMLElement>('works'))
 					variant="ghost"
 					@click="shareProfile"
 				/>
-				<p
-					v-if="isMe && cardSyncFailed"
-					class="text-sm text-muted"
-				>
-					Gambar pratinjau link belum bisa diperbarui. Kartu di halaman ini tetap memakai angka terbaru.
-				</p>
 			</div>
+
+			<CreatorShareModal
+				v-model:open="isShareModalOpen"
+				:username="creator.username || username"
+			/>
 		</section>
 
 		<div class="grid gap-10 lg:grid-cols-[280px_minmax(0,1fr)] lg:gap-12">

@@ -9,7 +9,7 @@ const querySchema = z.object({
 	folder: z.string().trim().regex(/^[a-zA-Z0-9_-]+$/).optional()
 })
 
-const ALLOWED_MIME_TYPES = ['image/png', 'image/jpeg', 'image/webp', 'image/gif']
+const ALLOWED_MIME_TYPES = ['image/png', 'image/jpeg', 'image/webp', 'image/gif'] as const
 const MAX_FILE_SIZE = 8 * 1024 * 1024 // 8MB
 
 export default defineEventHandler(async (event) => {
@@ -48,7 +48,7 @@ export default defineEventHandler(async (event) => {
 			})
 		}
 
-		if (file.type && !ALLOWED_MIME_TYPES.includes(file.type)) {
+		if (file.type && !ALLOWED_MIME_TYPES.includes(file.type as any)) {
 			throw createError({
 				status: 400,
 				statusText: 'Format gambar tidak didukung. Gunakan JPG, PNG, WebP, atau GIF.'
@@ -81,7 +81,7 @@ export default defineEventHandler(async (event) => {
 		ensure: {
 			maxSize: '8MB',
 			// SVG ditolak karena bisa membawa script yang jalan di domain majalengka.tech.
-			types: ALLOWED_MIME_TYPES
+			types: [...ALLOWED_MIME_TYPES]
 		},
 		put: {
 			addRandomSuffix: true,

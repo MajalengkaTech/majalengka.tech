@@ -104,6 +104,9 @@ export default defineNuxtConfig({
 
 	nitro: {
 		preset: process.env.NITRO_PRESET || 'node-server',
+		externals: {
+			external: ['@resvg/resvg-js']
+		},
 		prerender: {
 			routes: [
 				'/llms.txt',

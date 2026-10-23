@@ -64,25 +64,13 @@ export default defineEventHandler(async (event) => {
 			socialLinks: parseSocialLinks(profile.socialLinks),
 			...stats
 		},
-		card: await readCardInfo(creator.id),
+		card: {
+			url: `/api/creators/${creator.username}/card.png`,
+			svgUrl: `/api/creators/${creator.username}/card.svg`,
+			projectCount: stats.projectCount,
+			likeCount: stats.likeCount,
+			rank: stats.rank
+		},
 		projects
 	}
 })
-
-// Info kartu yang tersimpan di R2; null kalau belum pernah dibuat atau R2 tidak tersedia (misalnya di lokal).
-async function readCardInfo(userId: string) {
-	try {
-		const meta = await blob.head(creatorCardPath(userId))
-		if (!meta) return null
-		const updatedAt = new Date(meta.uploadedAt).getTime()
-		return {
-			url: `/api/files/${creatorCardPath(userId)}?v=${updatedAt}`,
-			updatedAt,
-			projectCount: Number(meta.customMetadata?.projectCount) || 0,
-			likeCount: Number(meta.customMetadata?.likeCount) || 0,
-			rank: Number(meta.customMetadata?.rank) || 0
-		}
-	} catch {
-		return null
-	}
-}
