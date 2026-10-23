@@ -21,6 +21,7 @@ export default defineNuxtConfig({
 	modules: [
 		'@nuxt/eslint',
 		'@nuxt/image',
+		'@nuxtjs/cloudinary',
 		'motion-v/nuxt',
 		'@nuxt/ui',
 		'@nuxtjs/seo',
@@ -30,6 +31,10 @@ export default defineNuxtConfig({
 		'@nuxtjs/better-auth',
 		'nuxt-llms'
 	],
+
+	cloudinary: {
+		cloudName: process.env.NUXT_CLOUDINARY_CLOUD_NAME || process.env.CLOUDINARY_CLOUD_NAME || 'daton7ry4'
+	},
 
 	devtools: {
 		enabled: true
@@ -60,6 +65,11 @@ export default defineNuxtConfig({
 	runtimeConfig: {
 		betterAuthSecret: process.env.NUXT_BETTER_AUTH_SECRET || process.env.BETTER_AUTH_SECRET || '',
 		superAdminIds: process.env.NUXT_SUPER_ADMIN_IDS || '',
+		cloudinary: {
+			cloudName: process.env.NUXT_CLOUDINARY_CLOUD_NAME || process.env.CLOUDINARY_CLOUD_NAME || 'daton7ry4',
+			apiKey: process.env.NUXT_CLOUDINARY_API_KEY || process.env.CLOUDINARY_API_KEY || '',
+			apiSecret: process.env.NUXT_CLOUDINARY_API_SECRET || process.env.CLOUDINARY_API_SECRET || ''
+		},
 		oauth: {
 			githubClientId: process.env.NUXT_OAUTH_GITHUB_CLIENT_ID || process.env.GITHUB_CLIENT_ID || '',
 			githubClientSecret: process.env.NUXT_OAUTH_GITHUB_CLIENT_SECRET || process.env.GITHUB_CLIENT_SECRET || '',
@@ -161,22 +171,22 @@ export default defineNuxtConfig({
 	},
 
 	image: {
-		provider: process.env.CLOUDINARY_CLOUD_NAME ? 'cloudinary' : 'ipx',
+		provider: (process.env.NUXT_CLOUDINARY_CLOUD_NAME || process.env.CLOUDINARY_CLOUD_NAME) ? 'cloudinary' : 'ipx',
 		cloudinary: {
-			baseURL: `https://res.cloudinary.com/${process.env.CLOUDINARY_CLOUD_NAME || 'majalengka-tech'}/image/upload/`
+			baseURL: `https://res.cloudinary.com/${process.env.NUXT_CLOUDINARY_CLOUD_NAME || process.env.CLOUDINARY_CLOUD_NAME || 'daton7ry4'}/image/upload/`
 		},
 		quality: 80,
 		format: ['avif', 'webp'],
 		presets: {
 			sampul: {
 				modifiers: {
-					format: process.env.CLOUDINARY_CLOUD_NAME ? 'auto' : 'webp',
+					format: (process.env.NUXT_CLOUDINARY_CLOUD_NAME || process.env.CLOUDINARY_CLOUD_NAME) ? 'auto' : 'webp',
 					fit: 'cover'
 				}
 			},
 			galeri: {
 				modifiers: {
-					format: process.env.CLOUDINARY_CLOUD_NAME ? 'auto' : 'webp',
+					format: (process.env.NUXT_CLOUDINARY_CLOUD_NAME || process.env.CLOUDINARY_CLOUD_NAME) ? 'auto' : 'webp',
 					fit: 'contain'
 				}
 			}

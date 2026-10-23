@@ -19,6 +19,8 @@ logs
 .idea
 __pycache__/
 *.py[cod]
+*.sql
+.temp_r2_migration
 
 # Local env files
 .env

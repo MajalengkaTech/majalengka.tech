@@ -26,6 +26,11 @@ export function assertThumbnailAllowed(url: string | null, ownerId: string | num
 }
 
 export async function deleteOwnedBlob(url: string | null | undefined, ownerId: string | number) {
+	if (!url) return
+	if (url.includes('res.cloudinary.com')) {
+		await deleteFromCloudinary(url)
+		return
+	}
 	const pathname = blobPathnameFromUrl(url)
 	if (!pathname || !isOwnedBlobUrl(url, ownerId)) return
 	try {

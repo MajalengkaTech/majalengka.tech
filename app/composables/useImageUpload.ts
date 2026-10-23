@@ -2,8 +2,11 @@ const ALLOWED_TYPES = ['image/png', 'image/jpeg', 'image/webp', 'image/gif']
 // Sama dengan batas di server/api/upload.post.ts.
 const MAX_BYTES = 8 * 1024 * 1024
 
-// projectId diisi saat mengedit proyek, supaya admin yang mengunggah untuk proyek orang lain menyimpan gambar di folder pemiliknya.
-export function useImageUpload(projectId?: MaybeRefOrGetter<number | undefined>) {
+// projectId diisi saat mengedit proyek; options.folder menentukan subfolder (default: projek) di Cloudinary.
+export function useImageUpload(
+	projectId?: MaybeRefOrGetter<number | undefined>,
+	options?: { folder?: string }
+) {
 	const toast = useToast()
 	const uploading = ref(0)
 
@@ -22,7 +25,15 @@ export function useImageUpload(projectId?: MaybeRefOrGetter<number | undefined>)
 		uploading.value++
 		try {
 			const id = toValue(projectId)
-			const res = await $fetch<{ url: string }>('/api/upload', { method: 'POST', body: formData, query: id ? { projectId: id } : undefined })
+			const folder = options?.folder || 'projek'
+			const query: Record<string, string | number> = { folder }
+			if (id) query.projectId = id
+
+			const res = await $fetch<{ url: string }>('/api/upload', {
+				method: 'POST',
+				body: formData,
+				query
+			})
 			return res.url
 		} catch (err: unknown) {
 			const errorResponse = err as { data?: { statusMessage?: string } }

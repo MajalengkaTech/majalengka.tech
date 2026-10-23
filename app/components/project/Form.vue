@@ -16,7 +16,7 @@ const MAX_GALLERY = 8
 
 const toast = useToast()
 const { user } = useUserSession()
-const { uploadImage, isUploading } = useImageUpload(() => props.project?.id)
+const { uploadImage, isUploading } = useImageUpload(() => props.project?.id, { folder: 'projek' })
 const saving = ref(false)
 const isEdit = computed(() => Boolean(props.project?.id))
 

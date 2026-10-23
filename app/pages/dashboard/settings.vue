@@ -36,7 +36,7 @@ interface EditableSocialLink extends SocialLinkItem {
 const toast = useToast()
 const route = useRoute()
 const { fetchSession: refreshSession } = useUserSession()
-const { uploadImage, isUploading: isUploadingAvatar } = useImageUpload()
+const { uploadImage, isUploading: isUploadingAvatar } = useImageUpload(undefined, { folder: 'avatar' })
 const avatarFileInput = useTemplateRef<HTMLInputElement>('avatarFileInput')
 
 function triggerAvatarUpload() {
