@@ -1,0 +1,244 @@
+<script setup lang="ts">
+import type { FormSubmitEvent } from '@nuxt/ui'
+import type { ProjectComment } from '~/types/project'
+
+const props = defineProps<{
+	projectId: number
+	projectOwnerId: string | number
+}>()
+
+const { loggedIn, user } = useSessionView()
+const route = useRoute()
+const toast = useToast()
+
+const { data, status, error, refresh } = useLazyFetch<{ comments: ProjectComment[] }>(
+	() => `/api/projects/${props.projectId}/comments`,
+	{
+		key: `project-comments-${props.projectId}`,
+		server: false
+	}
+)
+const comments = computed(() => data.value?.comments || [])
+
+const state = reactive({ body: '' })
+const sending = ref(false)
+const deletingId = ref<number | null>(null)
+
+const currentUserId = computed(() => (user.value as { id?: string } | null)?.id)
+const isAdminUser = computed(() => (user.value as { role?: string } | null)?.role === 'admin')
+
+// Satu modal laporan untuk semua komentar; hanya untuk pengguna yang login dan bukan penulis komentarnya.
+const reportCommentId = ref<number>()
+const reportOpen = ref(false)
+function canReport(comment: ProjectComment) {
+	return loggedIn.value && comment.author.id !== currentUserId.value
+}
+function openReport(comment: ProjectComment) {
+	reportCommentId.value = comment.id
+	reportOpen.value = true
+}
+
+function canDelete(comment: ProjectComment) {
+	if (!currentUserId.value) return false
+	return comment.author.id === currentUserId.value
+		|| String(props.projectOwnerId) === currentUserId.value
+		|| isAdminUser.value
+}
+
+async function onSubmit(event: FormSubmitEvent<{ body: string }>) {
+	try {
+		sending.value = true
+		await $fetch(`/api/projects/${props.projectId}/comments`, {
+			method: 'POST',
+			body: { body: event.data.body }
+		})
+		state.body = ''
+		await refresh()
+	} catch (err: unknown) {
+		const errorResponse = err as { data?: { statusMessage?: string } }
+		toast.add({
+			title: 'Komentar belum terkirim',
+			description: errorResponse.data?.statusMessage || 'Periksa koneksimu lalu kirim lagi.',
+			color: 'error'
+		})
+	} finally {
+		sending.value = false
+	}
+}
+
+async function removeComment(comment: ProjectComment) {
+	try {
+		deletingId.value = comment.id
+		await $fetch(`/api/projects/${props.projectId}/comments/${comment.id}`, { method: 'DELETE' })
+		await refresh()
+	} catch (err: unknown) {
+		const errorResponse = err as { data?: { statusMessage?: string } }
+		toast.add({
+			title: 'Komentar belum terhapus',
+			description: errorResponse.data?.statusMessage || 'Coba lagi sebentar.',
+			color: 'error'
+		})
+	} finally {
+		deletingId.value = null
+	}
+}
+</script>
+
+<template>
+	<section
+		aria-labelledby="judul-komentar"
+		class="flex flex-col gap-5"
+	>
+		<h2
+			id="judul-komentar"
+			class="scroll-mt-24 text-xl font-bold text-highlighted"
+		>
+			Komentar
+			<span
+				v-if="comments.length"
+				class="font-normal text-muted"
+			>(<AnimeTransition
+				enter-animation="mt-count"
+				leave-animation="mt-count"
+				mode="out-in"
+			><span
+				:key="comments.length"
+				class="inline-block tabular-nums"
+			>{{ comments.length }}</span></AnimeTransition>)</span>
+		</h2>
+
+		<UForm
+			v-if="loggedIn"
+			:schema="projectCommentSchema"
+			:state="state"
+			class="flex flex-col gap-2"
+			@submit="onSubmit"
+		>
+			<UFormField
+				name="body"
+				label="Tulis komentar"
+				:ui="{ label: 'sr-only' }"
+			>
+				<UTextarea
+					v-model="state.body"
+					placeholder="Apa yang menarik dari proyek ini? Masukan yang membangun juga boleh."
+					:rows="3"
+					autoresize
+					:maxrows="8"
+					class="w-full"
+				/>
+			</UFormField>
+			<div class="flex justify-end">
+				<UButton
+					type="submit"
+					label="Kirim Komentar"
+					icon="i-lucide-send"
+					:loading="sending"
+				/>
+			</div>
+		</UForm>
+
+		<UAlert
+			v-else
+			color="neutral"
+			variant="subtle"
+			icon="i-lucide-message-circle"
+			title="Mau ikut berkomentar?"
+			description="Masuk dulu supaya kreatornya tahu siapa yang memberi masukan."
+			:actions="[{ label: 'Masuk', to: `/login?redirect=${encodeURIComponent(route.fullPath)}`, color: 'neutral', variant: 'outline' }]"
+		/>
+
+		<!-- Komentar hanya diambil di browser: server merender status idle, browser sudah pending saat hidrasi. -->
+		<div
+			v-if="(status === 'idle' || status === 'pending') && !comments.length"
+			class="flex flex-col gap-4"
+		>
+			<USkeleton
+				v-for="n in 2"
+				:key="n"
+				class="h-16 w-full"
+			/>
+		</div>
+
+		<UAlert
+			v-else-if="error"
+			color="error"
+			variant="subtle"
+			icon="i-lucide-triangle-alert"
+			title="Komentar gagal dimuat"
+			description="Server tidak merespons. Coba muat ulang."
+			:actions="[{ label: 'Coba Lagi', color: 'error', variant: 'outline', onClick: () => refresh() }]"
+		/>
+
+		<p
+			v-else-if="!comments.length"
+			class="text-sm text-muted"
+		>
+			Belum ada komentar. Tulis yang pertama untuk proyek ini.
+		</p>
+
+		<!-- Selalu dirender (disembunyikan saat kosong) supaya komentar pertama pun ikut animasi masuk.
+			Hanya di browser: SSR TransitionGroup kosong menulis node komentar yang tidak ada di browser (hydration mismatch). -->
+		<ClientOnly>
+			<AnimeTransitionGroup
+				v-if="!error"
+				v-show="comments.length"
+				tag="ul"
+				enter-animation="mt-item"
+				leave-animation="mt-item"
+				move-animation="mt-item"
+				class="relative flex flex-col divide-y divide-default"
+			>
+				<li
+					v-for="comment in comments"
+					:key="comment.id"
+					class="flex gap-3 py-4 first:pt-0"
+				>
+					<UAvatar
+						:src="comment.author.avatarUrl || undefined"
+						:alt="comment.author.name"
+						size="md"
+					/>
+					<div class="min-w-0 flex-1">
+						<div class="flex flex-wrap items-baseline gap-x-2">
+							<span class="font-medium text-highlighted">{{ comment.author.name }}</span>
+							<time
+								:datetime="new Date(comment.createdAt).toISOString()"
+								class="text-xs text-muted"
+							>{{ waktuRelatif(comment.createdAt) }}</time>
+						</div>
+						<p class="mt-1 text-sm text-default whitespace-pre-line break-words">
+							{{ comment.body }}
+						</p>
+					</div>
+					<UButton
+						v-if="canReport(comment)"
+						icon="i-lucide-flag"
+						color="neutral"
+						variant="ghost"
+						size="sm"
+						:aria-label="`Laporkan komentar dari ${comment.author.name}`"
+						@click="openReport(comment)"
+					/>
+					<UButton
+						v-if="canDelete(comment)"
+						icon="i-lucide-trash-2"
+						color="neutral"
+						variant="ghost"
+						size="sm"
+						:loading="deletingId === comment.id"
+						:aria-label="`Hapus komentar dari ${comment.author.name}`"
+						@click="removeComment(comment)"
+					/>
+				</li>
+			</AnimeTransitionGroup>
+		</ClientOnly>
+
+		<ReportModal
+			v-model:open="reportOpen"
+			target-type="comment"
+			:project-id="projectId"
+			:comment-id="reportCommentId"
+		/>
+	</section>
+</template>

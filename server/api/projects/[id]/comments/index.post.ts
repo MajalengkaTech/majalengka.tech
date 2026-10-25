@@ -1,0 +1,31 @@
+import { db, schema } from 'hub:db'
+import { defineEventHandler } from 'nuxt/server'
+import { parseProjectId, requirePublishedProject, requireSignedIn } from '../../../../utils/project-access'
+import { notifyProjectOwner } from '../../../../utils/notifications'
+
+export default defineEventHandler(async (event) => {
+	const session = await requireSignedIn(event, 'Masuk dulu untuk menulis komentar')
+	const projectId = parseProjectId(event)
+	const project = await requirePublishedProject(projectId)
+
+	const body = await readBodyWith(event, projectCommentSchema)
+	const now = new Date()
+
+	const [comment] = await db.insert(schema.projectComments).values({
+		projectId,
+		userId: String(session.user.id),
+		body: body.body,
+		createdAt: now,
+		updatedAt: now
+	}).returning()
+
+	if (comment) {
+		await notifyProjectOwner({ ownerId: project.userId, actorId: String(session.user.id), type: 'comment', projectId, commentId: comment.id })
+			.catch(error => console.error('[notifikasi] komentar', error))
+	}
+
+	return {
+		success: true,
+		comment
+	}
+})

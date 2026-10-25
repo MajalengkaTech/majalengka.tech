@@ -1,0 +1,246 @@
+@import "tailwindcss";
+@import "@nuxt/ui";
+
+@theme static {
+	/*
+	 * Skala dibuat di OKLCH dengan hue tetap. 500 = biru logo (primer light mode),
+	 * 400 = primer dark mode (6,07:1 di atas slate-900). Aturan pakai ada di DESIGN.md.
+	 */
+	--color-brand-50: #f0f5ff;
+	--color-brand-100: #dfeafe;
+	--color-brand-200: #c4d8ff;
+	--color-brand-300: #99bafe;
+	--color-brand-400: #6293ff;
+	--color-brand-500: #0014a8;
+	--color-brand-600: #010096;
+	--color-brand-700: #00017b;
+	--color-brand-800: #000161;
+	--color-brand-900: #00004a;
+	--color-brand-950: #000033;
+	--color-brand: #0014a8;
+
+	/* Aksen Kuning Mangga: jangan jadi warna teks di latar terang kecuali 700 ke atas (500 di putih hanya 2,13:1). */
+	--color-mango-50: #fef9f3;
+	--color-mango-100: #feefdc;
+	--color-mango-200: #ffe1ba;
+	--color-mango-300: #ffca81;
+	--color-mango-400: #feb33b;
+	--color-mango-500: #f0a202;
+	--color-mango-600: #c78606;
+	--color-mango-700: #9d6800;
+	--color-mango-800: #774f02;
+	--color-mango-900: #5b3b00;
+	--color-mango-950: #362200;
+	--color-mango: #f0a202;
+}
+
+@theme {
+	--font-sans: 'TikTok Sans', sans-serif;
+	--font-serif: 'Bricolage Grotesque', serif;
+	--font-mono: 'Geist Mono', monospace;
+}
+
+/*
+ * Pengaman gerak: lebar halaman tidak bergeser saat scrollbar muncul atau hilang (misalnya di jeda transisi out-in),
+ * dan elemen yang sesaat membesar lewat efek pegas tidak memunculkan scroll horizontal.
+ * overflow-x sengaja hanya di body: selama overflow html tetap visible, overflow body diteruskan ke viewport. Kunci scroll
+ * menu, modal, dan pencarian (body overflow: hidden) jadi mengunci viewport. Kalau html ikut di-clip, body sendiri yang
+ * berubah jadi wadah scroll, header sticky terlempar ke atas halaman, dan menu avatar baru terlihat setelah scroll ke atas.
+ */
+@layer base {
+	html {
+		scrollbar-gutter: stable;
+		max-width: 100%;
+	}
+
+	body {
+		max-width: 100%;
+		overflow-x: clip;
+	}
+
+	/*
+	 * Mencegah kebocoran gulir horizontal (horizontal scroll leak) saat tautan atau teks panjang muncul di mobile (R-03 / antislop-layoutmobile):
+	 * URL panjang tanpa spasi (unbroken strings) dipaksa memecah baris secara aman tanpa memperlebar kontainer.
+	 */
+	a, p, span, dd, dt, li, code, time, label {
+		overflow-wrap: anywhere;
+		word-break: normal;
+	}
+
+	a {
+		word-break: break-word;
+	}
+
+	pre {
+		overflow-x: auto;
+		max-width: 100%;
+	}
+
+	/* Teks yang diblok memakai Kuning Mangga, aksen khas Majalengka Tech. Kontras 12,76:1 (light) dan 9,96:1 (dark). */
+	::selection {
+		background-color: var(--color-mango-300);
+		color: var(--color-brand-900);
+	}
+
+	.dark ::selection {
+		background-color: var(--color-mango-400);
+		color: var(--ui-color-neutral-900);
+	}
+}
+
+/* until v5 ships --ui-font-heading */
+@layer base {
+	h1, h2, h3, h4, h5, h6 {
+		font-family: var(--font-serif);
+		font-weight: 700;
+	}
+}
+
+:root {
+	--ui-radius: 0.125rem;
+}
+
+/* Warna primer diatur lewat app.config (primary: 'brand'); di sini hanya permukaan netral. */
+:root, .light {
+	--ui-bg: var(--ui-color-neutral-50);
+	--ui-bg-muted: var(--ui-color-neutral-100);
+	/* Bawaan Nuxt UI (muted 500, dimmed 400) gagal AA di atas bg-elevated; 600 dan 500 lolos (6,92:1 dan 4,55:1 di slate-50). */
+	--ui-text-muted: var(--ui-color-neutral-600);
+	--ui-text-dimmed: var(--ui-color-neutral-500);
+	/* Merah bawaan (500) hanya 3,64:1 untuk pesan error di slate-50; 700 lolos 6,14:1 dan teks putih di atasnya 6,42:1. */
+	--ui-error: var(--ui-color-error-700);
+}
+
+.dark {
+	--ui-bg-inverted: var(--ui-color-neutral-50);
+	--ui-text-highlighted: var(--ui-color-neutral-50);
+	--ui-border-inverted: var(--ui-color-neutral-50);
+	--ui-bg: var(--ui-color-neutral-900);
+	--ui-bg-muted: var(--ui-color-neutral-800);
+	--ui-text-inverted: var(--ui-color-neutral-900);
+	/* :root di atas ikut berlaku di dark, jadi muted dikembalikan ke 400; dimmed bawaan (500) hanya 3,07:1 di bg-elevated. */
+	--ui-text-muted: var(--ui-color-neutral-400);
+	/* Error di dark kembali ke bawaan 400 (6,18:1 di slate-900), karena :root di atas ikut berlaku. */
+	--ui-error: var(--ui-color-error-400);
+	--ui-text-dimmed: var(--ui-color-neutral-400);
+}
+
+
+/*
+ * Transisi Antarhalaman & Tata Letak:
+ * Cepat, halus, dan responsif (150ms) dengan akselerasi perangkat keras,
+ * menghindari jeda/hang pada Vue transition mode 'out-in'.
+ */
+.motion-ready .page-enter-active,
+.motion-ready .page-leave-active,
+.motion-ready .layout-enter-active,
+.motion-ready .layout-leave-active {
+	transition: opacity 150ms ease-out, transform 150ms ease-out;
+}
+
+.motion-ready .page-enter-from,
+.motion-ready .layout-enter-from {
+	opacity: 0;
+	transform: translateY(6px);
+}
+
+.motion-ready .page-leave-to,
+.motion-ready .layout-leave-to {
+	opacity: 0;
+	transform: translateY(-4px);
+}
+
+/* Showcase Carousel Item: Nuxt.com style 2-up responsive carousel slides */
+.showcase-carousel-item {
+	min-width: 0 !important;
+	flex: 0 0 100% !important;
+	padding-left: 1rem;
+}
+
+@media (min-width: 640px) {
+	.showcase-carousel-item {
+		flex: 0 0 50% !important;
+	}
+}
+
+/* Category filter active state */
+.filter-chip-active {
+	background-color: #0014a8 !important;
+	color: #ffffff !important;
+	border-color: #0014a8 !important;
+}
+
+
+/* Cerita proyek: markdown hasil renderStory() di halaman detail proyek. */
+.story-content > * + * {
+	margin-top: 1rem;
+}
+
+.story-content h3 {
+	margin-top: 1.75rem;
+	font-size: 1.25rem;
+	font-weight: 700;
+	color: var(--ui-text-highlighted);
+}
+
+.story-content h4 {
+	margin-top: 1.5rem;
+	font-size: 1.0625rem;
+	font-weight: 600;
+	color: var(--ui-text-highlighted);
+}
+
+.story-content ul {
+	list-style: disc;
+	padding-left: 1.5rem;
+}
+
+.story-content ol {
+	list-style: decimal;
+	padding-left: 1.5rem;
+}
+
+.story-content li + li {
+	margin-top: 0.25rem;
+}
+
+.story-content strong {
+	font-weight: 600;
+	color: var(--ui-text-highlighted);
+}
+
+.story-content a {
+	color: var(--ui-primary);
+	text-decoration: underline;
+	text-underline-offset: 3px;
+}
+
+.story-content :not(pre) > code {
+	border-radius: 0.25rem;
+	background-color: var(--ui-bg-elevated);
+	padding: 0.1em 0.35em;
+	font-family: var(--font-mono);
+	font-size: 0.875em;
+}
+
+.story-content pre {
+	overflow-x: auto;
+	border: 1px solid var(--ui-border);
+	border-radius: 0.5rem;
+	background-color: var(--ui-bg-elevated);
+	padding: 1rem;
+	font-family: var(--font-mono);
+	font-size: 0.875rem;
+	line-height: 1.6;
+}
+
+.story-content blockquote {
+	border-left: 3px solid var(--ui-primary);
+	padding-left: 1rem;
+	color: var(--ui-text-muted);
+	font-style: italic;
+}
+
+.story-content hr {
+	border-color: var(--ui-border);
+}

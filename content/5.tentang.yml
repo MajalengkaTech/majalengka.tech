@@ -1,0 +1,65 @@
+title: Tentang Majalengka Tech
+description: Majalengka Tech adalah tempat developer dan desainer Majalengka memamerkan proyeknya. Siapa pun yang membuat sesuatu untuk Majalengka juga boleh ikut. Tunjukkan apa yang sudah kamu buat, lihat proyek orang lain, dan kenali orang-orang di baliknya.
+seo:
+  title: Tentang Majalengka Tech
+  description: Kenapa Majalengka Tech dibuat dan apa saja yang kami pegang saat mengelolanya.
+navigation: false
+hero:
+  links:
+    - label: Pamerkan Proyekmu
+      to: /dashboard/projects/new
+      icon: i-lucide-folder-plus
+      size: lg
+    - label: Lihat Showcase
+      to: /projek
+      icon: i-lucide-arrow-right
+      trailing: true
+      size: lg
+      color: neutral
+      variant: subtle
+story:
+  title: Kenapa Majalengka Tech ada
+  description: Proyek buatan developer dan desainer Majalengka sering tersimpan di laptop atau tersebar di banyak akun. Di sini semuanya terkumpul di satu tempat, jadi mudah ditemukan teman, pelaku UMKM, dan perekrut.
+  items:
+    - title: Satu alamat untuk semua proyekmu
+      description: Profil di majalengka.tech/username berisi semua proyekmu yang sudah terbit, siap dibagikan ke klien atau perekrut.
+      icon: i-lucide-link
+    - title: Cerita, bukan sekadar tangkapan layar
+      description: Setiap proyek punya ruang untuk menceritakan masalah yang diselesaikan, prosesnya, dan peranmu di dalamnya.
+      icon: i-lucide-book-open-text
+    - title: Saling melihat dan memberi masukan
+      description: Apresiasi dari sesama kreator membuat proyekmu lebih dikenal, dan komentarnya bisa jadi bahan untuk versi berikutnya.
+      icon: i-lucide-message-circle
+features:
+  title: Prinsip yang kami pegang
+  description: Hal-hal yang sudah berjalan di situs ini dan bisa kamu cek sendiri.
+  items:
+    - title: Kodenya terbuka
+      description: Kode situs ini berlisensi MIT dan bisa dipelajari, dipakai, atau diperbaiki siapa saja di GitHub.
+      icon: i-lucide-unlock
+    - title: Data yang jujur
+      description: Setiap angka di situs ini dihitung dari proyek yang sudah terbit. Kami tidak menampilkan testimoni, statistik, atau contoh proyek karangan.
+      icon: i-lucide-badge-check
+    - title: Nyaman dipakai siapa saja
+      description: Kami mengukur kontras warna teks dan latarnya supaya tetap terbaca, juga oleh yang penglihatannya kurang. Setiap gambar proyek bisa diberi keterangan untuk pembaca layar.
+      icon: i-lucide-accessibility
+    - title: Gratis untuk kreator
+      description: Memamerkan proyek, membuat profil, memberi apresiasi, dan berkomentar, semuanya gratis.
+      icon: i-lucide-heart-handshake
+    - title: Terbuka untuk kolaborasi
+      description: Mahasiswa, pelaku UMKM, komunitas, sampai developer dari luar Majalengka boleh ikut memberi masukan atau menyumbang kode lewat GitHub.
+      icon: i-lucide-users
+cta:
+  title: Mau ikut membangun?
+  description: Pamerkan proyekmu, atau bantu memperbaiki situs ini lewat GitHub.
+  links:
+    - label: Pamerkan Proyekmu
+      to: /dashboard/projects/new
+      icon: i-lucide-folder-plus
+    - label: Buka GitHub Majalengka Tech
+      to: https://github.com/majalengkatech
+      target: _blank
+      trailing: true
+      icon: i-simple-icons-github
+      color: neutral
+      variant: outline

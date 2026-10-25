@@ -1,0 +1,61 @@
+import { z } from 'zod'
+import { and, desc, eq, sql } from 'drizzle-orm'
+import { db, schema } from 'hub:db'
+import { defineEventHandler } from 'nuxt/server'
+
+const querySchema = z.object({
+	terbuka: z.enum(['true', '1']).optional(),
+	skill: z.string().trim().min(1).max(40).optional(),
+	lokasi: z.string().trim().min(1).max(60).optional(),
+	limit: z.coerce.number().int().min(1).max(100).default(24)
+})
+
+// Pengguna yang tidak diblokir dan punya minimal satu proyek terbit, urut dari yang terakhir menerbitkan.
+// Pengguna tanpa username tetap tampil dengan nama asli, tapi belum punya halaman profil.
+export default defineEventHandler(async (event) => {
+	const query = await getQueryWith(event, querySchema)
+	const { user } = schema
+	// Kolom user ditulis lengkap: query satu tabel membuat drizzle menulis "id" polos, yang di subquery terbaca sebagai p.id.
+
+	const projectCount = sql<number>`(select count(*) from projects p where p.user_id = "user"."id" and p.is_published = 1)`
+	const lastPublished = sql<number>`(select max(p.created_at) from projects p where p.user_id = "user"."id" and p.is_published = 1)`
+	const likeCount = sql<number>`(select count(*) from project_likes pl join projects p on p.id = pl.project_id where p.user_id = "user"."id" and p.is_published = 1)`
+
+	const rows = await db
+		.select({
+			id: user.id,
+			name: user.name,
+			username: user.username,
+			avatarUrl: user.image,
+			creatorRole: user.creatorRole,
+			location: user.location,
+			openToWork: user.openToWork,
+			githubUsername: user.githubUsername,
+			websiteUrl: user.websiteUrl,
+			linkedinUrl: user.linkedinUrl,
+			projectCount: projectCount.as('project_count'),
+			likeCount: likeCount.as('like_count'),
+			coverUrl: sql<string | null>`(select p.thumbnail_url from projects p where p.user_id = "user"."id" and p.is_published = 1 and p.thumbnail_url is not null order by p.created_at desc limit 1)`.as('cover_url')
+		})
+		.from(user)
+		.where(and(
+			sql`coalesce(${user.banned}, 0) = 0`,
+			sql`${projectCount} > 0`,
+			query.terbuka ? eq(user.openToWork, true) : undefined,
+			// instr supaya % dan _ dari pengguna tidak dibaca sebagai wildcard LIKE.
+			query.skill ? sql`instr(lower(coalesce(${user.skills}, '')), ${query.skill.toLowerCase()}) > 0` : undefined,
+			query.lokasi ? sql`instr(lower(coalesce(${user.location}, '')), ${query.lokasi.toLowerCase()}) > 0` : undefined
+		))
+		.orderBy(desc(lastPublished))
+		.limit(query.limit)
+
+	return {
+		creators: rows.map(row => ({
+			...row,
+			name: row.username ? `@${row.username}` : (row.name || 'Kreator'),
+			projectCount: Number(row.projectCount) || 0,
+			likeCount: Number(row.likeCount) || 0,
+			openToWork: Boolean(row.openToWork)
+		}))
+	}
+})

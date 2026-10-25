@@ -1,0 +1,20 @@
+title: Pamerkan Proyek [Teknologi Majalengka]{class="text-primary"}
+description: Tempat developer dan desainer Majalengka memamerkan proyeknya. Unggah proyekmu, kumpulkan apresiasi, lalu bagikan satu alamat portofolio ke siapa saja.
+seo:
+  title: Majalengka Tech · Proyek Developer & Desainer Majalengka
+  description: Tempat developer dan desainer Majalengka memamerkan proyek aplikasi, desain, dan teknologi.
+navigation: false
+hero:
+  links:
+    - label: Pamerkan Proyekmu
+      icon: i-lucide-folder-plus
+      to: /dashboard/projects/new
+      size: xl
+      color: primary
+    - label: Lihat Showcase
+      icon: i-lucide-arrow-right
+      trailing: true
+      to: /projek
+      size: xl
+      color: neutral
+      variant: subtle

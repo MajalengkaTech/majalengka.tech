@@ -1,0 +1,3 @@
+# Skrip shell dijalankan di server Linux; akhiran baris CRLF membuatnya gagal.
+*.sh text eol=lf
+Dockerfile text eol=lf

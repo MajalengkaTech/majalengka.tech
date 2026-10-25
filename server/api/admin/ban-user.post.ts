@@ -1,0 +1,69 @@
+import { eq } from 'drizzle-orm'
+import { db, schema } from 'hub:db'
+import { defineEventHandler } from 'nuxt/server'
+import { z } from 'zod'
+import { isSuperAdmin, requireAdminSession } from '../../utils/admin'
+import { logTarget } from '../../utils/activity-log'
+
+const banUserSchema = z.object({
+	userId: z.string().min(1, 'User ID wajib diisi'),
+	banned: z.boolean(),
+	banReason: z.string().max(255).optional().nullable()
+})
+
+export default defineEventHandler(async (event) => {
+	const session = await requireAdminSession(event)
+
+	const body = await readBodyWith(event, banUserSchema)
+
+	if (session.user.id === body.userId && body.banned) {
+		throw createError({
+			status: 400,
+			statusText: 'Kamu tidak bisa memblokir akunmu sendiri. Minta admin lain bila perlu.'
+		})
+	}
+
+	const [targetUser] = await db
+		.select()
+		.from(schema.user)
+		.where(eq(schema.user.id, body.userId))
+
+	if (!targetUser) {
+		throw createError({
+			status: 404,
+			statusText: 'Pengguna tidak ditemukan'
+		})
+	}
+
+	if (isSuperAdmin(targetUser.id) && body.banned) {
+		throw createError({
+			status: 400,
+			statusText: 'Akun Super Admin utama tidak bisa ditangguhkan.'
+		})
+	}
+
+	logTarget(event, { userId: targetUser.id, name: targetUser.name, banned: body.banned })
+
+	await db
+		.update(schema.user)
+		.set({
+			banned: body.banned,
+			banReason: body.banned ? (body.banReason || 'Ditangguhkan oleh administrator') : null,
+			updatedAt: new Date()
+		})
+		.where(eq(schema.user.id, body.userId))
+
+	// If banning user, revoke sessions
+	if (body.banned) {
+		await db
+			.delete(schema.session)
+			.where(eq(schema.session.userId, body.userId))
+	}
+
+	return {
+		success: true,
+		message: body.banned
+			? `Pengguna ${targetUser.name || targetUser.email} telah ditangguhkan.`
+			: `Akses pengguna ${targetUser.name || targetUser.email} telah dipulihkan.`
+	}
+})

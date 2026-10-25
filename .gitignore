@@ -1,0 +1,58 @@
+# Nuxt dev/build outputs
+.output
+.data
+.nuxt
+.nitro
+.cache
+dist
+
+# Node dependencies
+node_modules
+
+# Logs
+logs
+*.log
+
+# Misc
+.DS_Store
+.fleet
+.idea
+__pycache__/
+*.py[cod]
+*.sql
+# File migrasi database wajib ikut repo; tanpa pengecualian ini migrasi baru diam-diam tidak ter-commit.
+!server/db/migrations/**/*.sql
+.temp_r2_migration
+
+# Local env files
+.env
+.env.*
+!.env.example
+
+# Kunci SSH dan sertifikat
+*.key
+*.key*.pub
+*.pem
+ssh-key-*
+
+# Cadangan database
+backups/
+
+# VSC
+.history
+
+# Wrangler
+wrangler.json
+wrangler.jsonc
+.wrangler
+
+# Local AI assistant folders
+.claude/
+.roo/
+
+# File AI tidak boleh ada di subfolder; aturan & skill hanya di root E:\website\majalengka
+.agents/
+AGENTS.md
+CLAUDE.md
+skills-lock.json
+graft/

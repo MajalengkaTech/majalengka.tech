@@ -1,0 +1,342 @@
+<script setup lang="ts">
+import type { CreatorCardData, CreatorCardInfo, CreatorProfile, ProjectItem } from '~/types/project'
+
+const route = useRoute()
+const { user } = useSessionView()
+const username = computed(() => String(route.params.username).toLowerCase())
+
+const { data, error } = await useFetch<{ creator: CreatorProfile, card: CreatorCardInfo | null, projects: ProjectItem[] }>(() => `/api/creators/${username.value}`, {
+	key: `creator-${username.value}`
+})
+
+if (error.value || !data.value?.creator) {
+	throw createError({
+		statusCode: 404,
+		statusMessage: 'Kreator tidak ditemukan',
+		fatal: true
+	})
+}
+
+const creator = computed(() => data.value!.creator)
+const projects = computed(() => data.value?.projects || [])
+const isMe = computed(() => (user.value as { id?: string } | null)?.id === creator.value.id)
+const roleLabel = computed(() => creatorRoleLabel(creator.value.creatorRole))
+const skills = computed(() => splitTags(creator.value.skills))
+
+const links = computed(() => {
+	const result: { label: string, icon: string, to: string }[] = []
+
+	if (creator.value.websiteUrl) {
+		result.push({ label: 'Portofolio', icon: 'i-mage-globe', to: creator.value.websiteUrl })
+	}
+	if (creator.value.githubUsername) {
+		result.push({ label: 'GitHub', icon: 'i-mage-github', to: `https://github.com/${creator.value.githubUsername.replace(/^@/, '')}` })
+	}
+
+	const seenUrls = new Set(result.map(r => r.to))
+
+	if (Array.isArray(creator.value.socialLinks)) {
+		for (const item of creator.value.socialLinks) {
+			if (item?.url && !seenUrls.has(item.url)) {
+				const conf = getSocialPlatformConfig(item.platform)
+				result.push({
+					label: item.label || conf.label,
+					icon: conf.icon,
+					to: item.url
+				})
+				seenUrls.add(item.url)
+			}
+		}
+	}
+
+	if (creator.value.designUrl && !seenUrls.has(creator.value.designUrl)) {
+		result.push({ label: 'Dribbble / Behance', icon: 'i-mage-dribbble', to: creator.value.designUrl })
+		seenUrls.add(creator.value.designUrl)
+	}
+
+	if (creator.value.linkedinUrl && !seenUrls.has(creator.value.linkedinUrl)) {
+		result.push({ label: 'LinkedIn', icon: 'i-mage-linkedin', to: creator.value.linkedinUrl })
+		seenUrls.add(creator.value.linkedinUrl)
+	}
+
+	return result
+})
+
+const cardData = computed<CreatorCardData>(() => ({
+	name: `@${creator.value.username || username.value}`,
+	username: creator.value.username || username.value,
+	avatarUrl: creator.value.avatarUrl,
+	roleLabel: roleLabel.value,
+	projectCount: creator.value.projectCount,
+	likeCount: creator.value.likeCount,
+	rank: creator.value.rank,
+	totalCreators: creator.value.totalCreators
+}))
+
+const isShareModalOpen = ref(false)
+const origin = useRequestURL().origin
+const profileUrl = origin + route.path
+const cardImageUrl = computed(() => `${origin}/api/creators/${creator.value.username || username.value}/card.png?v=${creator.value.projectCount}_${creator.value.likeCount}`)
+
+const { shareLink } = useShareLink()
+
+function onDownloadCard() {
+	const a = document.createElement('a')
+	a.href = cardImageUrl.value
+	a.download = `kartu-${creator.value.username || username.value}-majalengka-tech.png`
+	a.target = '_blank'
+	a.click()
+}
+
+function shareProfile() {
+	return shareLink({ title: `@${creator.value.username} di Majalengka Tech`, url: profileUrl })
+}
+
+const seoDescription = computed(() => creator.value.bio
+	|| [roleLabel.value, creator.value.location].filter(Boolean).join(' dari ')
+	|| `Proyek @${creator.value.username} di Majalengka Tech`)
+
+useSeoMeta({
+	title: () => `@${creator.value.username} - Kreator Majalengka Tech`,
+	description: seoDescription,
+	ogDescription: seoDescription,
+	ogImage: cardImageUrl,
+	ogImageWidth: 1200,
+	ogImageHeight: 630,
+	ogImageAlt: () => `Kartu kreator @${creator.value.username} di Majalengka Tech`,
+	twitterCard: 'summary_large_image',
+	twitterTitle: () => `@${creator.value.username} - Kreator Majalengka Tech`,
+	twitterDescription: seoDescription,
+	twitterImage: cardImageUrl,
+	twitterImageAlt: () => `Kartu kreator @${creator.value.username} di Majalengka Tech`
+})
+
+// Proyek di bawah layar muncul bertahap saat di-scroll.
+useReveal(useTemplateRef<HTMLElement>('works'))
+</script>
+
+<template>
+	<UContainer class="flex flex-col gap-10 py-8 sm:py-12">
+		<header class="grid gap-8 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
+			<div class="flex flex-col gap-5 sm:flex-row sm:items-center sm:gap-6">
+				<UAvatar
+					:src="avatarSrc(creator.avatarUrl)"
+					:alt="`@${creator.username}`"
+					class="size-24 text-3xl sm:size-28"
+				/>
+				<div class="flex min-w-0 flex-col gap-2">
+					<h1 class="text-3xl font-bold tracking-tight text-balance text-highlighted sm:text-4xl">
+						@{{ creator.username }}
+					</h1>
+					<div
+						v-if="roleLabel || creator.location || creator.openToWork"
+						class="flex flex-wrap gap-1.5 pt-1"
+					>
+						<UBadge
+							v-if="roleLabel"
+							:label="roleLabel"
+							color="primary"
+							variant="subtle"
+						/>
+						<UBadge
+							v-if="creator.location"
+							:label="creator.location"
+							icon="i-lucide-map-pin"
+							color="neutral"
+							variant="outline"
+						/>
+						<UBadge
+							v-if="creator.openToWork"
+							label="Terbuka untuk kerja sama"
+							icon="i-lucide-briefcase"
+							color="success"
+							variant="subtle"
+						/>
+					</div>
+				</div>
+			</div>
+
+			<div
+				v-if="isMe"
+				class="flex flex-wrap gap-2 lg:justify-end"
+			>
+				<UButton
+					to="/dashboard/settings"
+					label="Edit Profil"
+					icon="i-lucide-pencil"
+					color="neutral"
+					variant="outline"
+				/>
+			</div>
+		</header>
+
+		<section
+			aria-label="Kartu kreator"
+			class="flex flex-col gap-3"
+		>
+			<CreatorStatsCard :data="cardData" />
+			<div class="flex flex-wrap items-center gap-2">
+				<UButton
+					label="Pasang di GitHub"
+					icon="i-simple-icons-github"
+					color="primary"
+					variant="solid"
+					@click="isShareModalOpen = true"
+				/>
+				<UButton
+					label="Unduh Kartu"
+					icon="i-lucide-download"
+					color="neutral"
+					variant="outline"
+					@click="onDownloadCard"
+				/>
+				<UButton
+					label="Bagikan Profil"
+					icon="i-lucide-share-2"
+					color="neutral"
+					variant="ghost"
+					@click="shareProfile"
+				/>
+			</div>
+
+			<CreatorShareModal
+				v-model:open="isShareModalOpen"
+				:username="creator.username || username"
+			/>
+		</section>
+
+		<div class="grid gap-10 lg:grid-cols-[280px_minmax(0,1fr)] lg:gap-12">
+			<aside class="flex flex-col gap-6">
+				<section
+					v-if="creator.bio"
+					aria-labelledby="judul-bio"
+					class="flex flex-col gap-2"
+				>
+					<h2
+						id="judul-bio"
+						class="text-sm font-semibold text-highlighted"
+					>
+						Tentang
+					</h2>
+					<p class="text-sm/6 text-default whitespace-pre-line">
+						{{ creator.bio }}
+					</p>
+				</section>
+
+				<section
+					v-if="skills.length"
+					aria-labelledby="judul-skill"
+					class="flex flex-col gap-2"
+				>
+					<h2
+						id="judul-skill"
+						class="text-sm font-semibold text-highlighted"
+					>
+						Skill
+					</h2>
+					<div class="flex flex-wrap gap-1.5">
+						<UBadge
+							v-for="skill in skills"
+							:key="skill"
+							:label="skill"
+							color="neutral"
+							variant="outline"
+						/>
+					</div>
+				</section>
+
+				<section
+					v-if="links.length"
+					aria-labelledby="judul-tautan"
+					class="flex flex-col gap-1 min-w-0"
+				>
+					<h2
+						id="judul-tautan"
+						class="mb-1 text-sm font-semibold text-highlighted"
+					>
+						Tautan
+					</h2>
+					<UButton
+						v-for="link in links"
+						:key="link.to"
+						:label="link.label"
+						:icon="link.icon"
+						:to="link.to"
+						target="_blank"
+						rel="noopener"
+						color="neutral"
+						variant="ghost"
+						size="sm"
+						class="justify-start truncate max-w-full"
+						trailing-icon="i-lucide-arrow-up-right"
+					/>
+				</section>
+
+				<p class="text-xs text-muted">
+					Bergabung sejak {{ formatTanggal(creator.createdAt) }}
+				</p>
+			</aside>
+
+			<section
+				aria-labelledby="judul-karya"
+				class="flex min-w-0 flex-col gap-5"
+			>
+				<h2
+					id="judul-karya"
+					class="text-xl font-bold text-highlighted"
+				>
+					Proyek
+				</h2>
+
+				<UEmpty
+					v-if="!projects.length"
+					icon="i-lucide-folder-open"
+					:title="isMe ? 'Proyek pertamamu belum dipamerkan' : 'Belum ada proyek yang terbit'"
+					:description="isMe ? 'Unggah satu proyek, lalu bagikan profil ini ke teman atau calon klien.' : `${creator.name} belum menerbitkan proyek di Majalengka Tech.`"
+					:actions="isMe ? [{ label: 'Pamerkan Proyek', icon: 'i-lucide-folder-plus', to: '/dashboard/projects/new' }] : []"
+				/>
+
+				<div
+					v-else
+					ref="works"
+					class="grid grid-cols-1 gap-x-5 gap-y-8 sm:grid-cols-2 xl:grid-cols-3"
+				>
+					<div
+						v-for="project in projects"
+						:key="project.id"
+						data-reveal
+						class="flex flex-col gap-2"
+					>
+						<ProjectMiniCard :project="project" />
+						<div class="flex items-center gap-3 text-xs text-muted">
+							<span
+								v-if="project.isFeatured"
+								class="inline-flex items-center gap-1 rounded-sm bg-mango-100 px-1.5 py-0.5 font-semibold text-mango-900 dark:bg-mango-400/15 dark:text-mango-300"
+							>
+								<UIcon
+									name="i-lucide-award"
+									class="size-3"
+								/>
+								Pilihan Kurator
+							</span>
+							<span class="inline-flex items-center gap-1">
+								<UIcon
+									name="i-tabler-heart"
+									class="size-3.5"
+								/>
+								{{ project.likeCount || 0 }}
+							</span>
+							<span class="inline-flex items-center gap-1">
+								<UIcon
+									name="i-lucide-message-circle"
+									class="size-3.5"
+								/>
+								{{ project.commentCount || 0 }}
+							</span>
+						</div>
+					</div>
+				</div>
+			</section>
+		</div>
+	</UContainer>
+</template>

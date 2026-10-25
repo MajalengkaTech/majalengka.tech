@@ -1,0 +1,44 @@
+services:
+  majalengka-tech:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: majalengka-tech:latest
+    container_name: majalengka-tech
+    restart: unless-stopped
+    # Hanya bisa dibuka dari server ini; pengunjung masuk lewat Cloudflare Tunnel yang meneruskan ke localhost:3000.
+    ports:
+      - "127.0.0.1:3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+    env_file:
+      - .env
+    volumes:
+      - ./.data:/app/.data
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"]
+      interval: 60s
+      timeout: 10s
+      start_period: 30s
+      retries: 3
+    # Log Docker tidak dibatasi secara bawaan dan lama-lama memenuhi disk.
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: "3"
+
+  # Menjalankan migrasi database: docker compose run --rm migrate
+  migrate:
+    profiles: ["tools"]
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: build
+    image: majalengka-tech:build
+    env_file:
+      - .env
+    volumes:
+      - ./.data:/app/.data
+    command: ["bun", "x", "nuxt-db", "migrate"]
