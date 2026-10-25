@@ -25,6 +25,20 @@ PREV=$(git rev-parse HEAD)
 git reset --quiet --hard "$REF"
 echo "kode: $(git log -1 --format='%h %s')"
 
+# Kunci aplikasi diambil dari Doppler (config prd) bila VPS sudah punya service token untuk folder ini.
+# Kalau Doppler tidak bisa dihubungi atau hasilnya tidak lengkap, .env yang ada tetap dipakai.
+if command -v doppler >/dev/null && [ -n "$(doppler configure get token --plain --scope "$APP_DIR" 2>/dev/null)" ]; then
+	if (umask 077 && doppler secrets download --no-file --format docker --scope "$APP_DIR" > .env.doppler 2>/dev/null) \
+		&& grep -q '^NUXT_BETTER_AUTH_SECRET=.' .env.doppler; then
+		[ -f .env ] && cp -p .env .data/env-sebelum-doppler.bak
+		mv .env.doppler .env
+		echo "kunci: diambil dari Doppler ($(grep -c '=' .env) variabel)"
+	else
+		rm -f .env.doppler
+		echo "PERINGATAN: kunci dari Doppler gagal diambil atau tidak lengkap, memakai .env yang ada."
+	fi
+fi
+
 # Cadangan dulu: migrasi yang sudah jalan tidak ikut kembali saat rollback, jadi cadangan inilah jalan pulangnya.
 ./scripts/backup-db.sh
 docker tag majalengka-tech:latest majalengka-tech:sebelumnya 2>/dev/null || true
