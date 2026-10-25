@@ -90,6 +90,10 @@ export default defineNuxtConfig({
 			siteKey: '',
 			secretKey: ''
 		},
+		// Untuk angka pengunjung di footer; kosong berarti angkanya tidak ditampilkan.
+		simpleAnalytics: {
+			apiKey: ''
+		},
 		oauth: {
 			githubClientId: '',
 			githubClientSecret: '',

@@ -1,4 +1,12 @@
 <script setup lang="ts">
+// Diambil setelah halaman tampil supaya footer tidak menahan render; angka disembunyikan bila datanya belum ada.
+const { data: stats } = useFetch<{ visitors: number | null }>('/api/stats/visitors', {
+	key: 'footer-visitors',
+	server: false,
+	lazy: true
+})
+const visitors = computed(() => stats.value?.visitors ? stats.value.visitors.toLocaleString('id-ID') : null)
+
 const columns = [{
 	label: 'Jelajahi',
 	children: [{
@@ -57,6 +65,12 @@ const columns = [{
 		<template #left>
 			<p class="text-muted text-sm">
 				Majalengka Tech · Tempat kreator Majalengka memamerkan proyek · Kode terbuka berlisensi MIT · © {{ new Date().getFullYear() }}
+			</p>
+			<p
+				v-if="visitors"
+				class="mt-1 text-muted text-sm"
+			>
+				Dikunjungi {{ visitors }} orang dalam 30 hari terakhir
 			</p>
 		</template>
 
