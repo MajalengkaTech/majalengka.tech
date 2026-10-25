@@ -15,6 +15,10 @@ const { loggedIn, user } = useUserSession()
 const authClient = useAuthClient()
 const toast = useToast()
 const loading = ref(false)
+const { data: features } = await useSiteFeatures()
+const captchaToken = ref('')
+const turnstile = useTemplateRef<{ reset: () => void }>('turnstile')
+const captchaPending = computed(() => Boolean(features.value.turnstileSiteKey) && !captchaToken.value)
 
 watchEffect(() => {
 	if (loggedIn.value) {
@@ -84,7 +88,8 @@ async function onSubmit(payload: FormSubmitEvent<Schema>) {
 			name: payload.data.name,
 			email: payload.data.email,
 			password: payload.data.password,
-			callbackURL: '/dashboard/settings?setup=username'
+			callbackURL: '/dashboard/settings?setup=username&verified=1',
+			fetchOptions: { headers: { 'x-captcha-response': captchaToken.value } }
 		})
 
 		if (error) {
@@ -98,7 +103,9 @@ async function onSubmit(payload: FormSubmitEvent<Schema>) {
 
 		toast.add({
 			title: 'Akunmu sudah dibuat',
-			description: 'Sekarang pilih username supaya profil publikmu bisa dibuka orang lain.',
+			description: features.value.email
+				? `Kami mengirim link verifikasi ke ${payload.data.email}. Sambil menunggu, pilih username supaya profil publikmu bisa dibuka orang lain.`
+				: 'Sekarang pilih username supaya profil publikmu bisa dibuka orang lain.',
 			color: 'success'
 		})
 		await navigateTo('/dashboard/settings?setup=username')
@@ -110,6 +117,7 @@ async function onSubmit(payload: FormSubmitEvent<Schema>) {
 		})
 	} finally {
 		loading.value = false
+		turnstile.value?.reset()
 	}
 }
 </script>
@@ -122,7 +130,7 @@ async function onSubmit(payload: FormSubmitEvent<Schema>) {
 		:loading="loading"
 		separator="atau"
 		title="Bergabung ke Majalengka Tech"
-		:submit="{ label: 'Daftar Sekarang' }"
+		:submit="{ label: 'Daftar Sekarang', disabled: captchaPending }"
 		@submit="onSubmit"
 	>
 		<template #description>
@@ -130,6 +138,18 @@ async function onSubmit(payload: FormSubmitEvent<Schema>) {
 				to="/login"
 				class="text-primary font-medium"
 			>Masuk di sini</ULink>.
+		</template>
+
+		<template
+			v-if="features.turnstileSiteKey"
+			#validation
+		>
+			<TurnstileWidget
+				ref="turnstile"
+				v-model="captchaToken"
+				:site-key="features.turnstileSiteKey"
+				action="signup"
+			/>
 		</template>
 
 		<template #footer>

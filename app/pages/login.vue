@@ -16,6 +16,10 @@ const authClient = useAuthClient()
 const toast = useToast()
 const loading = ref(false)
 const route = useRoute()
+const { data: features } = await useSiteFeatures()
+const captchaToken = ref('')
+const turnstile = useTemplateRef<{ reset: () => void }>('turnstile')
+const captchaPending = computed(() => Boolean(features.value.turnstileSiteKey) && !captchaToken.value)
 
 // Redirect jika sudah login
 watchEffect(() => {
@@ -83,7 +87,8 @@ async function onSubmit(payload: FormSubmitEvent<Schema>) {
 		const { error } = await authClient.signIn.email({
 			email: payload.data.email,
 			password: payload.data.password,
-			rememberMe: payload.data.remember
+			rememberMe: payload.data.remember,
+			fetchOptions: { headers: { 'x-captcha-response': captchaToken.value } }
 		})
 
 		if (error) {
@@ -110,6 +115,7 @@ async function onSubmit(payload: FormSubmitEvent<Schema>) {
 		})
 	} finally {
 		loading.value = false
+		turnstile.value?.reset()
 	}
 }
 </script>
@@ -123,7 +129,7 @@ async function onSubmit(payload: FormSubmitEvent<Schema>) {
 		separator="atau"
 		title="Selamat datang kembali"
 		icon="i-lucide-lock"
-		:submit="{ label: 'Masuk' }"
+		:submit="{ label: 'Masuk', disabled: captchaPending }"
 		@submit="onSubmit"
 	>
 		<template #description>
@@ -131,6 +137,28 @@ async function onSubmit(payload: FormSubmitEvent<Schema>) {
 				to="/signup"
 				class="text-primary font-medium"
 			>Daftar sekarang</ULink>.
+		</template>
+
+		<template
+			v-if="features.email"
+			#password-hint
+		>
+			<ULink
+				to="/lupa-sandi"
+				class="text-primary font-medium"
+			>Lupa kata sandi?</ULink>
+		</template>
+
+		<template
+			v-if="features.turnstileSiteKey"
+			#validation
+		>
+			<TurnstileWidget
+				ref="turnstile"
+				v-model="captchaToken"
+				:site-key="features.turnstileSiteKey"
+				action="login"
+			/>
 		</template>
 
 		<template #remember-field="{ state }">

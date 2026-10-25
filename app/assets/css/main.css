@@ -109,6 +109,8 @@
 	--ui-text-dimmed: var(--ui-color-neutral-500);
 	/* Merah bawaan (500) hanya 3,64:1 untuk pesan error di slate-50; 700 lolos 6,14:1 dan teks putih di atasnya 6,42:1. */
 	--ui-error: var(--ui-color-error-700);
+	/* Kuning bawaan (500) hanya 2,45:1 di badge subtle; 800 lolos 5,62:1 di badge dan 6,84:1 untuk teks putih di atasnya. */
+	--ui-warning: var(--ui-color-warning-800);
 }
 
 .dark {
@@ -122,6 +124,8 @@
 	--ui-text-muted: var(--ui-color-neutral-400);
 	/* Error di dark kembali ke bawaan 400 (6,18:1 di slate-900), karena :root di atas ikut berlaku. */
 	--ui-error: var(--ui-color-error-400);
+	/* Kuning di dark kembali ke bawaan 400 (9,39:1 di slate-800). */
+	--ui-warning: var(--ui-color-warning-400);
 	--ui-text-dimmed: var(--ui-color-neutral-400);
 }
 

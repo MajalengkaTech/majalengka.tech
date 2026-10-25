@@ -153,6 +153,8 @@ watch(profileCompletion, (value) => {
 
 		<template #body>
 			<div class="p-4 sm:p-6 lg:p-8 flex flex-col gap-6 max-w-7xl w-full mx-auto">
+				<EmailVerifyAlert />
+
 				<!-- Welcome Banner -->
 				<div class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary/15 via-primary/5 to-transparent border border-primary/20 p-6 sm:p-8">
 					<div class="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-6">

@@ -9,7 +9,15 @@ const AUTH_ERROR_MESSAGES: Record<string, string> = {
 	PASSWORD_TOO_LONG: 'Kata sandinya terlalu panjang. Pakai yang lebih pendek.',
 	EMAIL_NOT_VERIFIED: 'Email-mu belum diverifikasi. Buka email dari kami, lalu klik link verifikasinya.',
 	BANNED_USER: 'Akun ini sedang ditangguhkan pengelola situs.',
-	FAILED_TO_CREATE_USER: 'Akunmu belum berhasil dibuat. Coba lagi beberapa saat lagi.'
+	FAILED_TO_CREATE_USER: 'Akunmu belum berhasil dibuat. Coba lagi beberapa saat lagi.',
+	INVALID_TOKEN: 'Link ini sudah tidak berlaku. Minta link baru, lalu buka link dari email terbaru.',
+	TOKEN_EXPIRED: 'Link ini sudah kedaluwarsa. Minta link baru, lalu buka link dari email terbaru.',
+	EMAIL_ALREADY_VERIFIED: 'Email-mu sudah terverifikasi. Tidak perlu verifikasi lagi.',
+	VERIFICATION_EMAIL_NOT_ENABLED: 'Pengiriman email belum aktif. Hubungi pengelola situs.',
+	// Kode dari plugin captcha (Turnstile).
+	MISSING_RESPONSE: 'Tunggu pemeriksaan keamanan di atas tombol selesai, lalu coba lagi.',
+	VERIFICATION_FAILED: 'Pemeriksaan keamanan gagal. Muat ulang halaman, lalu coba lagi.',
+	UNKNOWN_ERROR: 'Pemeriksaan keamanan sedang bermasalah. Coba lagi beberapa saat lagi.'
 }
 
 export function authErrorMessage(error: { code?: string, status?: number } | null | undefined, fallback: string) {

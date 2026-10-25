@@ -355,6 +355,8 @@ async function onSubmit(event: FormSubmitEvent<ProfileInput>) {
 						icon="i-lucide-alert-circle"
 					/>
 
+					<EmailVerifyAlert />
+
 					<div class="grid grid-cols-1 items-start gap-4 lg:grid-cols-2">
 						<!-- Kolom kiri: Identitas -->
 						<UCard :ui="{ header: 'px-4 py-3 sm:px-4', body: 'p-4 sm:p-4' }">

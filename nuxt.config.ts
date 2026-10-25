@@ -80,6 +80,15 @@ export default defineNuxtConfig({
 			apiKey: '',
 			apiSecret: ''
 		},
+		// Kosong berarti fiturnya mati: link lupa kata sandi dan widget Turnstile tidak ditampilkan.
+		resend: {
+			apiKey: '',
+			from: ''
+		},
+		turnstile: {
+			siteKey: '',
+			secretKey: ''
+		},
 		oauth: {
 			githubClientId: '',
 			githubClientSecret: '',

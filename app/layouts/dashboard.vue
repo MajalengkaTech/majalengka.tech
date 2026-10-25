@@ -23,6 +23,14 @@ const { data: access } = useFetch<{ isSuperAdmin?: boolean }>('/api/user/profile
 })
 const isSuperAdmin = computed(() => isAdmin.value && Boolean(access.value?.isSuperAdmin))
 
+// Halaman /kelola/laporan memanggil refreshNuxtData('open-reports') setelah mengubah status.
+const { data: reportCount } = useFetch<{ open: number }>('/api/admin/reports/count', {
+	key: 'open-reports',
+	server: false,
+	immediate: isAdmin.value
+})
+const openReports = computed(() => reportCount.value?.open ?? 0)
+
 const navLinks = computed<NavigationMenuItem[][]>(() => {
 	const primaryLinks: NavigationMenuItem[] = [
 		{
@@ -69,6 +77,15 @@ const navLinks = computed<NavigationMenuItem[][]>(() => {
 			label: 'Kelola Proyek',
 			icon: 'i-lucide-folder-cog',
 			to: '/kelola/proyek',
+			disabled: !hasUsername.value,
+			onSelect: () => {
+				open.value = false
+			}
+		}, {
+			label: 'Laporan Konten',
+			icon: 'i-lucide-flag',
+			to: '/kelola/laporan',
+			badge: openReports.value ? String(openReports.value) : undefined,
 			disabled: !hasUsername.value,
 			onSelect: () => {
 				open.value = false
