@@ -28,6 +28,18 @@ useHead({
 	}
 })
 
+// Statistik pengunjung tanpa cookie; halaman kerja kreator dan pengelola tidak dihitung.
+if (!import.meta.dev) {
+	useHead({
+		script: [{
+			'key': 'simple-analytics',
+			'src': 'https://scripts.simpleanalyticscdn.com/latest.js',
+			'async': true,
+			'data-ignore-pages': '/dashboard,/dashboard/*,/kelola,/kelola/*'
+		}]
+	})
+}
+
 if (import.meta.client && motionAllowed()) {
 	// Halaman SPA (dashboard) tidak membawa skrip <head> di HTML awal, jadi kelasnya dipasang di sini juga.
 	document.documentElement.classList.add('motion-ready')

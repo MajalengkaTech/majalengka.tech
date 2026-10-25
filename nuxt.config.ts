@@ -41,7 +41,8 @@ export default defineNuxtConfig({
 		// Sesudah @nuxthub/core: log aktivitas disimpan di tabel evlog_events pada database yang sama.
 		'@evlog/nuxthub',
 		'@nuxtjs/better-auth',
-		'nuxt-llms'
+		'nuxt-llms',
+		'@sentry/nuxt/module'
 	],
 
 	devtools: {
@@ -96,7 +97,11 @@ export default defineNuxtConfig({
 			googleClientSecret: ''
 		},
 		public: {
-			siteUrl: process.env.NUXT_PUBLIC_SITE_URL || 'https://majalengka.tech'
+			siteUrl: process.env.NUXT_PUBLIC_SITE_URL || 'https://majalengka.tech',
+			// Diisi NUXT_PUBLIC_SENTRY_DSN (Doppler). Kosong berarti Sentry tidak mengirim apa pun, misalnya di lokal.
+			sentry: {
+				dsn: ''
+			}
 		}
 	},
 
@@ -193,8 +198,6 @@ export default defineNuxtConfig({
 		}
 	},
 
-	// Log aktivitas untuk Super Admin (/kelola/log). Yang disimpan hanya aksi yang mengubah data, error, dan penolakan;
-	// aturannya di server/plugins/evlog.ts. GET yang berhasil tidak disimpan supaya tabelnya tidak penuh oleh kunjungan biasa.
 	evlog: {
 		env: { service: 'majalengka-tech' },
 		include: ['/api/**'],
@@ -299,6 +302,19 @@ export default defineNuxtConfig({
 				'https://github.com/majalengkatech'
 			]
 		}
+	},
+
+	// Log aktivitas untuk Super Admin (/kelola/log). Yang disimpan hanya aksi yang mengubah data, error, dan penolakan;
+	// aturannya di server/plugins/evlog.ts. GET yang berhasil tidak disimpan supaya tabelnya tidak penuh oleh kunjungan biasa.
+	sentry: {
+		org: 'permadi',
+		project: 'majalengka-tech',
+		authToken: process.env.SENTRY_AUTH_TOKEN,
+		// Tanpa auth token, source map tidak dibuat sama sekali; kalau dibuat tanpa diunggah lalu dihapus, kode sumber ikut tersaji publik.
+		sourcemaps: {
+			disable: !process.env.SENTRY_AUTH_TOKEN
+		},
+		telemetry: false
 	},
 
 	sitemap: {
