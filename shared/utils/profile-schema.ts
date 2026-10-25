@@ -26,7 +26,8 @@ export function creatorRoleLabel(role?: string | null) {
 // Username menjadi alamat profil di level teratas (/username), jadi nama yang bentrok atau mungkin dipakai rute situs ditolak.
 const RESERVED_USERNAMES = new Set([
 	// Rute yang sudah ada
-	'api', 'auth', 'blog', 'changelog', 'dashboard', 'docs', 'kelola', 'login', 'logout', 'projek', 'signup', 'tentang',
+	'api', 'auth', 'blog', 'changelog', 'dashboard', 'docs', 'kelola', 'login', 'logout', 'lupa-sandi', 'projek', 'reset-sandi',
+	'signup', 'tentang',
 	// Nama yang wajar dipakai halaman situs nanti
 	'about', 'acara', 'admin', 'assets', 'bantuan', 'cari', 'daftar', 'dukung', 'edit', 'event', 'feed', 'files', 'galeri',
 	'help', 'kartu', 'karya', 'kategori', 'kebijakan', 'keluar', 'komunitas', 'kontribusi', 'kreator', 'lowongan', 'masuk',
