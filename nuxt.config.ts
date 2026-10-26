@@ -94,6 +94,9 @@ export default defineNuxtConfig({
 		simpleAnalytics: {
 			apiKey: ''
 		},
+		// Gateway chat Maja di instabox; secret dipakai gateway untuk mempercayai IP pengunjung dan ID akun.
+		chatGatewayUrl: 'https://8787-agqxrdrtl25xyh6vmrbbtguj34.instabox.tech',
+		chatProxySecret: '',
 		oauth: {
 			githubClientId: '',
 			githubClientSecret: '',

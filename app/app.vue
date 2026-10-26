@@ -186,6 +186,13 @@ const searchGroups = computed<SearchGroup[]>(() => {
 })
 
 provide('navigation', navigation)
+
+// Panel Maja baru dimuat saat pertama kali dibuka, supaya pengunjung lain tidak mengunduh kodenya.
+const majaOpen = useState('maja-chat-open', () => false)
+const majaUsed = ref(false)
+watch(majaOpen, (value) => {
+	if (value) majaUsed.value = true
+})
 </script>
 
 <template>
@@ -203,9 +210,10 @@ provide('navigation', navigation)
 				:groups="searchGroups"
 				:links="navLinks"
 				:fuse="{ resultLimit: 42 }"
-				placeholder="Cari proyek, panduan, atau artikel..."
+				placeholder="Cari proyek atau tutorial..."
 			/>
 			<NotificationsSlideover v-if="loggedIn" />
+			<LazyMajaChat v-if="majaUsed" />
 		</ClientOnly>
 
 		<!-- Muncul hanya bila deploy baru menghapus kode yang sedang dipakai tab ini. -->

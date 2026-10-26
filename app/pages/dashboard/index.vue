@@ -155,42 +155,44 @@ watch(profileCompletion, (value) => {
 			<div class="p-4 sm:p-6 lg:p-8 flex flex-col gap-6 max-w-7xl w-full mx-auto">
 				<EmailVerifyAlert />
 
-				<!-- Welcome Banner -->
-				<div class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary/15 via-primary/5 to-transparent border border-primary/20 p-6 sm:p-8">
-					<div class="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
-						<div class="flex items-center gap-4">
-							<UAvatar
-								:src="avatarSrc(profileData?.user?.avatarUrl || (user as { image?: string })?.image)"
-								:alt="user?.name || 'Kreator'"
-								size="3xl"
-								class="ring-2 ring-primary/40 shadow-md"
-							/>
-							<div>
-								<div class="flex items-center gap-2">
-									<h1 class="text-xl sm:text-2xl font-bold text-highlighted">
-										Halo, {{ profileData?.user?.name || user?.name || 'Kreator' }}
-									</h1>
+				<!-- Sambutan: di ponsel avatar dan nama sebaris, bio selebar kartu, tombol berdampingan; nama panjang maksimal dua baris. -->
+				<div class="relative overflow-hidden rounded-xl border border-primary/20 bg-linear-to-br from-primary/15 via-primary/5 to-transparent p-4 sm:p-8">
+					<div class="relative z-10 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
+						<div class="flex min-w-0 flex-col gap-3">
+							<div class="flex min-w-0 items-center gap-3 sm:gap-4">
+								<UAvatar
+									:src="avatarSrc(profileData?.user?.avatarUrl || (user as { image?: string })?.image)"
+									:alt="user?.name || 'Kreator'"
+									size="3xl"
+									class="shrink-0 shadow-md ring-2 ring-primary/40"
+								/>
+								<div class="flex min-w-0 flex-col items-start gap-1">
 									<UBadge
 										color="primary"
 										variant="subtle"
-										size="xs"
+										size="sm"
+										class="whitespace-nowrap"
 									>
 										{{ profileData?.user?.role === 'admin' ? 'Admin' : 'Kreator' }}
 									</UBadge>
+									<h1 class="line-clamp-2 text-lg font-bold break-words text-highlighted sm:text-2xl">
+										Halo, {{ profileData?.user?.name || user?.name || 'Kreator' }}
+									</h1>
 								</div>
-								<p class="text-sm text-muted mt-1 max-w-xl">
-									{{ profileData?.user?.bio || 'Bio kamu belum diisi. Tulis satu atau dua kalimat tentang apa yang kamu buat lewat Edit Profil.' }}
-								</p>
 							</div>
+							<p class="max-w-xl text-sm text-muted">
+								{{ profileData?.user?.bio || 'Bio kamu belum diisi. Tulis satu atau dua kalimat tentang apa yang kamu buat lewat Edit Profil.' }}
+							</p>
 						</div>
 
-						<div class="flex items-center gap-2.5 shrink-0">
+						<div class="grid shrink-0 grid-cols-2 gap-2 sm:flex sm:gap-2.5">
 							<UButton
 								label="Edit Profil"
 								icon="i-lucide-user-pen"
 								color="neutral"
 								variant="outline"
 								to="/dashboard/settings"
+								class="justify-center"
 							/>
 							<UButton
 								label="Lihat Showcase"
@@ -198,6 +200,7 @@ watch(profileCompletion, (value) => {
 								color="primary"
 								variant="solid"
 								to="/projek"
+								class="justify-center"
 							/>
 						</div>
 					</div>

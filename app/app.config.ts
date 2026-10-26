@@ -4,6 +4,16 @@ export default defineAppConfig({
 			primary: 'brand',
 			neutral: 'slate'
 		},
+		// Modal pencarian di ponsel tidak setinggi layar (bawaan Nuxt UI h-full); desktop tetap 28rem.
+		contentSearch: {
+			variants: {
+				fullscreen: {
+					false: {
+						modal: 'sm:max-w-3xl h-[min(30rem,70dvh)] sm:h-[28rem]'
+					}
+				}
+			}
+		},
 		icons: {
 			arrowDown: 'i-tabler-arrow-down',
 			arrowLeft: 'i-tabler-arrow-left',

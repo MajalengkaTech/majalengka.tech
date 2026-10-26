@@ -1,12 +1,7 @@
 <script setup lang="ts">
-import type { ContentNavigationItem } from '@nuxt/content'
-
 const route = useRoute()
-const navigation = inject<Ref<ContentNavigationItem[]>>('navigation')
 const { open: searchOpen } = useContentSearch()
-const { signOut } = useUserSession()
 const { loggedIn, user } = useSessionView()
-const toast = useToast()
 
 const open = ref(false)
 const isDocs = computed(() => route.path === '/docs' || route.path.startsWith('/docs/'))
@@ -16,60 +11,6 @@ watch(searchOpen, (value) => {
 		open.value = false
 	}
 })
-
-// Selalu kembali ke beranda, juga saat request logout gagal; replace supaya tombol Back tidak membuka dashboard lagi.
-async function handleLogout() {
-	try {
-		await signOut()
-	} catch {
-		toast.add({ title: 'Gagal keluar', description: 'Sesi belum terhapus. Coba keluar lagi sebentar.', color: 'error' })
-	} finally {
-		await navigateTo('/', { replace: true })
-	}
-}
-
-const userMenuItems = computed(() => [
-	[
-		{
-			label: user.value?.name || 'Kreator',
-			avatar: {
-				src: (user.value as { image?: string })?.image
-			}
-		}
-	],
-	[
-		...((user.value as { username?: string | null } | null)?.username
-			? [{
-					label: 'Profil Publik',
-					icon: 'i-lucide-circle-user',
-					to: `/${(user.value as { username?: string | null }).username}`
-				}]
-			: []),
-		{
-			label: 'Dashboard',
-			icon: 'i-lucide-layout-dashboard',
-			to: '/dashboard'
-		},
-		{
-			label: 'Proyek Saya',
-			icon: 'i-lucide-folder-git-2',
-			to: '/dashboard/projects'
-		},
-		{
-			label: 'Edit Profil',
-			icon: 'i-lucide-user-cog',
-			to: '/dashboard/settings'
-		}
-	],
-	[
-		{
-			label: 'Keluar',
-			icon: 'i-lucide-log-out',
-			color: 'error' as const,
-			onSelect: () => handleLogout()
-		}
-	]
-])
 
 const items = computed(() => [{
 	label: 'Showcase',
@@ -91,13 +32,16 @@ const items = computed(() => [{
 </script>
 
 <template>
-	<UHeader v-model:open="open">
+	<UHeader :toggle="false">
 		<template #left>
 			<NuxtLink
 				to="/"
 				class="focus-visible:outline-3 outline-primary/25 rounded-md p-1 -ms-1"
 			>
-				<AppLogo class="w-auto h-7 shrink-0" />
+				<AppLogo
+					compact
+					class="h-7 w-auto shrink-0"
+				/>
 			</NuxtLink>
 		</template>
 
@@ -107,7 +51,9 @@ const items = computed(() => [{
 		/>
 
 		<template #right>
-			<UColorModeButton />
+			<MajaAskButton />
+
+			<UColorModeButton class="hidden lg:inline-flex" />
 
 			<UContentSearchButton
 				:collapsed="true"
@@ -130,20 +76,7 @@ const items = computed(() => [{
 				<ClientOnly>
 					<NotificationBell />
 				</ClientOnly>
-				<UDropdownMenu :items="userMenuItems">
-					<UButton
-						color="neutral"
-						variant="ghost"
-						class="p-0.5 rounded-full"
-						aria-label="Menu Pengguna"
-					>
-						<UAvatar
-							:src="(user as { image?: string })?.image"
-							:alt="user.name"
-							size="sm"
-						/>
-					</UButton>
-				</UDropdownMenu>
+				<AppAccountPopover />
 			</template>
 
 			<template v-else>
@@ -154,80 +87,21 @@ const items = computed(() => [{
 					to="/login"
 					aria-label="Masuk"
 					title="Masuk"
-					class="hidden sm:inline-flex"
 				/>
 			</template>
 		</template>
 
-		<template #body>
-			<UContentSearchButton
-				:collapsed="false"
-				class="mb-4 w-full"
+		<template #toggle>
+			<UButton
+				icon="i-lucide-menu"
+				color="neutral"
+				variant="ghost"
+				aria-label="Buka menu"
+				class="lg:hidden"
+				@click="open = true"
 			/>
-
-			<UNavigationMenu
-				:items="items"
-				orientation="vertical"
-				class="-mx-2.5"
-			/>
-
-			<template v-if="isDocs">
-				<USeparator class="my-6" />
-
-				<UContentNavigation
-					:navigation="navigation"
-					highlight
-				/>
-			</template>
-
-			<USeparator class="my-6" />
-
-			<template v-if="loggedIn && user">
-				<div class="flex items-center gap-3 p-3 rounded-lg bg-elevated mb-3">
-					<UAvatar
-						:src="(user as { image?: string })?.image"
-						:alt="user.name"
-					/>
-					<div class="flex flex-col">
-						<span class="font-medium text-sm">{{ user.name }}</span>
-						<span class="text-xs text-muted">{{ user.email }}</span>
-					</div>
-				</div>
-				<UButton
-					label="Keluar"
-					color="error"
-					variant="subtle"
-					block
-					@click="handleLogout"
-				/>
-			</template>
-
-			<template v-else>
-				<UButton
-					label="Masuk"
-					color="neutral"
-					variant="subtle"
-					to="/login"
-					block
-					class="mb-3"
-				/>
-				<UButton
-					label="Daftar sebagai Kreator"
-					color="primary"
-					to="/signup"
-					block
-				/>
-				<UButton
-					label="GitHub Majalengka Tech"
-					icon="i-simple-icons-github"
-					color="neutral"
-					variant="subtle"
-					to="https://github.com/majalengkatech"
-					target="_blank"
-					block
-					class="mt-3"
-				/>
-			</template>
 		</template>
 	</UHeader>
+
+	<AppMobileMenu v-model:open="open" />
 </template>

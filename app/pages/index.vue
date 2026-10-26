@@ -13,16 +13,9 @@ interface CreatorSummary {
 	coverUrl: string | null
 }
 
-interface ShowcaseStats {
-	totalProjects: number
-	totalCreators: number
-	categories: Partial<Record<ProjectCategory, number>>
-}
-
 const { data: page } = await useAsyncData('index', () => queryCollection('index').first())
 
-const [stats$, featured$, latest$, creators$, topLiked$] = await Promise.all([
-	useFetch<ShowcaseStats>('/api/projects/stats', { key: 'home-stats' }),
+const [featured$, latest$, creators$, topLiked$] = await Promise.all([
 	useFetch<{ projects: ProjectItem[] }>('/api/projects', { key: 'home-featured', query: { featured: 1, limit: 4 } }),
 	useFetch<{ projects: ProjectItem[] }>('/api/projects', { key: 'home-latest', query: { limit: 6 } }),
 	useFetch<{ creators: CreatorSummary[] }>('/api/creators', { key: 'home-creators', query: { limit: 48 } }),
@@ -34,7 +27,14 @@ const latest = computed(() => latest$.data.value?.projects || [])
 const creators = computed(() => creators$.data.value?.creators || [])
 // Peringkat hanya untuk proyek yang sudah pernah diapresiasi.
 const topLiked = computed(() => (topLiked$.data.value?.projects || []).filter(project => (project.likeCount || 0) > 0))
-const stats = computed(() => stats$.data.value || { totalProjects: 0, totalCreators: 0, categories: {} })
+
+// Dua CTA hero berdampingan juga di ponsel: di layar sempit tombol memakai ukuran xs (padding, teks, dan ikon kecil),
+// di desktop tetap ukuran xl. Layar yang terlalu sempit untuk keduanya membuat tombol kedua turun ke baris baru.
+const heroLinks = computed(() => (page.value?.hero?.links || []).map(link => ({
+	...link,
+	class: 'flex-1 justify-center whitespace-nowrap sm:flex-none max-sm:gap-1 max-sm:px-2.5 max-sm:py-2 max-sm:text-xs',
+	ui: { leadingIcon: 'max-sm:size-4', trailingIcon: 'max-sm:size-4' }
+})))
 
 const { loadMyLikes } = useProjectLike()
 onCachedPageSignIn(() => loadMyLikes([...featured.value, ...latest.value, ...topLiked.value]))
@@ -58,10 +58,6 @@ const showcaseProjects = computed(() => {
 	}
 	return filled
 })
-
-const categories = computed(() => (Object.keys(PROJECT_CATEGORIES) as ProjectCategory[])
-	.map(key => ({ key, label: PROJECT_CATEGORIES[key], total: stats.value.categories[key] || 0 }))
-	.filter(category => category.total > 0))
 
 // Judul hero dirender per kata di server; frasa dalam [..]{..} di konten menjadi sorotan bergaris bawah mangga.
 const heroTitle = computed(() => {
@@ -130,12 +126,13 @@ defineOgImage('Saas', {
 			ref="hero"
 			data-hero
 			:description="page.description"
-			:links="page.hero.links"
+			:links="heroLinks"
 			orientation="horizontal"
 			:ui="{
 				container: 'pt-6 pb-12 sm:pt-10 sm:pb-16 lg:py-20 gap-10 lg:gap-14',
 				title: 'text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-balance',
-				description: 'text-base sm:text-lg text-muted text-pretty max-w-xl'
+				description: 'text-base sm:text-lg text-muted text-pretty max-w-xl',
+				links: 'gap-2 sm:gap-3'
 			}"
 		>
 			<template #top>
@@ -162,7 +159,7 @@ defineOgImage('Saas', {
 						name="i-lucide-sparkles"
 						class="size-4 text-primary"
 					/>
-					Gratis untuk kreator Majalengka, kodenya terbuka
+					Gratis dan kodenya terbuka
 				</NuxtLink>
 			</template>
 
@@ -290,33 +287,6 @@ defineOgImage('Saas', {
 					/>
 				</UPageCard>
 			</UCarousel>
-		</UPageSection>
-
-		<UPageSection
-			v-if="categories.length"
-			:ui="{ container: 'py-12 sm:py-16 lg:py-20' }"
-		>
-			<template #title>
-				Cari proyek per kategori
-			</template>
-
-			<ul class="flex flex-wrap justify-center gap-2">
-				<li
-					v-for="category in categories"
-					:key="category.key"
-					data-reveal
-				>
-					<UButton
-						:to="`/projek?kategori=${category.key}`"
-						color="neutral"
-						variant="outline"
-						size="lg"
-					>
-						{{ category.label }}
-						<span class="text-muted tabular-nums">{{ category.total }}</span>
-					</UButton>
-				</li>
-			</ul>
 		</UPageSection>
 
 		<UPageSection
