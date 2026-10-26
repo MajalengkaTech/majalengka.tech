@@ -170,6 +170,17 @@ const suggestionItems: EditorSuggestionMenuItem<typeof customHandlers>[][] = [[
 	{ kind: 'horizontalRule', label: 'Garis pemisah', icon: 'i-lucide-separator-horizontal' }
 ], ...(props.components ? [[{ type: 'label' as const, label: 'Komponen' }, ...componentItems]] : [])]
 
+const suggestionOptions = {
+	flip: { padding: 8 },
+	size: {
+		padding: 8,
+		apply({ availableHeight, elements }: { availableHeight: number, elements: { floating: HTMLElement } }) {
+			const limit = Math.min(availableHeight, window.innerHeight * 0.7)
+			elements.floating.style.setProperty('--suggestion-max-h', `${Math.max(200, Math.floor(limit))}px`)
+		}
+	}
+}
+
 // Menu titik enam di kiri blok, disesuaikan dari useEditorDragHandle di template Nuxt UI Editor.
 const NODE_LABELS: Record<string, string> = {
 	paragraph: 'Paragraf',
@@ -275,9 +286,12 @@ function dragHandleItems(editor: Editor): DropdownMenuItem[][] {
 			:should-show="({ view, state }: any) => state.selection instanceof CellSelection && view.hasFocus()"
 		/>
 
+		<!-- Menu "/" berisi banyak item: tingginya mengikuti ruang layar yang tersisa (bawaan Nuxt UI dipatok 384px), dan pindah ke atas kursor bila ruang di bawah sempit. -->
 		<UEditorSuggestionMenu
 			:editor="editor"
 			:items="suggestionItems"
+			:options="suggestionOptions"
+			:ui="{ content: 'max-h-[var(--suggestion-max-h,24rem)]' }"
 		/>
 
 		<UEditorDragHandle
