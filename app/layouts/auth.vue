@@ -1,5 +1,6 @@
 <template>
-	<div class="h-screen flex items-center justify-center px-4">
+	<div class="flex min-h-dvh items-center justify-center px-4 pt-20 pb-8 sm:py-8">
+		<!-- min-h-dvh, bukan h-screen: form yang memanjang (Turnstile) tetap bisa digulir di ponsel. -->
 		<UButton
 			icon="i-lucide-chevron-left"
 			to="/"
@@ -7,7 +8,7 @@
 			size="xl"
 			color="neutral"
 			variant="subtle"
-			class="absolute left-8 top-8 rounded-full z-10"
+			class="absolute top-4 left-4 z-10 rounded-full sm:top-8 sm:left-8"
 		/>
 
 		<UPageCard

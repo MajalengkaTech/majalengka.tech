@@ -1,5 +1,6 @@
 import { eq } from 'drizzle-orm'
 import { db, schema } from 'hub:db'
+import { cloudinaryUrlsIn } from '../../utils/cloudinary'
 import { defineEventHandler, getRouterParam } from 'nuxt/server'
 import { isAdmin } from '../../utils/admin'
 import { deleteOwnedBlob } from '../../utils/project-blob'
@@ -58,7 +59,8 @@ export default defineEventHandler(async (event) => {
 		db.delete(schema.projects).where(eq(schema.projects.id, id))
 	])
 
-	for (const url of [project.thumbnailUrl, ...images.map(image => image.url)]) {
+	// Gambar yang disisipkan di cerita proyek ikut dibersihkan; deleteOwnedBlob hanya menghapus milik pemilik proyek.
+	for (const url of [project.thumbnailUrl, ...images.map(image => image.url), ...cloudinaryUrlsIn(project.description)]) {
 		await deleteOwnedBlob(url, project.userId)
 	}
 

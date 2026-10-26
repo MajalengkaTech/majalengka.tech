@@ -5,7 +5,7 @@ const MAX_BYTES = 8 * 1024 * 1024
 // projectId diisi saat mengedit proyek, supaya admin yang mengunggah untuk proyek orang lain menyimpan gambar di folder pemiliknya.
 export function useImageUpload(
 	projectId?: MaybeRefOrGetter<number | undefined>,
-	options?: { folder?: 'projek' | 'avatar' }
+	options?: { folder?: 'projek' | 'avatar' | 'tutorial' }
 ) {
 	const toast = useToast()
 	const uploading = ref(0)

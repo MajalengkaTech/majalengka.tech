@@ -59,7 +59,9 @@ const isDirty = computed(() => snapshot() !== initialSnapshot.value)
 async function save(kirim: boolean) {
 	saving.value = kirim ? 'kirim' : 'draf'
 	try {
-		const body = { ...state, summary: state.summary || null, tags: state.tags || null, kirim }
+		// Kotak unggah gambar yang belum diisi tidak ikut tersimpan.
+		const cleanBody = state.body.replace(/<div data-type="image-upload"><\/div>\s*/g, '').trim()
+		const body = { ...state, body: cleanBody, summary: state.summary || null, tags: state.tags || null, kirim }
 		const res = props.tutorial?.id
 			? await $fetch<{ tutorial: { id: number, slug: string, status: TutorialStatus } }>(`/api/tutorials/${props.tutorial.id}`, { method: 'PUT', body })
 			: await $fetch<{ tutorial: { id: number, slug: string, status: TutorialStatus } }>('/api/tutorials', { method: 'POST', body })
@@ -79,6 +81,9 @@ async function save(kirim: boolean) {
 		saving.value = false
 	}
 }
+
+const previewOpen = ref(false)
+const preview = computed(() => previewOpen.value ? renderTutorial(state.body).html : '')
 
 const submitKirim = ref(false)
 function onSubmit(_event: FormSubmitEvent<TutorialInput>) {
@@ -211,18 +216,27 @@ useEventListener('beforeunload', (event: BeforeUnloadEvent) => {
 					label="Isi tutorial"
 					name="body"
 					required
-					description="Pakai Subjudul untuk tiap langkah, supaya pembaca dapat daftar isi. Blok kode untuk potongan kode."
+					description="Ketik / untuk menyisipkan subjudul, gambar, tabel, atau blok kode. Pakai Subjudul untuk tiap langkah supaya pembaca dapat daftar isi."
 					:hint="`${state.body.length}/30000`"
 				>
-					<ProjectStoryEditor
+					<EditorRich
 						v-model="state.body"
-						placeholder="Mulai dari apa yang dibutuhkan, lalu tulis langkah-langkahnya satu per satu..."
+						image-folder="tutorial"
+						placeholder="Tulis langkah-langkahnya, atau ketik / untuk menyisipkan..."
 					/>
 				</UFormField>
 			</div>
 		</UCard>
 
 		<div class="flex flex-wrap justify-end gap-2">
+			<UButton
+				label="Pratinjau"
+				icon="i-lucide-eye"
+				color="neutral"
+				variant="ghost"
+				:disabled="!state.body.trim()"
+				@click="previewOpen = true"
+			/>
 			<UButton
 				type="submit"
 				label="Simpan Draf"
@@ -242,6 +256,23 @@ useEventListener('beforeunload', (event: BeforeUnloadEvent) => {
 				@click="submitKirim = true"
 			/>
 		</div>
+
+		<USlideover
+			v-model:open="previewOpen"
+			:title="state.title || 'Pratinjau tutorial'"
+			description="Tampilan isi tutorial seperti yang akan dilihat pembaca."
+			:ui="{ content: 'sm:max-w-3xl' }"
+		>
+			<template #body>
+				<!-- Aman untuk v-html: renderTutorial meng-escape semua HTML mentah dan hanya mengizinkan link http(s)/mailto. -->
+				<!-- eslint-disable vue/no-v-html -->
+				<div
+					class="story-content break-words text-base/7 text-default"
+					v-html="preview"
+				/>
+				<!-- eslint-enable vue/no-v-html -->
+			</template>
+		</USlideover>
 
 		<UModal
 			v-model:open="leaveOpen"

@@ -2,6 +2,7 @@
 interface AdminUser {
 	id: string
 	name: string
+	username?: string | null
 	email: string
 	emailVerified: boolean
 	image?: string | null
@@ -68,6 +69,7 @@ const filteredUsers = computed(() => {
 		list = list.filter(u =>
 			(u.name && u.name.toLowerCase().includes(q))
 			|| (u.email && u.email.toLowerCase().includes(q))
+			|| (u.username && u.username.toLowerCase().includes(q.replace(/^@/, '')))
 			|| (u.githubUsername && u.githubUsername.toLowerCase().includes(q))
 		)
 	}
@@ -433,7 +435,17 @@ function formatDate(dateVal: string | number | Date) {
 									/>
 								</div>
 								<p class="truncate text-sm text-muted">
-									{{ u.email }} · {{ u.projectCount }} proyek · bergabung {{ formatDate(u.createdAt) }}
+									<ULink
+										v-if="u.username"
+										:to="`/${u.username.toLowerCase()}`"
+										target="_blank"
+										class="font-medium text-default hover:text-primary"
+									>@{{ u.username }}</ULink>
+									<span
+										v-else
+										class="italic"
+									>belum pilih username</span>
+									· {{ u.email }} · {{ u.projectCount }} proyek · bergabung {{ formatDate(u.createdAt) }}
 								</p>
 								<div class="mt-1 flex flex-wrap gap-1.5">
 									<UBadge

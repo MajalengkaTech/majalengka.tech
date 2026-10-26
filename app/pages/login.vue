@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import * as z from 'zod'
-import type { FormSubmitEvent } from '@nuxt/ui'
+import type { AuthFormField, ButtonProps, FormSubmitEvent } from '@nuxt/ui'
 
 definePageMeta({
 	layout: 'auth'
@@ -34,26 +34,30 @@ watchEffect(() => {
 	}
 })
 
-const fields = [{
+const fields: AuthFormField[] = [{
 	name: 'email',
-	type: 'text' as const,
+	type: 'email',
 	label: 'Email',
-	placeholder: 'Masukkan email kamu',
+	placeholder: 'nama@email.com',
 	required: true
 }, {
 	name: 'password',
 	label: 'Kata Sandi',
-	type: 'password' as const,
-	placeholder: 'Masukkan kata sandi'
+	type: 'password',
+	placeholder: 'Masukkan kata sandi',
+	required: true
 }, {
 	name: 'remember',
-	type: 'checkbox' as const
+	type: 'checkbox',
+	label: 'Ingat saya'
 }]
 
-const providers = [{
-	label: 'Masuk dengan GitHub',
+// Label dipendekkan supaya dua tombol muat berdampingan di layar kecil.
+const providers: ButtonProps[] = [{
+	label: 'GitHub',
 	icon: 'i-simple-icons-github',
-	color: 'neutral' as const,
+	color: 'neutral',
+	variant: 'subtle',
 	onClick: async () => {
 		await authClient?.signIn.social({
 			provider: 'github',
@@ -61,9 +65,10 @@ const providers = [{
 		})
 	}
 }, {
-	label: 'Masuk dengan Google',
+	label: 'Google',
 	icon: 'i-simple-icons-google',
-	color: 'neutral' as const,
+	color: 'neutral',
+	variant: 'subtle',
 	onClick: async () => {
 		await authClient?.signIn.social({
 			provider: 'google',
@@ -129,7 +134,16 @@ async function onSubmit(payload: FormSubmitEvent<Schema>) {
 		separator="atau"
 		title="Selamat datang kembali"
 		icon="i-lucide-lock"
-		:submit="{ label: 'Masuk', disabled: captchaPending }"
+		:submit="{ label: 'Masuk', block: true, size: 'lg', disabled: captchaPending }"
+		:ui="{
+			root: 'w-full space-y-4 sm:space-y-6',
+			leading: 'hidden sm:block mb-2',
+			title: 'text-lg sm:text-xl',
+			description: 'mt-1 text-sm sm:text-base',
+			body: 'flex flex-col gap-y-4 sm:gap-y-6',
+			providers: 'grid grid-cols-2 gap-2 space-y-0 sm:gap-3',
+			form: 'space-y-4 sm:space-y-5'
+		}"
 		@submit="onSubmit"
 	>
 		<template #description>
@@ -145,7 +159,7 @@ async function onSubmit(payload: FormSubmitEvent<Schema>) {
 		>
 			<ULink
 				to="/lupa-sandi"
-				class="text-primary font-medium"
+				class="text-xs font-medium text-primary sm:text-sm"
 			>Lupa kata sandi?</ULink>
 		</template>
 
@@ -159,21 +173,6 @@ async function onSubmit(payload: FormSubmitEvent<Schema>) {
 				:site-key="features.turnstileSiteKey"
 				action="login"
 			/>
-		</template>
-
-		<template #remember-field="{ state }">
-			<UCheckbox
-				v-model="state.remember"
-				label="Ingat saya"
-				name="remember"
-			/>
-		</template>
-
-		<template #footer>
-			Baru di sini? Baca <ULink
-				to="/tentang"
-				class="text-primary font-medium"
-			>tentang Majalengka Tech</ULink> dulu.
 		</template>
 	</UAuthForm>
 </template>

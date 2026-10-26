@@ -149,7 +149,9 @@ useEventListener('beforeunload', (event: BeforeUnloadEvent) => {
 async function onSubmit(event: FormSubmitEvent<ProjectInput>) {
 	try {
 		saving.value = true
-		const body = { ...event.data, tags: state.tags }
+		// Kotak unggah gambar yang belum diisi tidak ikut tersimpan.
+		const description = event.data.description.replace(/<div data-type="image-upload"><\/div>\s*/g, '').trim()
+		const body = { ...event.data, description, tags: state.tags }
 		const res = isEdit.value
 			? await $fetch<{ project: { id: number, slug: string, isPublished: boolean } }>(`/api/projects/${props.project!.id}`, { method: 'PUT', body })
 			: await $fetch<{ project: { id: number, slug: string, isPublished: boolean } }>('/api/projects', { method: 'POST', body })
@@ -258,12 +260,14 @@ async function onSubmit(event: FormSubmitEvent<ProjectInput>) {
 						label="Cerita di balik proyek"
 						name="description"
 						required
-						description="Masalah apa yang diselesaikan, bagaimana prosesnya, dan apa yang kamu pelajari. Pakai toolbar untuk tebal, miring, daftar, atau kode."
+						description="Masalah apa yang diselesaikan, bagaimana prosesnya, dan apa yang kamu pelajari. Ketik / untuk menyisipkan subjudul, gambar, tabel, atau blok kode."
 						:hint="`${state.description.length}/5000`"
 					>
-						<ProjectStoryEditor
+						<EditorRich
 							v-model="state.description"
-							placeholder="Ceritakan masalahnya, prosesnya, dan pelajaran dari proyek ini..."
+							image-folder="projek"
+							:project-id="props.project?.id"
+							placeholder="Ceritakan masalahnya, prosesnya, dan pelajaran dari proyek ini, atau ketik / untuk menyisipkan..."
 						/>
 					</UFormField>
 				</div>

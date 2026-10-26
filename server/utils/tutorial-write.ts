@@ -1,6 +1,8 @@
-import { and, eq } from 'drizzle-orm'
+import { and, eq, ne, sql } from 'drizzle-orm'
 import { db, schema } from 'hub:db'
 import { getRouterParam } from 'nuxt/server'
+import { cloudinaryUrlsIn } from './cloudinary'
+import { deleteOwnedBlob } from './project-blob'
 import type { ServerEvent } from './validation'
 
 type RouteParamEvent = Parameters<typeof getRouterParam>[0]
@@ -22,6 +24,19 @@ export async function assertOwnProject(projectId: number | null | undefined, use
 		throw createError({ status: 400, statusText: 'Proyek terkait harus salah satu proyekmu sendiri. Pilih lagi dari daftar.' })
 	}
 	return project.id
+}
+
+// Gambar Cloudinary yang disisipkan di isi tutorial, supaya bisa dibersihkan saat tutorial atau akun dihapus.
+export const tutorialImageUrls = cloudinaryUrlsIn
+
+// Gambar yang masih dipakai tutorial lain milik penulis yang sama tidak dihapus.
+export async function deleteUnusedTutorialImages(urls: string[], userId: string, exceptTutorialId: number) {
+	for (const url of urls) {
+		const [stillUsed] = await db.select({ id: schema.tutorials.id }).from(schema.tutorials)
+			.where(and(eq(schema.tutorials.userId, userId), ne(schema.tutorials.id, exceptTutorialId), sql`instr(${schema.tutorials.body}, ${url}) > 0`))
+			.limit(1)
+		if (!stillUsed) await deleteOwnedBlob(url, userId)
+	}
 }
 
 export function cleanTags(tags: string | null | undefined) {

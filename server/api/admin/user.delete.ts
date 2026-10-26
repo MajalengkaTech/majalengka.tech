@@ -1,10 +1,12 @@
 import { eq, inArray, or } from 'drizzle-orm'
 import { db, schema } from 'hub:db'
+import { cloudinaryUrlsIn } from '../../utils/cloudinary'
 import { defineEventHandler } from 'nuxt/server'
 import { z } from 'zod'
 import { isSuperAdmin, requireAdminSession } from '../../utils/admin'
 import { deleteOwnedBlob } from '../../utils/project-blob'
 import { creatorCardPath } from '../../utils/creator-stats'
+import { tutorialImageUrls } from '../../utils/tutorial-write'
 import { logTarget } from '../../utils/activity-log'
 
 const deleteUserSchema = z.object({
@@ -45,7 +47,7 @@ export default defineEventHandler(async (event) => {
 	logTarget(event, { userId: targetUser.id, name: targetUser.name })
 
 	const userProjects = await db
-		.select({ thumbnailUrl: schema.projects.thumbnailUrl })
+		.select({ thumbnailUrl: schema.projects.thumbnailUrl, description: schema.projects.description })
 		.from(schema.projects)
 		.where(eq(schema.projects.userId, body.userId))
 	const userImages = await db
@@ -53,6 +55,11 @@ export default defineEventHandler(async (event) => {
 		.from(schema.projectImages)
 		.innerJoin(schema.projects, eq(schema.projectImages.projectId, schema.projects.id))
 		.where(eq(schema.projects.userId, body.userId))
+
+	const userTutorials = await db
+		.select({ body: schema.tutorials.body })
+		.from(schema.tutorials)
+		.where(eq(schema.tutorials.userId, body.userId))
 
 	// Subquery per user, bukan inArray(ids), karena D1 membatasi 100 parameter per query.
 	const ownProjectIds = db.select({ id: schema.projects.id }).from(schema.projects).where(eq(schema.projects.userId, body.userId))
@@ -80,7 +87,7 @@ export default defineEventHandler(async (event) => {
 		db.delete(schema.user).where(eq(schema.user.id, body.userId))
 	])
 
-	for (const url of [...userProjects.map(p => p.thumbnailUrl), ...userImages.map(image => image.url)]) {
+	for (const url of [...userProjects.map(p => p.thumbnailUrl), ...userImages.map(image => image.url), ...userProjects.flatMap(p => cloudinaryUrlsIn(p.description)), ...userTutorials.flatMap(t => tutorialImageUrls(t.body))]) {
 		await deleteOwnedBlob(url, body.userId)
 	}
 	await blob.delete(creatorCardPath(body.userId)).catch(() => {})

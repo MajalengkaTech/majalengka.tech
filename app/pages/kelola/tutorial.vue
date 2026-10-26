@@ -100,16 +100,32 @@ const { data: reviewerData, refresh: refreshReviewers, status: reviewersStatus }
 	immediate: isAdmin.value
 })
 const reviewers = computed(() => reviewerData.value?.reviewers ?? [])
-const newReviewer = ref('')
+// Ketik sebagian username atau nama, lalu pilih dari saran; daftar diambil dari server per ketikan.
+
+const reviewerSearch = ref('')
+const reviewerSearchDebounced = refDebounced(reviewerSearch, 250)
+const { data: candidateData, status: candidateStatus } = useFetch<{ users: { id: string, name: string | null, username: string, image: string | null }[] }>('/api/admin/tutorial-reviewers/candidates', {
+	query: computed(() => ({ q: reviewerSearchDebounced.value })),
+	server: false,
+	immediate: isAdmin.value
+})
+const candidateItems = computed(() => (candidateData.value?.users ?? []).map(candidate => ({
+	label: `@${candidate.username}`,
+	value: candidate.username,
+	description: candidate.name || undefined,
+	avatar: { src: avatarSrc(candidate.image), alt: candidate.name || candidate.username }
+})))
+const newReviewer = ref<(typeof candidateItems.value)[number] | undefined>()
 const addingReviewer = ref(false)
 const removingId = ref<string | null>(null)
 
 async function addReviewer() {
-	if (!newReviewer.value.trim()) return
+	if (!newReviewer.value) return
 	addingReviewer.value = true
 	try {
-		const res = await $fetch<{ message: string }>('/api/admin/tutorial-reviewers', { method: 'POST', body: { username: newReviewer.value } })
-		newReviewer.value = ''
+		const res = await $fetch<{ message: string }>('/api/admin/tutorial-reviewers', { method: 'POST', body: { username: newReviewer.value.value } })
+		newReviewer.value = undefined
+		reviewerSearch.value = ''
 		toast.add({ title: res.message, color: 'success' })
 		await refreshReviewers()
 	} catch (err: unknown) {
@@ -292,23 +308,31 @@ async function removeReviewer(reviewer: Reviewer) {
 						class="mt-4"
 					>
 						<UForm
-							:state="{ username: newReviewer }"
+							:state="{ username: newReviewer?.value }"
 							class="flex flex-col gap-2 sm:flex-row"
 							@submit="addReviewer"
 						>
-							<UInput
+							<UInputMenu
 								v-model="newReviewer"
+								v-model:search-term="reviewerSearch"
+								:items="candidateItems"
+								:loading="candidateStatus === 'pending'"
+								ignore-filter
 								icon="i-lucide-at-sign"
-								placeholder="username kreator"
-								aria-label="Username kreator yang dijadikan peninjau"
-								class="w-full sm:w-72"
-							/>
+								placeholder="Ketik username atau nama kreator"
+								aria-label="Kreator yang dijadikan peninjau"
+								class="w-full sm:w-80"
+							>
+								<template #empty>
+									{{ reviewerSearch ? 'Tidak ada kreator yang cocok' : 'Ketik untuk mencari kreator' }}
+								</template>
+							</UInputMenu>
 							<UButton
 								type="submit"
 								label="Jadikan Peninjau"
 								icon="i-lucide-user-plus"
 								:loading="addingReviewer"
-								:disabled="!newReviewer.trim()"
+								:disabled="!newReviewer"
 							/>
 						</UForm>
 

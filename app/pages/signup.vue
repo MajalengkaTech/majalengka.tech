@@ -39,7 +39,7 @@ const fields = [{
 	required: true
 }, {
 	name: 'email',
-	type: 'text' as const,
+	type: 'email' as const,
 	label: 'Email',
 	placeholder: 'Masukkan email aktif',
 	required: true
@@ -51,9 +51,10 @@ const fields = [{
 }]
 
 const providers = [{
-	label: 'Daftar dengan GitHub',
+	label: 'GitHub',
 	icon: 'i-simple-icons-github',
 	color: 'neutral' as const,
+	variant: 'subtle' as const,
 	onClick: async () => {
 		await authClient?.signIn.social({
 			provider: 'github',
@@ -61,9 +62,10 @@ const providers = [{
 		})
 	}
 }, {
-	label: 'Daftar dengan Google',
+	label: 'Google',
 	icon: 'i-simple-icons-google',
 	color: 'neutral' as const,
+	variant: 'subtle' as const,
 	onClick: async () => {
 		await authClient?.signIn.social({
 			provider: 'google',
@@ -130,7 +132,15 @@ async function onSubmit(payload: FormSubmitEvent<Schema>) {
 		:loading="loading"
 		separator="atau"
 		title="Bergabung ke Majalengka Tech"
-		:submit="{ label: 'Daftar Sekarang', disabled: captchaPending }"
+		:submit="{ label: 'Daftar Sekarang', block: true, size: 'lg', disabled: captchaPending }"
+		:ui="{
+			root: 'w-full space-y-4 sm:space-y-6',
+			title: 'text-lg sm:text-xl',
+			description: 'mt-1 text-sm sm:text-base',
+			body: 'flex flex-col gap-y-4 sm:gap-y-6',
+			providers: 'grid grid-cols-2 gap-2 space-y-0 sm:gap-3',
+			form: 'space-y-4 sm:space-y-5'
+		}"
 		@submit="onSubmit"
 	>
 		<template #description>

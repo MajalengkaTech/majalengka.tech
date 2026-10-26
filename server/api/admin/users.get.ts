@@ -10,6 +10,7 @@ export default defineEventHandler(async (event) => {
 		.select({
 			id: schema.user.id,
 			name: schema.user.name,
+			username: schema.user.username,
 			email: schema.user.email,
 			emailVerified: schema.user.emailVerified,
 			image: schema.user.image,

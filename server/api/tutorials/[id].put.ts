@@ -4,7 +4,7 @@ import { db, schema } from 'hub:db'
 import { defineEventHandler } from 'nuxt/server'
 import { requireSignedIn } from '../../utils/project-access'
 import { logTarget } from '../../utils/activity-log'
-import { assertOwnProject, cleanTags, parseTutorialId } from '../../utils/tutorial-write'
+import { assertOwnProject, cleanTags, deleteUnusedTutorialImages, parseTutorialId, tutorialImageUrls } from '../../utils/tutorial-write'
 
 const bodySchema = tutorialInputSchema.extend({ kirim: z.boolean().optional() })
 
@@ -13,7 +13,7 @@ export default defineEventHandler(async (event) => {
 	const session = await requireSignedIn(event)
 	const userId = String(session.user.id)
 	const id = parseTutorialId(event)
-	const [current] = await db.select({ userId: schema.tutorials.userId, status: schema.tutorials.status })
+	const [current] = await db.select({ userId: schema.tutorials.userId, status: schema.tutorials.status, body: schema.tutorials.body })
 		.from(schema.tutorials).where(eq(schema.tutorials.id, id)).limit(1)
 	if (!current || current.userId !== userId) {
 		throw createError({ status: 404, statusText: 'Tutorial ini tidak ada atau bukan milikmu.' })
@@ -33,5 +33,8 @@ export default defineEventHandler(async (event) => {
 		status,
 		updatedAt: new Date()
 	}).where(eq(schema.tutorials.id, id)).returning({ id: schema.tutorials.id, slug: schema.tutorials.slug, status: schema.tutorials.status })
+	// Gambar yang dibuang dari isi tutorial ikut dihapus dari Cloudinary.
+	const kept = new Set(tutorialImageUrls(body.body))
+	await deleteUnusedTutorialImages(tutorialImageUrls(current.body).filter(url => !kept.has(url)), userId, id)
 	return { success: true, tutorial: updated }
 })

@@ -1,7 +1,7 @@
 import { v2 as cloudinary } from 'cloudinary'
 
 const ROOT_FOLDER = 'majalengka.tech'
-export const CLOUDINARY_FOLDERS = ['projek', 'avatar'] as const
+export const CLOUDINARY_FOLDERS = ['projek', 'avatar', 'tutorial'] as const
 export type CloudinaryFolder = typeof CLOUDINARY_FOLDERS[number]
 
 // Cloudinary sendiri memeriksa isi file, jadi SVG yang diberi tipe image/png tetap ditolak.
@@ -92,6 +92,11 @@ export function cloudinaryPublicId(url: string | null | undefined) {
 	const match = decodeURIComponent(parsed.pathname).match(/^\/([^/]+)\/image\/upload\/(?:v\d+\/)?(.+?)(?:\.[a-z0-9]+)?$/i)
 	if (!match || match[1] !== cloudName) return null
 	return match[2]!.startsWith(`${ROOT_FOLDER}/`) ? match[2]! : null
+}
+
+// Alamat gambar Cloudinary di dalam Markdown (cerita proyek atau tutorial), untuk dibersihkan saat kontennya dihapus.
+export function cloudinaryUrlsIn(markdown: string | null | undefined) {
+	return [...new Set((markdown || '').match(/https:\/\/res\.cloudinary\.com\/[^\s)"'<>]+/g) ?? [])]
 }
 
 export function isCloudinaryUrl(url: string | null | undefined) {
