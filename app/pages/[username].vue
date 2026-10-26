@@ -97,7 +97,7 @@ const seoDescription = computed(() => creator.value.bio
 	|| `Proyek @${creator.value.username} di Majalengka Tech`)
 
 useSeoMeta({
-	title: () => `@${creator.value.username} - Kreator Majalengka Tech`,
+	title: () => `@${creator.value.username} · Kreator`,
 	description: seoDescription,
 	ogDescription: seoDescription,
 	ogImage: cardImageUrl,
@@ -110,6 +110,27 @@ useSeoMeta({
 	twitterImage: cardImageUrl,
 	twitterImageAlt: () => `Kartu kreator @${creator.value.username} di Majalengka Tech`
 })
+
+// Google membaca halaman ini sebagai profil seseorang, lengkap dengan akun lain miliknya (sameAs).
+useSchemaOrg([
+	defineWebPage({ '@type': 'ProfilePage' }),
+	{
+		'@type': 'Person',
+		'name': () => creator.value.name,
+		'alternateName': () => `@${creator.value.username}`,
+		'url': () => `https://majalengka.tech/${String(creator.value.username).toLowerCase()}`,
+		'image': () => creator.value.avatarUrl || undefined,
+		'description': seoDescription,
+		'jobTitle': () => roleLabel.value || undefined,
+		'sameAs': () => links.value.map(link => link.to).filter(to => /^https?:\/\//.test(to))
+	},
+	defineBreadcrumb({
+		itemListElement: [
+			{ name: 'Kreator', item: '/kreator' },
+			{ name: () => `@${creator.value.username}` }
+		]
+	})
+])
 
 // Proyek di bawah layar muncul bertahap saat di-scroll.
 useReveal(useTemplateRef<HTMLElement>('works'))

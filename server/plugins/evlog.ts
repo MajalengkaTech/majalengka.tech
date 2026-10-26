@@ -3,7 +3,8 @@ const WRITE_METHODS = new Set(['POST', 'PUT', 'PATCH', 'DELETE'])
 export default defineNitroPlugin((nitroApp) => {
 	// GET yang berhasil dibuang oleh sampling di nuxt.config; aksi yang mengubah data (termasuk login dan daftar) selalu disimpan.
 	nitroApp.hooks.hook('evlog:emit:keep', (ctx) => {
-		if (WRITE_METHODS.has(ctx.method ?? '')) ctx.shouldKeep = true
+		// MCP memakai POST tapi hanya membaca data publik; yang berhasil tidak perlu memenuhi log aktivitas.
+		if (WRITE_METHODS.has(ctx.method ?? '') && !ctx.path?.startsWith('/mcp')) ctx.shouldKeep = true
 	})
 
 	// Situs hanya bisa dibuka lewat Cloudflare Tunnel, jadi IP asli pengunjung ada di CF-Connecting-IP.

@@ -107,6 +107,32 @@ useSeoMeta({
 	twitterCard: ogImage ? 'summary_large_image' : 'summary'
 })
 
+// Proyek ditandai sebagai karya (CreativeWork) beserta pembuatnya, supaya mesin pencari tahu siapa yang membuatnya.
+useSchemaOrg([
+	{
+		'@type': 'CreativeWork',
+		'name': () => project.value.title,
+		'description': seoDescription,
+		'url': () => `https://majalengka.tech/projek/${project.value.slug}`,
+		'image': ogImage,
+		'genre': () => category.value,
+		'keywords': () => tags.value.join(', ') || undefined,
+		'dateCreated': () => project.value.createdAt,
+		'dateModified': () => project.value.updatedAt || project.value.createdAt,
+		'author': {
+			'@type': 'Person',
+			'name': () => project.value.author.name,
+			'url': () => project.value.author.username ? `https://majalengka.tech/${project.value.author.username.toLowerCase()}` : undefined
+		}
+	},
+	defineBreadcrumb({
+		itemListElement: [
+			{ name: 'Proyek', item: '/projek' },
+			{ name: () => project.value.title }
+		]
+	})
+])
+
 // Proyek lain dari kreator yang sama muncul saat pembaca sampai di bagian bawah.
 useReveal(useTemplateRef<HTMLElement>('others'))
 

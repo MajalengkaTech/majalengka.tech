@@ -201,5 +201,27 @@ provide('navigation', navigation)
 			/>
 			<NotificationsSlideover v-if="loggedIn" />
 		</ClientOnly>
+
+		<!-- Muncul hanya bila deploy baru menghapus kode yang sedang dipakai tab ini. -->
+		<SkewNotification v-slot="{ isCurrentChunksOutdated, dismiss, reload }">
+			<div
+				v-if="isCurrentChunksOutdated"
+				class="fixed inset-x-4 bottom-4 z-50 sm:left-auto sm:w-96"
+			>
+				<UAlert
+					role="status"
+					color="neutral"
+					variant="outline"
+					icon="i-lucide-refresh-cw"
+					title="Versi baru Majalengka Tech sudah tersedia"
+					description="Muat ulang halaman supaya semua tombol dan menu tetap berfungsi."
+					:actions="[
+						{ label: 'Muat Ulang', color: 'primary', onClick: () => reload() },
+						{ label: 'Nanti', color: 'neutral', variant: 'ghost', onClick: () => dismiss() }
+					]"
+					class="bg-default shadow-lg"
+				/>
+			</div>
+		</SkewNotification>
 	</UApp>
 </template>

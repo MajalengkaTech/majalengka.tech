@@ -41,7 +41,7 @@ export default defineNuxtConfig({
 		// Sesudah @nuxthub/core: log aktivitas disimpan di tabel evlog_events pada database yang sama.
 		'@evlog/nuxthub',
 		'@nuxtjs/better-auth',
-		'nuxt-llms',
+		'@nuxtjs/mcp-toolkit',
 		'@sentry/nuxt/module'
 	],
 
@@ -125,7 +125,10 @@ export default defineNuxtConfig({
 		'/kelola': { auth: 'user', prerender: false, ssr: false, robots: false, sitemap: false },
 		'/kelola/**': { auth: 'user', prerender: false, ssr: false, robots: false, sitemap: false },
 		'/api/admin/**': { prerender: false, robots: false, sitemap: false },
-		'/api/user/**': { prerender: false, robots: false, sitemap: false }
+		'/api/user/**': { prerender: false, robots: false, sitemap: false },
+		// Halaman akun tidak perlu muncul di hasil pencarian.
+		'/login': { robots: false },
+		'/signup': { robots: false }
 	},
 
 	compatibilityDate: '2026-06-30',
@@ -137,9 +140,8 @@ export default defineNuxtConfig({
 			traceInclude: libsqlNativePackages()
 		},
 		prerender: {
+			// llms.txt tidak di-prerender: isinya diambil dari sitemap yang memuat proyek dan kreator dari database saat runtime.
 			routes: [
-				'/llms.txt',
-				'/llms-full.txt',
 				'/blog',
 				'/changelog',
 				...contentRoutes('1.docs'),
@@ -183,8 +185,19 @@ export default defineNuxtConfig({
 		}
 	},
 
-	// Nuxt SEO v6 ikut memasang AI Ready, padahal llms.txt sudah dibuat nuxt-llms.
-	aiReady: false,
+	// llms.txt, llms-full.txt, versi .md tiap halaman, dan Content-Signal di robots.txt.
+	aiReady: {
+		// Database bawaan AI Ready butuh drizzle-orm 1.x, sedangkan NuxtHub memakai 0.x. MCP memakai tools sendiri di server/mcp.
+		database: false,
+		// Cache HTML di server/middleware/edge-cache.ts berkunci URL, jadi negosiasi lewat header Accept dimatikan; URL .md tetap jalan.
+		contentNegotiation: false,
+		llmsTxt: {
+			notes: [
+				'Majalengka Tech adalah etalase proyek dan profil kreator (developer dan desainer) dari Majalengka, Jawa Barat.',
+				'Proyek ada di /projek/<slug>, profil kreator di /<username>. Data publik juga bisa ditanyakan lewat server MCP di /mcp.'
+			]
+		}
+	},
 
 	cloudinary: {
 		cloudName: process.env.NUXT_CLOUDINARY_CLOUD_NAME || process.env.CLOUDINARY_CLOUD_NAME || 'daton7ry4'
@@ -249,35 +262,10 @@ export default defineNuxtConfig({
 		enabled: false
 	},
 
-	llms: {
-		domain: 'https://majalengka.tech',
-		title: 'Majalengka Tech',
-		description: 'Tempat developer dan desainer Majalengka memamerkan proyeknya',
-		notes: [
-			'Dibangun dengan Nuxt 4, Nuxt Content v3, Nuxt UI v4, NuxtHub (SQLite), Cloudinary, dan Better Auth, berjalan di VPS dengan Docker.',
-			'Menyediakan showcase karya, profil kreator di /username, panduan pemakaian, dan catatan rilis.'
-		],
-		full: {
-			title: 'Majalengka Tech Full Content',
-			description: 'Panduan pemakaian, panduan kontribusi kode, dan catatan rilis Majalengka Tech.'
-		},
-		sections: [
-			{
-				title: 'Panduan',
-				description: 'Cara memamerkan karya, mengatur profil kreator, apresiasi dan komentar, serta berkontribusi pada kode Majalengka Tech',
-				contentCollection: 'docs'
-			},
-			{
-				title: 'Blog',
-				description: 'Tulisan dari komunitas Majalengka Tech',
-				contentCollection: 'posts'
-			},
-			{
-				title: 'Changelog',
-				description: 'Catatan rilis dan riwayat pembaruan platform Majalengka Tech',
-				contentCollection: 'versions'
-			}
-		]
+	// Server MCP untuk asisten AI: tools hanya membaca data publik (lihat server/mcp/tools).
+	mcp: {
+		name: 'Majalengka Tech',
+		route: '/mcp'
 	},
 
 	ogImage: {
@@ -322,13 +310,22 @@ export default defineNuxtConfig({
 	},
 
 	sitemap: {
+		// Proyek dan profil kreator berasal dari database, bukan dari file halaman.
+		sources: ['/api/__sitemap__/urls'],
 		exclude: [
 			'/dashboard/**',
 			'/kelola/**',
-			'/api/**'
+			'/api/**',
+			'/login',
+			'/signup',
+			'/lupa-sandi',
+			'/reset-sandi'
 		]
 	},
 
-	// Nuxt SEO v6 ikut memasang Skew Protection; belum dikonfigurasi untuk server ini, jadi dimatikan dulu.
-	skewProtection: false
+	// Chunk build lama tetap tersaji setelah deploy. Riwayat build di node_modules/.cache/nuxt-seo dipertahankan
+	// lewat cache mount BuildKit di Dockerfile; tanpa itu setiap build dianggap build pertama.
+	skewProtection: {
+		retentionDays: 14
+	}
 })

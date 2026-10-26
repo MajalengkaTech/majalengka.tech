@@ -12,6 +12,8 @@ useSeoMeta({
 	description: 'Proyek aplikasi, desain, dan teknologi buatan developer dan desainer Majalengka.'
 })
 
+useSchemaOrg([defineWebPage({ '@type': 'CollectionPage' })])
+
 defineOgImage('Saas', {
 	headline: 'Showcase',
 	title: 'Proyek Kreator Majalengka',

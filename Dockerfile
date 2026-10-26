@@ -1,3 +1,4 @@
+# syntax=docker/dockerfile:1
 # Build di dalam image: modul native (libsql, sharp, resvg) jadi cocok dengan server (Linux ARM64),
 # dan path data yang tertanam saat build menjadi /app/.data, sama dengan volume di docker-compose.yml.
 FROM node:22-bookworm-slim AS build
@@ -9,7 +10,9 @@ COPY . .
 RUN bun install --frozen-lockfile
 # Prerender halaman docs memanggil better-auth, yang menolak jalan tanpa secret. Secret acak ini hanya untuk build;
 # saat runtime nilainya ditimpa NUXT_BETTER_AUTH_SECRET dari .env.
-RUN NUXT_BETTER_AUTH_SECRET="$(node -e "process.stdout.write(require('node:crypto').randomBytes(32).toString('hex'))")" bun run build
+# Riwayat build Skew Protection disimpan di cache BuildKit, supaya chunk deploy sebelumnya ikut tersaji di build berikutnya.
+RUN --mount=type=cache,id=majalengka-tech-skew,target=/app/node_modules/.cache/nuxt-seo \
+	NUXT_BETTER_AUTH_SECRET="$(node -e "process.stdout.write(require('node:crypto').randomBytes(32).toString('hex'))")" bun run build
 
 FROM node:22-bookworm-slim AS runner
 WORKDIR /app

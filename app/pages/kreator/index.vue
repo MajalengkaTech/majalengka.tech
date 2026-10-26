@@ -16,9 +16,11 @@ interface Creator {
 }
 
 useSeoMeta({
-	title: 'Kreator · Majalengka Tech',
+	title: 'Kreator',
 	description: 'Developer dan desainer yang sudah memamerkan proyeknya di Majalengka Tech. Buka profilnya untuk melihat semua proyek mereka.'
 })
+
+useSchemaOrg([defineWebPage({ '@type': 'CollectionPage' })])
 
 // Filter untuk UMKM atau perekrut yang mencari kreator; disimpan di URL supaya hasilnya bisa dibagikan.
 const route = useRoute()
