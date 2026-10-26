@@ -242,7 +242,8 @@ useEventListener('beforeunload', (event: BeforeUnloadEvent) => {
 					<EditorRich
 						v-model="state.body"
 						image-folder="tutorial"
-						placeholder="Tulis langkah-langkahnya, atau ketik / untuk menyisipkan..."
+						components
+						placeholder="Tulis langkah-langkahnya, atau ketik / untuk menyisipkan subjudul, kode, tab, atau video..."
 					/>
 				</UFormField>
 			</div>

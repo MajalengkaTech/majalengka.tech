@@ -4,6 +4,7 @@ import type { Editor, JSONContent } from '@tiptap/vue-3'
 import { mapEditorItems } from '@nuxt/ui/utils/editor'
 import { TableKit } from '@tiptap/extension-table'
 import { CellSelection } from '@tiptap/pm/tables'
+import { COMARK_TEMPLATES, comarkExtensions } from './ComarkBlocks'
 import { ImageUpload } from './ImageUploadExtension'
 
 // Editor ala Notion mengikuti template Nuxt UI Editor, dipakai tutorial dan cerita proyek: menu "/", pegangan blok
@@ -12,10 +13,30 @@ const props = defineProps<{
 	placeholder?: string
 	imageFolder: 'tutorial' | 'projek'
 	projectId?: number
+	// Komponen tipografi Nuxt UI (callout, tab, langkah, grup kode, video). Khusus editor tutorial.
+	components?: boolean
 }>()
 const model = defineModel<string>({ required: true })
 
+function insertHandler(content: JSONContent) {
+	return {
+		canExecute: (editor: Editor) => editor.can().insertContent(content),
+		execute: (editor: Editor) => editor.chain().focus().insertContent(content),
+		isActive: (editor: Editor) => editor.isActive(content.type!),
+		isDisabled: undefined
+	}
+}
+
 const customHandlers = {
+	callout: insertHandler(COMARK_TEMPLATES.callout!),
+	steps: insertHandler(COMARK_TEMPLATES.steps!),
+	tabs: insertHandler(COMARK_TEMPLATES.tabs!),
+	accordion: insertHandler(COMARK_TEMPLATES.accordion!),
+	cardGroup: insertHandler(COMARK_TEMPLATES.cardGroup!),
+	codeGroup: insertHandler(COMARK_TEMPLATES.codeGroup!),
+	codeTree: insertHandler(COMARK_TEMPLATES.codeTree!),
+	codeCollapse: insertHandler(COMARK_TEMPLATES.codeCollapse!),
+	videoEmbed: insertHandler(COMARK_TEMPLATES.videoEmbed!),
 	imageUpload: {
 		canExecute: (editor: Editor) => editor.can().insertContent({ type: 'imageUpload' }),
 		execute: (editor: Editor) => editor.chain().focus().insertContent({ type: 'imageUpload' }),
@@ -30,10 +51,34 @@ const customHandlers = {
 	}
 } satisfies EditorCustomHandlers
 
-const extensions = [ImageUpload.configure({ folder: props.imageFolder, projectId: props.projectId }), TableKit]
+const extensions = [
+	ImageUpload.configure({ folder: props.imageFolder, projectId: props.projectId }),
+	TableKit,
+	...(props.components ? comarkExtensions : [])
+]
 
-// Hanya format yang dirender halaman tutorial (lihat renderTutorial di utils/markdown.ts). Garis bawah tidak dipakai
-// karena Markdown menyimpannya sebagai HTML, dan HTML mentah ditampilkan sebagai teks.
+// Editor tutorial memakai blok kode sendiri (dengan kolom bahasa dan nama file), jadi blok kode bawaan dimatikan.
+const starterKit = {
+	underline: false as const,
+	heading: { levels: [2, 3] as (2 | 3)[] },
+	link: { openOnClick: false },
+	codeBlock: props.components ? false as const : undefined
+}
+
+const componentItems: EditorSuggestionMenuItem<typeof customHandlers>[] = [
+	{ kind: 'callout', label: 'Kotak catatan', icon: 'i-lucide-info' },
+	{ kind: 'steps', label: 'Langkah-langkah', icon: 'i-lucide-list-ordered' },
+	{ kind: 'tabs', label: 'Tab', icon: 'i-lucide-panels-top-left' },
+	{ kind: 'accordion', label: 'Akordeon (tanya jawab)', icon: 'i-lucide-list-collapse' },
+	{ kind: 'cardGroup', label: 'Grup kartu', icon: 'i-lucide-layout-grid' },
+	{ kind: 'codeGroup', label: 'Grup kode', icon: 'i-lucide-files' },
+	{ kind: 'codeTree', label: 'Pohon file', icon: 'i-lucide-folder-tree' },
+	{ kind: 'codeCollapse', label: 'Kode panjang', icon: 'i-lucide-fold-vertical' },
+	{ kind: 'videoEmbed', label: 'Video YouTube/Vimeo', icon: 'i-lucide-video' }
+]
+
+// Hanya format yang dirender halaman publik (lihat server/utils/comark.ts). Garis bawah tidak dipakai karena
+// Markdown menyimpannya sebagai HTML mentah.
 const markItems: EditorToolbarItem<typeof customHandlers>[] = [
 	{ kind: 'mark', mark: 'bold', icon: 'i-lucide-bold', tooltip: { text: 'Tebal' } },
 	{ kind: 'mark', mark: 'italic', icon: 'i-lucide-italic', tooltip: { text: 'Miring' } },
@@ -62,6 +107,14 @@ const toolbarItems: EditorToolbarItem<typeof customHandlers>[][] = [
 		{ kind: 'table', icon: 'i-lucide-table', tooltip: { text: 'Sisipkan tabel' } },
 		{ kind: 'horizontalRule', icon: 'i-lucide-separator-horizontal', tooltip: { text: 'Garis pemisah' } }
 	],
+	...(props.components
+		? [[{
+				icon: 'i-lucide-blocks',
+				tooltip: { text: 'Sisipkan komponen' },
+				content: { align: 'start' as const },
+				items: componentItems
+			}]]
+		: []),
 	[{ slot: 'link' as const, icon: 'i-lucide-link' }]
 ]
 
@@ -115,7 +168,7 @@ const suggestionItems: EditorSuggestionMenuItem<typeof customHandlers>[][] = [[
 	{ kind: 'imageUpload', label: 'Gambar', icon: 'i-lucide-image' },
 	{ kind: 'table', label: 'Tabel', icon: 'i-lucide-table' },
 	{ kind: 'horizontalRule', label: 'Garis pemisah', icon: 'i-lucide-separator-horizontal' }
-]]
+], ...(props.components ? [[{ type: 'label' as const, label: 'Komponen' }, ...componentItems]] : [])]
 
 // Menu titik enam di kiri blok, disesuaikan dari useEditorDragHandle di template Nuxt UI Editor.
 const NODE_LABELS: Record<string, string> = {
@@ -128,7 +181,16 @@ const NODE_LABELS: Record<string, string> = {
 	codeBlock: 'Blok kode',
 	image: 'Gambar',
 	table: 'Tabel',
-	horizontalRule: 'Garis pemisah'
+	horizontalRule: 'Garis pemisah',
+	callout: 'Kotak catatan',
+	steps: 'Langkah-langkah',
+	tabs: 'Tab',
+	accordion: 'Akordeon',
+	cardGroup: 'Grup kartu',
+	codeGroup: 'Grup kode',
+	codeTree: 'Pohon file',
+	codeCollapse: 'Kode panjang',
+	videoEmbed: 'Video'
 }
 const CONVERTIBLE_TYPES = ['paragraph', 'heading', 'bulletList', 'orderedList', 'blockquote', 'codeBlock', 'listItem']
 const selectedNode = ref<{ node: JSONContent | null, pos: number }>()
@@ -175,11 +237,7 @@ function dragHandleItems(editor: Editor): DropdownMenuItem[][] {
 		content-type="markdown"
 		:extensions="extensions"
 		:handlers="customHandlers"
-		:starter-kit="{
-			underline: false,
-			heading: { levels: [2, 3] },
-			link: { openOnClick: false }
-		}"
+		:starter-kit="starterKit"
 		:placeholder="placeholder"
 		class="w-full rounded-md border border-accented bg-default focus-within:border-primary"
 		:ui="{ base: 'min-h-[50vh] px-4 py-5 sm:px-14' }"
