@@ -195,7 +195,17 @@ export default defineNuxtConfig({
 			notes: [
 				'Majalengka Tech adalah etalase proyek dan profil kreator (developer dan desainer) dari Majalengka, Jawa Barat.',
 				'Proyek ada di /projek/<slug>, profil kreator di /<username>. Data publik juga bisa ditanyakan lewat server MCP di /mcp.'
-			]
+			],
+			// Tanpa database AI Ready hanya mengenal halaman prerender, jadi halaman utama yang datanya dari DB ditautkan di sini.
+			sections: [{
+				title: 'Halaman utama',
+				links: [
+					{ title: 'Showcase proyek', href: '/projek', description: 'Semua proyek yang sudah diterbitkan kreator Majalengka.' },
+					{ title: 'Daftar kreator', href: '/kreator', description: 'Developer dan desainer Majalengka, bisa disaring per skill, lokasi, dan kesediaan kerja sama.' },
+					{ title: 'Tentang', href: '/tentang', description: 'Latar belakang dan prinsip pengelolaan Majalengka Tech.' },
+					{ title: 'Panduan', href: '/docs/getting-started', description: 'Cara memamerkan proyek dan mengatur profil kreator.' }
+				]
+			}]
 		}
 	},
 
