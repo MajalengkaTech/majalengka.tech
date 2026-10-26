@@ -84,6 +84,19 @@ const chips = computed(() => {
 		.filter(chip => chip.total > 0 || chip.key === category.value)
 })
 
+// Kategori memakai pilihan dropdown supaya tidak ada deretan tombol yang harus digeser di layar sempit.
+const categoryItems = computed(() => [
+	{ label: 'Semua kategori', value: 'semua' },
+	...chips.value.map(chip => ({ label: `${chip.label} (${chip.total})`, value: chip.key }))
+])
+
+const headerDescription = computed(() => {
+	const stats = statsData.value
+	return stats?.totalProjects
+		? `Proyek developer dan desainer Majalengka. Saat ini ada ${stats.totalProjects} proyek dari ${stats.totalCreators} kreator.`
+		: 'Proyek developer dan desainer Majalengka.'
+})
+
 const sortItems = [
 	{ label: 'Terbaru', value: 'terbaru' },
 	{ label: 'Terpopuler', value: 'populer' }
@@ -98,27 +111,12 @@ function resetFilters() {
 </script>
 
 <template>
-	<UContainer class="flex flex-col gap-8 py-8 sm:py-12">
-		<header class="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
-			<div class="flex max-w-2xl flex-col gap-3">
-				<h1 class="text-3xl font-bold tracking-tight text-highlighted sm:text-4xl lg:text-5xl">
-					Showcase
-				</h1>
-				<p class="text-base text-pretty text-muted sm:text-lg">
-					Proyek developer dan desainer Majalengka.
-					<template v-if="statsData?.totalProjects">
-						Saat ini ada {{ statsData.totalProjects }} proyek dari {{ statsData.totalCreators }} kreator.
-					</template>
-				</p>
-			</div>
-			<UButton
-				label="Pamerkan Proyekmu"
-				icon="i-lucide-folder-plus"
-				to="/dashboard/projects/new"
-				size="lg"
-				class="self-start sm:self-auto"
-			/>
-		</header>
+	<UContainer class="flex flex-col gap-8 pb-8 sm:pb-12">
+		<UPageHeader
+			title="Showcase"
+			:description="headerDescription"
+			:links="[{ label: 'Pamerkan Proyekmu', icon: 'i-lucide-folder-plus', to: '/dashboard/projects/new', size: 'lg' }]"
+		/>
 
 		<ProjectSpotlight
 			v-if="topProject && !isFiltering"
@@ -126,45 +124,6 @@ function resetFilters() {
 		/>
 
 		<div class="flex flex-col gap-4 border-y border-default py-4">
-			<nav
-				aria-label="Filter kategori"
-				class="-mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0"
-			>
-				<ul class="flex w-max gap-2 sm:w-auto sm:flex-wrap">
-					<li>
-						<UButton
-							class="shrink-0 whitespace-nowrap px-3.5 py-1.5 font-medium transition"
-							:class="!category ? 'filter-chip-active shadow-xs' : 'text-muted hover:text-highlighted'"
-							color="neutral"
-							variant="outline"
-							:aria-current="!category ? 'page' : undefined"
-							@click="setQuery({ kategori: undefined })"
-						>
-							Semua
-						</UButton>
-					</li>
-					<li
-						v-for="chip in chips"
-						:key="chip.key"
-					>
-						<UButton
-							class="shrink-0 whitespace-nowrap px-3.5 py-1.5 gap-1.5 font-medium transition"
-							:class="category === chip.key ? 'filter-chip-active shadow-xs' : 'text-muted hover:text-highlighted'"
-							color="neutral"
-							variant="outline"
-							:aria-current="category === chip.key ? 'page' : undefined"
-							@click="setQuery({ kategori: chip.key })"
-						>
-							<span>{{ chip.label }}</span>
-							<span
-								class="text-xs tabular-nums"
-								:class="category === chip.key ? 'text-white/85' : 'text-muted'"
-							>{{ chip.total }}</span>
-						</UButton>
-					</li>
-				</ul>
-			</nav>
-
 			<div
 				v-if="tech"
 				class="flex flex-wrap items-center gap-2 text-sm text-muted"
@@ -192,6 +151,14 @@ function resetFilters() {
 						base: '!ps-9'
 					}"
 					aria-label="Cari proyek"
+				/>
+				<USelect
+					:model-value="category ?? 'semua'"
+					:items="categoryItems"
+					icon="i-lucide-shapes"
+					class="w-full sm:w-56"
+					aria-label="Saring kategori"
+					@update:model-value="(value: string) => setQuery({ kategori: value === 'semua' ? undefined : value })"
 				/>
 				<!-- Dua pilihan urutan langsung terlihat; penanda aktif bergeser saat diganti. -->
 				<UTabs

@@ -4,6 +4,7 @@ import { defineEventHandler } from 'nuxt/server'
 import { requireSignedIn } from '../../utils/project-access'
 import { toPrivateProfile } from '../../utils/profile'
 import { isSuperAdmin } from '../../utils/admin'
+import { isTutorialReviewer } from '../../utils/tutorials'
 
 export default defineEventHandler(async (event) => {
 	const session = await requireSignedIn(event)
@@ -28,6 +29,7 @@ export default defineEventHandler(async (event) => {
 		user: toPrivateProfile(user),
 		projectCount: countRow?.total ?? 0,
 		// Hanya untuk tampilan menu; /api/admin/logs tetap memeriksa sendiri.
-		isSuperAdmin: isSuperAdmin(user.id)
+		isSuperAdmin: isSuperAdmin(user.id),
+		isTutorialReviewer: await isTutorialReviewer(String(user.id))
 	}
 })

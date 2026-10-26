@@ -13,7 +13,7 @@ import { db, schema } from 'hub:db'
 const PAYLOAD_SUFFIX = '/_payload.json'
 
 // Segmen tunggal yang bukan profil kreator, supaya halaman aplikasi tidak ikut di-cache sebagai profil.
-const NOT_PROFILE = new Set(['login', 'signup', 'logout', 'dashboard', 'kelola', 'docs', 'blog', 'changelog', 'api'])
+const NOT_PROFILE = new Set(['login', 'signup', 'logout', 'dashboard', 'kelola', 'docs', 'blog', 'tutorial', 'changelog', 'api'])
 
 // Kesegaran dijaga oleh nomor versi; TTL hanya batas atas untuk perubahan di luar API (misalnya SQL manual).
 const RULES: { pattern: RegExp, ttl: number }[] = [

@@ -51,6 +51,7 @@ export default defineEventHandler(async (event) => {
 	await db.batch([
 		db.delete(schema.notifications).where(eq(schema.notifications.projectId, id)),
 		db.delete(schema.contentReports).where(eq(schema.contentReports.projectId, id)),
+		db.update(schema.tutorials).set({ projectId: null }).where(eq(schema.tutorials.projectId, id)),
 		db.delete(schema.projectComments).where(eq(schema.projectComments.projectId, id)),
 		db.delete(schema.projectLikes).where(eq(schema.projectLikes.projectId, id)),
 		db.delete(schema.projectImages).where(eq(schema.projectImages.projectId, id)),

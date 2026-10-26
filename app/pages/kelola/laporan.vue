@@ -200,112 +200,118 @@ async function deleteContent() {
 					:description="status === 'baru' ? 'Laporan baru dari pengguna akan muncul di sini.' : 'Laporan yang kamu tandai selesai akan tersimpan di sini.'"
 				/>
 
-				<ul
+				<UPageCard
 					v-else
-					class="flex flex-col divide-y divide-default rounded-md border border-default"
+					variant="subtle"
+					:ui="{ container: 'p-0 sm:p-0 gap-y-0', wrapper: 'items-stretch' }"
 				>
-					<li
-						v-for="report in reports"
-						:key="report.id"
-						class="flex flex-col gap-3 p-4 lg:flex-row lg:items-start"
+					<ul
+						role="list"
+						class="divide-y divide-default"
 					>
-						<div class="flex min-w-0 flex-1 flex-col gap-2">
-							<div class="flex flex-wrap items-center gap-1.5">
-								<UBadge
-									:label="report.targetType === 'comment' ? 'Komentar' : 'Proyek'"
-									:icon="report.targetType === 'comment' ? 'i-lucide-message-circle' : 'i-lucide-folder'"
+						<li
+							v-for="report in reports"
+							:key="report.id"
+							class="flex flex-col gap-3 px-4 py-3 lg:flex-row lg:items-start sm:px-6"
+						>
+							<div class="flex min-w-0 flex-1 flex-col gap-2">
+								<div class="flex flex-wrap items-center gap-1.5">
+									<UBadge
+										:label="report.targetType === 'comment' ? 'Komentar' : 'Proyek'"
+										:icon="report.targetType === 'comment' ? 'i-lucide-message-circle' : 'i-lucide-folder'"
+										color="neutral"
+										variant="outline"
+										size="sm"
+									/>
+									<UBadge
+										:label="reasonLabel(report.reason)"
+										color="warning"
+										variant="subtle"
+										size="sm"
+									/>
+									<time
+										:datetime="report.createdAt"
+										class="text-xs text-muted"
+									>{{ waktuRelatif(report.createdAt) }}</time>
+								</div>
+
+								<p class="min-w-0 text-sm">
+									<NuxtLink
+										v-if="targetLink(report)"
+										:to="targetLink(report)"
+										target="_blank"
+										class="rounded-sm font-semibold text-highlighted outline-primary/25 hover:text-primary focus-visible:outline-3"
+									>
+										{{ report.projectTitle }}
+									</NuxtLink>
+									<span
+										v-else
+										class="text-muted"
+									>Proyek sudah dihapus</span>
+									<span
+										v-if="report.ownerName"
+										class="text-muted"
+									> · oleh {{ report.ownerName }}<template v-if="report.ownerUsername"> (@{{ report.ownerUsername }})</template></span>
+								</p>
+
+								<blockquote
+									v-if="report.targetType === 'comment'"
+									class="border-l-2 border-default pl-3 text-sm wrap-break-word whitespace-pre-line text-default"
+								>
+									{{ report.commentBody ?? 'Komentar sudah dihapus.' }}
+								</blockquote>
+
+								<p
+									v-if="report.note"
+									class="text-sm wrap-break-word text-default"
+								>
+									<span class="font-medium">Catatan pelapor:</span> {{ report.note }}
+								</p>
+
+								<p class="text-xs text-muted">
+									Dilaporkan oleh {{ report.reporterName ?? 'akun yang sudah dihapus' }}<template v-if="report.reporterUsername">
+										(@{{ report.reporterUsername }})
+									</template>
+									<template v-if="report.resolvedAt">
+										· selesai {{ formatTanggal(report.resolvedAt) }}
+									</template>
+								</p>
+							</div>
+
+							<div class="flex flex-wrap items-center gap-2 lg:justify-end">
+								<UButton
+									v-if="report.status === 'baru'"
+									icon="i-lucide-check"
+									label="Tandai Selesai"
 									color="neutral"
 									variant="outline"
 									size="sm"
+									:loading="updatingId === report.id"
+									@click="setStatus(report, 'selesai')"
 								/>
-								<UBadge
-									:label="reasonLabel(report.reason)"
-									color="warning"
-									variant="subtle"
-									size="sm"
-								/>
-								<time
-									:datetime="report.createdAt"
-									class="text-xs text-muted"
-								>{{ waktuRelatif(report.createdAt) }}</time>
-							</div>
-
-							<p class="min-w-0 text-sm">
-								<NuxtLink
-									v-if="targetLink(report)"
-									:to="targetLink(report)"
-									target="_blank"
-									class="rounded-sm font-semibold text-highlighted outline-primary/25 hover:text-primary focus-visible:outline-3"
-								>
-									{{ report.projectTitle }}
-								</NuxtLink>
-								<span
+								<UButton
 									v-else
-									class="text-muted"
-								>Proyek sudah dihapus</span>
-								<span
-									v-if="report.ownerName"
-									class="text-muted"
-								> · oleh {{ report.ownerName }}<template v-if="report.ownerUsername"> (@{{ report.ownerUsername }})</template></span>
-							</p>
-
-							<blockquote
-								v-if="report.targetType === 'comment'"
-								class="border-l-2 border-default pl-3 text-sm wrap-break-word whitespace-pre-line text-default"
-							>
-								{{ report.commentBody ?? 'Komentar sudah dihapus.' }}
-							</blockquote>
-
-							<p
-								v-if="report.note"
-								class="text-sm wrap-break-word text-default"
-							>
-								<span class="font-medium">Catatan pelapor:</span> {{ report.note }}
-							</p>
-
-							<p class="text-xs text-muted">
-								Dilaporkan oleh {{ report.reporterName ?? 'akun yang sudah dihapus' }}<template v-if="report.reporterUsername">
-									(@{{ report.reporterUsername }})
-								</template>
-								<template v-if="report.resolvedAt">
-									· selesai {{ formatTanggal(report.resolvedAt) }}
-								</template>
-							</p>
-						</div>
-
-						<div class="flex flex-wrap items-center gap-2 lg:justify-end">
-							<UButton
-								v-if="report.status === 'baru'"
-								icon="i-lucide-check"
-								label="Tandai Selesai"
-								color="neutral"
-								variant="outline"
-								size="sm"
-								:loading="updatingId === report.id"
-								@click="setStatus(report, 'selesai')"
-							/>
-							<UButton
-								v-else
-								icon="i-lucide-rotate-ccw"
-								label="Buka Lagi"
-								color="neutral"
-								variant="outline"
-								size="sm"
-								:loading="updatingId === report.id"
-								@click="setStatus(report, 'baru')"
-							/>
-							<UButton
-								v-if="report.projectId && (report.targetType === 'project' || report.commentBody !== null)"
-								icon="i-lucide-trash-2"
-								:label="report.targetType === 'comment' ? 'Hapus Komentar' : 'Hapus Proyek'"
-								color="error"
-								variant="ghost"
-								size="sm"
-								@click="deleteTarget = report"
-							/>
-						</div>
-					</li>
-				</ul>
+									icon="i-lucide-rotate-ccw"
+									label="Buka Lagi"
+									color="neutral"
+									variant="outline"
+									size="sm"
+									:loading="updatingId === report.id"
+									@click="setStatus(report, 'baru')"
+								/>
+								<UButton
+									v-if="report.projectId && (report.targetType === 'project' || report.commentBody !== null)"
+									icon="i-lucide-trash-2"
+									:label="report.targetType === 'comment' ? 'Hapus Komentar' : 'Hapus Proyek'"
+									color="error"
+									variant="ghost"
+									size="sm"
+									@click="deleteTarget = report"
+								/>
+							</div>
+						</li>
+					</ul>
+				</UPageCard>
 			</div>
 
 			<UModal

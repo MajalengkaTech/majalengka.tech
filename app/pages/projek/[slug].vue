@@ -133,6 +133,12 @@ useSchemaOrg([
 	})
 ])
 
+// Tutorial yang ditautkan penulisnya ke proyek ini; diambil setelah halaman tampil supaya tidak menahan render.
+const { data: projectTutorials } = useLazyFetch<{ tutorials: { id: number, slug: string, title: string, summary: string | null, level: TutorialLevel, readingMinutes: number }[] }>('/api/tutorials', {
+	query: { proyek: project.value.id, limit: 6 },
+	server: false
+})
+
 // Proyek lain dari kreator yang sama muncul saat pembaca sampai di bagian bawah.
 useReveal(useTemplateRef<HTMLElement>('others'))
 
@@ -381,6 +387,34 @@ const dockHidden = computed(() => actionsVisible.value || commentsVisible.value 
 				<ProjectCreatorCard :author="project.author" />
 			</aside>
 		</div>
+
+		<section
+			v-if="projectTutorials?.tutorials.length"
+			aria-labelledby="judul-tutorial-proyek"
+			class="flex flex-col gap-5 border-t border-default pt-8"
+		>
+			<h2
+				id="judul-tutorial-proyek"
+				class="text-xl font-bold text-highlighted"
+			>
+				Tutorial dari proyek ini
+			</h2>
+			<UPageGrid class="lg:grid-cols-2">
+				<UPageCard
+					v-for="tutorial in projectTutorials.tutorials"
+					:key="tutorial.id"
+					:to="`/tutorial/${tutorial.slug}`"
+					:title="tutorial.title"
+					:description="tutorial.summary || undefined"
+					icon="i-lucide-book-open"
+					variant="outline"
+				>
+					<template #footer>
+						<span class="text-xs text-muted">{{ TUTORIAL_LEVELS[tutorial.level] }} · {{ tutorial.readingMinutes }} menit baca</span>
+					</template>
+				</UPageCard>
+			</UPageGrid>
+		</section>
 
 		<section
 			v-if="otherProjects.length"

@@ -68,15 +68,47 @@ export const notifications = sqliteTable('notifications', {
 	id: integer('id').primaryKey({ autoIncrement: true }),
 	userId: text('user_id').notNull().references(() => user.id, { onDelete: 'cascade' }),
 	actorId: text('actor_id').references(() => user.id, { onDelete: 'set null' }),
-	type: text('type').notNull(), // 'like' | 'comment'
+	type: text('type').notNull(), // 'like' | 'comment' | 'tutorial_terbit' | 'tutorial_ditolak'
 	projectId: integer('project_id').references(() => projects.id, { onDelete: 'cascade' }),
 	commentId: integer('comment_id'),
+	tutorialId: integer('tutorial_id'),
 	readAt: integer('read_at', { mode: 'timestamp' }),
 	createdAt: integer('created_at', { mode: 'timestamp' }).notNull()
 }, table => [
 	index('notifications_user_idx').on(table.userId, table.createdAt),
 	index('notifications_project_idx').on(table.projectId)
 ])
+
+// Tutorial ditulis kreator di dashboard dan baru tampil publik setelah disetujui peninjau (status 'terbit').
+export const tutorials = sqliteTable('tutorials', {
+	id: integer('id').primaryKey({ autoIncrement: true }),
+	userId: text('user_id').notNull().references(() => user.id, { onDelete: 'cascade' }),
+	projectId: integer('project_id').references(() => projects.id, { onDelete: 'set null' }),
+	title: text('title').notNull(),
+	slug: text('slug').notNull().unique(),
+	summary: text('summary'),
+	body: text('body').notNull(),
+	level: text('level').notNull().default('pemula'), // 'pemula' | 'menengah' | 'lanjut'
+	tags: text('tags'),
+	status: text('status').notNull().default('draf'), // 'draf' | 'ditinjau' | 'terbit' | 'ditolak'
+	reviewNote: text('review_note'),
+	reviewedBy: text('reviewed_by'),
+	reviewedAt: integer('reviewed_at', { mode: 'timestamp' }),
+	publishedAt: integer('published_at', { mode: 'timestamp' }),
+	createdAt: integer('created_at', { mode: 'timestamp' }).notNull(),
+	updatedAt: integer('updated_at', { mode: 'timestamp' })
+}, table => [
+	index('tutorials_status_published_idx').on(table.status, table.publishedAt),
+	index('tutorials_user_idx').on(table.userId),
+	index('tutorials_project_idx').on(table.projectId)
+])
+
+// Peninjau tutorial selain admin, dipilih admin di /kelola/tutorial.
+export const tutorialReviewers = sqliteTable('tutorial_reviewers', {
+	userId: text('user_id').primaryKey().references(() => user.id, { onDelete: 'cascade' }),
+	addedBy: text('added_by'),
+	createdAt: integer('created_at', { mode: 'timestamp' }).notNull()
+})
 
 // Laporan proyek atau komentar yang tidak pantas dari pengguna, ditinjau pengelola di /kelola/laporan.
 export const contentReports = sqliteTable('content_reports', {
@@ -100,3 +132,4 @@ export type ProjectRecord = typeof projects.$inferSelect
 export type NewProjectRecord = typeof projects.$inferInsert
 export type ProjectImageRecord = typeof projectImages.$inferSelect
 export type ProjectCommentRecord = typeof projectComments.$inferSelect
+export type TutorialRecord = typeof tutorials.$inferSelect

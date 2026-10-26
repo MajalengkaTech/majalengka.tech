@@ -61,6 +61,10 @@ export default defineEventHandler(async (event) => {
 	await db.batch([
 		db.delete(schema.notifications).where(or(eq(schema.notifications.userId, body.userId), eq(schema.notifications.actorId, body.userId))),
 		db.delete(schema.notifications).where(inArray(schema.notifications.projectId, ownProjectIds)),
+		db.delete(schema.notifications).where(inArray(schema.notifications.tutorialId, db.select({ id: schema.tutorials.id }).from(schema.tutorials).where(eq(schema.tutorials.userId, body.userId)))),
+		db.delete(schema.tutorials).where(eq(schema.tutorials.userId, body.userId)),
+		db.delete(schema.tutorialReviewers).where(eq(schema.tutorialReviewers.userId, body.userId)),
+		db.update(schema.tutorials).set({ projectId: null }).where(inArray(schema.tutorials.projectId, ownProjectIds)),
 		db.delete(schema.contentReports).where(eq(schema.contentReports.reporterId, body.userId)),
 		db.delete(schema.contentReports).where(inArray(schema.contentReports.projectId, ownProjectIds)),
 		// Laporan atas komentar akun ini di proyek orang lain, sebelum komentarnya dihapus.

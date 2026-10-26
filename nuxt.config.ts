@@ -2,7 +2,7 @@
 import { existsSync, readdirSync } from 'node:fs'
 import { join, relative } from 'node:path'
 
-// Halaman panduan dan blog di-prerender jadi file statis, jadi tidak dirender ulang di server. crawlLinks dimatikan,
+// Halaman panduan dan changelog di-prerender jadi file statis, jadi tidak dirender ulang di server. crawlLinks dimatikan,
 // jadi rutenya dibaca dari folder content: awalan angka ("1.docs") dibuang dan index.md jadi rute induknya.
 function contentRoutes(folder: string) {
 	const root = join('content', folder)
@@ -114,8 +114,9 @@ export default defineNuxtConfig({
 		// dengan kunci yang memuat versi data supaya selalu terbaru. Jangan pasang swr di sini: datanya bisa tertinggal.
 		'/docs': { redirect: '/docs/getting-started', prerender: false },
 		'/docs/**': { prerender: true },
-		'/blog': { prerender: true },
-		'/blog/**': { prerender: true },
+		// Blog diganti Tutorial (2026-10-26); alamat lama dialihkan supaya tautan yang sudah tersebar tetap jalan.
+		'/blog': { redirect: { to: '/tutorial', statusCode: 301 } },
+		'/blog/**': { redirect: { to: '/tutorial', statusCode: 301 } },
 		'/changelog': { prerender: true },
 		// Jangan pasang swr/cache di route API yang punya handler POST atau butuh sesi: cache Nitro membungkus
 		// semua method di route itu dan membuang cookie, sehingga POST /api/projects pernah membalas hasil cache GET.
@@ -142,10 +143,8 @@ export default defineNuxtConfig({
 		prerender: {
 			// llms.txt tidak di-prerender: isinya diambil dari sitemap yang memuat proyek dan kreator dari database saat runtime.
 			routes: [
-				'/blog',
 				'/changelog',
-				...contentRoutes('1.docs'),
-				...contentRoutes('3.blog')
+				...contentRoutes('1.docs')
 			],
 			crawlLinks: false,
 			ignore: [
@@ -201,6 +200,7 @@ export default defineNuxtConfig({
 				title: 'Halaman utama',
 				links: [
 					{ title: 'Showcase proyek', href: '/projek', description: 'Semua proyek yang sudah diterbitkan kreator Majalengka.' },
+					{ title: 'Tutorial', href: '/tutorial', description: 'Tutorial dari kreator Majalengka, banyak yang menceritakan cara membuat proyek mereka.' },
 					{ title: 'Daftar kreator', href: '/kreator', description: 'Developer dan desainer Majalengka, bisa disaring per skill, lokasi, dan kesediaan kerja sama.' },
 					{ title: 'Tentang', href: '/tentang', description: 'Latar belakang dan prinsip pengelolaan Majalengka Tech.' },
 					{ title: 'Panduan', href: '/docs/getting-started', description: 'Cara memamerkan proyek dan mengatur profil kreator.' }

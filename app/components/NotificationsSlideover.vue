@@ -16,11 +16,15 @@ watch(() => route.fullPath, () => {
 })
 
 function message(item: NotificationItem) {
+	if (item.type === 'tutorial_terbit') return `menerbitkan tutorialmu "${item.tutorial?.title ?? ''}"`
+	if (item.type === 'tutorial_ditolak') return `meminta perbaikan untuk "${item.tutorial?.title ?? ''}"`
 	const title = item.project?.title ? `"${item.project.title}"` : 'proyekmu'
 	return item.type === 'like' ? `mengapresiasi ${title}` : `mengomentari ${title}`
 }
 
 function link(item: NotificationItem) {
+	if (item.type === 'tutorial_terbit' && item.tutorial?.slug) return `/tutorial/${item.tutorial.slug}`
+	if (item.type === 'tutorial_ditolak' && item.tutorial) return `/dashboard/tutorial/${item.tutorial.id}`
 	if (!item.project) return undefined
 	return item.type === 'comment' ? `/projek/${item.project.slug}#judul-komentar` : `/projek/${item.project.slug}`
 }
@@ -30,7 +34,7 @@ function link(item: NotificationItem) {
 	<USlideover
 		v-model:open="open"
 		title="Notifikasi"
-		description="Apresiasi dan komentar baru di proyekmu."
+		description="Apresiasi, komentar, dan hasil tinjauan tutorialmu."
 	>
 		<template #body>
 			<div
@@ -94,7 +98,7 @@ function link(item: NotificationItem) {
 						</p>
 						<p class="truncate text-muted">
 							<UIcon
-								:name="item.type === 'like' ? 'i-lucide-heart' : 'i-lucide-message-circle'"
+								:name="item.type === 'like' ? 'i-lucide-heart' : item.type === 'comment' ? 'i-lucide-message-circle' : item.type === 'tutorial_terbit' ? 'i-lucide-book-check' : 'i-lucide-pencil'"
 								class="mr-1 size-3.5 align-[-2px]"
 							/>
 							{{ message(item) }}

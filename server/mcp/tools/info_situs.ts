@@ -10,6 +10,7 @@ export default defineMcpTool({
 		halaman: {
 			proyek: 'https://majalengka.tech/projek',
 			kreator: 'https://majalengka.tech/kreator',
+			tutorial: 'https://majalengka.tech/tutorial',
 			panduan: 'https://majalengka.tech/docs/getting-started',
 			tentang: 'https://majalengka.tech/tentang',
 			catatanRilis: 'https://majalengka.tech/changelog',

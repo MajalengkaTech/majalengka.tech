@@ -103,7 +103,9 @@ const { data: files } = useLazyAsyncData('search', () => queryCollectionSearchSe
 	server: false
 })
 
-const { data: blogPosts } = useLazyAsyncData('search-posts', () => queryCollection('posts').all(), {
+const { data: tutorialsData, refresh: refreshSearchTutorials } = useLazyFetch<{ tutorials: { id: number, slug: string, title: string, summary: string | null, level: TutorialLevel }[] }>('/api/tutorials', {
+	key: 'search-tutorials',
+	query: { limit: 60 },
 	server: false
 })
 // Hanya dipakai palet pencarian di browser; tidak diambil saat render server supaya tiap halaman hemat CPU.
@@ -115,7 +117,10 @@ const { data: projectsData, refresh: refreshSearchProjects } = useLazyFetch('/ap
 // Daftar proyek diambil sekali saat situs dibuka, jadi proyek yang baru diunggah perlu diambil ulang saat pencarian dibuka.
 const { open: searchOpen } = useContentSearch()
 watch(searchOpen, (isOpen) => {
-	if (isOpen) refreshSearchProjects()
+	if (isOpen) {
+		refreshSearchProjects()
+		refreshSearchTutorials()
+	}
 })
 
 interface SearchGroupItem {
@@ -136,17 +141,18 @@ interface SearchGroup {
 const searchGroups = computed<SearchGroup[]>(() => {
 	const groups: SearchGroup[] = []
 
-	if (blogPosts.value && blogPosts.value.length > 0) {
+	const tutorials = tutorialsData.value?.tutorials ?? []
+	if (tutorials.length) {
 		groups.push({
-			id: 'blog',
-			label: 'Blog & Artikel Komunitas',
-			items: blogPosts.value.map(post => ({
-				id: `blog-${post.path}`,
-				label: post.title,
-				description: post.description || 'Tulisan dari komunitas Majalengka Tech',
-				icon: 'i-lucide-newspaper',
-				to: post.path,
-				suffix: post.badge?.label || 'Blog'
+			id: 'tutorial',
+			label: 'Tutorial',
+			items: tutorials.map(tutorial => ({
+				id: `tutorial-${tutorial.id}`,
+				label: tutorial.title,
+				description: tutorial.summary || undefined,
+				icon: 'i-lucide-book-open',
+				to: `/tutorial/${tutorial.slug}`,
+				suffix: TUTORIAL_LEVELS[tutorial.level]
 			}))
 		})
 	}

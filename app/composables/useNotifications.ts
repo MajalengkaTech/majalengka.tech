@@ -1,11 +1,12 @@
 export interface NotificationItem {
 	id: number
-	type: 'like' | 'comment'
+	type: 'like' | 'comment' | 'tutorial_terbit' | 'tutorial_ditolak'
 	unread: boolean
 	createdAt: string
 	actor: { name: string, avatarUrl: string | null }
 	project: { title: string | null, slug: string } | null
 	commentId: number | null
+	tutorial: { id: number, title: string | null, slug: string | null } | null
 }
 
 // State bersama untuk lonceng di header situs, lonceng di dashboard, dan panel notifikasi di app.vue.

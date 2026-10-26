@@ -1,7 +1,7 @@
 import { and, eq, isNotNull, sql } from 'drizzle-orm'
 import { db, schema } from 'hub:db'
 
-// Halaman dinamis untuk sitemap: proyek yang terbit, dan profil kreator yang punya minimal satu proyek terbit
+// Halaman dinamis untuk sitemap: tutorial dan proyek yang terbit, dan profil kreator yang punya minimal satu proyek terbit
 // (profil kosong tidak dimasukkan supaya Google tidak mengindeks halaman tipis). Akun yang ditangguhkan tidak ikut.
 export default defineSitemapEventHandler(async () => {
 	const { projects, user } = schema
@@ -19,7 +19,17 @@ export default defineSitemapEventHandler(async () => {
 		.from(user)
 		.where(and(isNotNull(user.username), notBanned, sql`${lastPublished} is not null`))
 
+	const tutorialRows = await db
+		.select({ slug: schema.tutorials.slug, publishedAt: schema.tutorials.publishedAt, updatedAt: schema.tutorials.updatedAt })
+		.from(schema.tutorials)
+		.innerJoin(user, eq(schema.tutorials.userId, user.id))
+		.where(and(eq(schema.tutorials.status, 'terbit'), notBanned))
+
 	return [
+		...tutorialRows.map(row => ({
+			loc: `/tutorial/${row.slug}`,
+			lastmod: row.updatedAt ?? row.publishedAt ?? undefined
+		})),
 		...projectRows.map(row => ({
 			loc: `/projek/${row.slug}`,
 			lastmod: row.updatedAt ?? row.createdAt

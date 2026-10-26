@@ -167,17 +167,30 @@
 	}
 }
 
-/* Category filter active state */
-.filter-chip-active {
-	background-color: #0014a8 !important;
-	color: #ffffff !important;
-	border-color: #0014a8 !important;
-}
-
 
 /* Cerita proyek: markdown hasil renderStory() di halaman detail proyek. */
 .story-content > * + * {
 	margin-top: 1rem;
+}
+
+/* Tutorial memakai h2 untuk bagian utama; scroll-margin supaya tidak tertutup header saat dibuka dari daftar isi. */
+.story-content h2 {
+	margin-top: 2.25rem;
+	font-size: 1.5rem;
+	font-weight: 700;
+	color: var(--ui-text-highlighted);
+	scroll-margin-top: 5rem;
+}
+
+.story-content h3[id] {
+	scroll-margin-top: 5rem;
+}
+
+.story-content img {
+	max-width: 100%;
+	height: auto;
+	border: 1px solid var(--ui-border);
+	border-radius: 0.5rem;
 }
 
 .story-content h3 {

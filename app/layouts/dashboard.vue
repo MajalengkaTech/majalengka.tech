@@ -14,14 +14,14 @@ const isAdmin = computed(() => {
 	return (user.value as { role?: string } | null)?.role === 'admin'
 })
 
-// Daftar Super Admin hanya ada di server, jadi status ini diambil dari profil sendiri, dan hanya untuk admin.
-const { data: access } = useFetch<{ isSuperAdmin?: boolean }>('/api/user/profile', {
+// Daftar Super Admin dan peninjau tutorial hanya ada di server, jadi statusnya diambil dari profil sendiri.
+const { data: access } = useFetch<{ isSuperAdmin?: boolean, isTutorialReviewer?: boolean }>('/api/user/profile', {
 	key: 'nav-access',
 	server: false,
-	immediate: isAdmin.value,
-	pick: ['isSuperAdmin']
+	pick: ['isSuperAdmin', 'isTutorialReviewer']
 })
 const isSuperAdmin = computed(() => isAdmin.value && Boolean(access.value?.isSuperAdmin))
+const canReviewTutorials = computed(() => isAdmin.value || Boolean(access.value?.isTutorialReviewer))
 
 // Halaman /kelola/laporan memanggil refreshNuxtData('open-reports') setelah mengubah status.
 const { data: reportCount } = useFetch<{ open: number }>('/api/admin/reports/count', {
@@ -47,6 +47,15 @@ const navLinks = computed<NavigationMenuItem[][]>(() => {
 			label: 'Proyek Saya',
 			icon: 'i-lucide-folder-git-2',
 			to: '/dashboard/projects',
+			disabled: !hasUsername.value,
+			onSelect: () => {
+				open.value = false
+			}
+		},
+		{
+			label: 'Tutorial Saya',
+			icon: 'i-lucide-book-open',
+			to: '/dashboard/tutorial',
 			disabled: !hasUsername.value,
 			onSelect: () => {
 				open.value = false
@@ -86,6 +95,18 @@ const navLinks = computed<NavigationMenuItem[][]>(() => {
 			icon: 'i-lucide-flag',
 			to: '/kelola/laporan',
 			badge: openReports.value ? String(openReports.value) : undefined,
+			disabled: !hasUsername.value,
+			onSelect: () => {
+				open.value = false
+			}
+		})
+	}
+
+	if (canReviewTutorials.value) {
+		primaryLinks.push({
+			label: 'Tinjau Tutorial',
+			icon: 'i-lucide-book-check',
+			to: '/kelola/tutorial',
 			disabled: !hasUsername.value,
 			onSelect: () => {
 				open.value = false

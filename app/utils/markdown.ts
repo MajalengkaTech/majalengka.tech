@@ -71,3 +71,50 @@ export function storyPlainText(markdown: string | null | undefined, maxLength = 
 		.trim()
 	return text.length > maxLength ? `${text.slice(0, maxLength - 1).trimEnd()}…` : text
 }
+
+export interface TutorialHeading {
+	id: string
+	text: string
+	depth: 2 | 3
+}
+
+function headingId(text: string, used: Map<string, number>) {
+	const base = text.toLowerCase().replace(/<[^>]+>/g, '').replace(/&[a-z#0-9]+;/g, '').replace(/[^\w\s-]/g, '').trim().replace(/\s+/g, '-') || 'bagian'
+	const count = used.get(base) ?? 0
+	used.set(base, count + 1)
+	return count ? `${base}-${count}` : base
+}
+
+// Tutorial memakai aturan aman yang sama dengan cerita proyek, ditambah id pada judul bagian (untuk daftar isi)
+// dan gambar https yang dimuat lambat tanpa referrer, karena tutorial butuh tangkapan layar.
+export function renderTutorial(markdown: string | null | undefined) {
+	const headings: TutorialHeading[] = []
+	const used = new Map<string, number>()
+	const marked = new Marked({
+		gfm: true,
+		renderer: {
+			html({ text, block }) {
+				return block ? `<p>${escapeHtml(text)}</p>` : escapeHtml(text)
+			},
+			heading({ tokens, depth }) {
+				const inner = this.parser.parseInline(tokens)
+				const level = depth <= 2 ? 2 : 3
+				const id = headingId(inner, used)
+				headings.push({ id, text: inner.replace(/<[^>]+>/g, ''), depth: level })
+				return `<h${level} id="${id}">${inner}</h${level}>`
+			},
+			link({ href, tokens }) {
+				const label = this.parser.parseInline(tokens)
+				const url = safeUrl(href)
+				return url ? externalLink(url, label) : label
+			},
+			image({ href, text }) {
+				const url = safeUrl(href)
+				if (!url || !url.startsWith('https:')) return escapeHtml(text)
+				return `<img src="${escapeHtml(url)}" alt="${escapeHtml(text || '')}" loading="lazy" decoding="async" referrerpolicy="no-referrer">`
+			}
+		}
+	})
+	const html = markdown ? marked.parse(markdown, { async: false }) : ''
+	return { html, headings }
+}

@@ -22,11 +22,15 @@ export default defineEventHandler(async (event) => {
 			actorUsername: actor.username,
 			actorImage: actor.image,
 			projectTitle: schema.projects.title,
-			projectSlug: schema.projects.slug
+			projectSlug: schema.projects.slug,
+			tutorialTitle: schema.tutorials.title,
+			tutorialSlug: schema.tutorials.slug,
+			tutorialId: schema.tutorials.id
 		})
 			.from(schema.notifications)
 			.leftJoin(actor, eq(schema.notifications.actorId, actor.id))
 			.leftJoin(schema.projects, eq(schema.notifications.projectId, schema.projects.id))
+			.leftJoin(schema.tutorials, eq(schema.notifications.tutorialId, schema.tutorials.id))
 			.where(eq(schema.notifications.userId, userId))
 			.orderBy(desc(schema.notifications.createdAt))
 			.limit(LIMIT),
@@ -39,7 +43,7 @@ export default defineEventHandler(async (event) => {
 		unread: unread?.total ?? 0,
 		notifications: rows.map(row => ({
 			id: row.id,
-			type: row.type as 'like' | 'comment',
+			type: row.type as 'like' | 'comment' | 'tutorial_terbit' | 'tutorial_ditolak',
 			unread: !row.readAt,
 			createdAt: row.createdAt,
 			actor: {
@@ -47,7 +51,8 @@ export default defineEventHandler(async (event) => {
 				avatarUrl: row.actorImage
 			},
 			project: row.projectSlug ? { title: row.projectTitle, slug: row.projectSlug } : null,
-			commentId: row.commentId
+			commentId: row.commentId,
+			tutorial: row.tutorialId ? { id: row.tutorialId, title: row.tutorialTitle, slug: row.tutorialSlug } : null
 		}))
 	}
 })

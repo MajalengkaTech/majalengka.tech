@@ -78,6 +78,9 @@ const items = computed(() => [{
 	label: 'Kreator',
 	to: '/kreator'
 }, {
+	label: 'Tutorial',
+	to: '/tutorial'
+}, {
 	label: 'Tentang',
 	to: '/tentang'
 }, {
