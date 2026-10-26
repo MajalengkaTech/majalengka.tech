@@ -42,6 +42,7 @@ export interface ProjectItem {
 
 export interface ProjectDetail extends ProjectItem {
 	images: ProjectImage[]
+	story: RenderedMarkdown
 	isOwner: boolean
 	canManage?: boolean
 	author: ProjectAuthor & {

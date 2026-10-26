@@ -2,6 +2,7 @@ import { and, eq } from 'drizzle-orm'
 import { db, schema } from 'hub:db'
 import { defineEventHandler, getRouterParam } from 'nuxt/server'
 import { isAdmin } from '../../../utils/admin'
+import { renderComark } from '../../../utils/comark'
 import { getAuthSession } from '../../../utils/project-access'
 import { isTutorialReviewer } from '../../../utils/tutorials'
 
@@ -53,6 +54,7 @@ export default defineEventHandler(async (event) => {
 		tutorial: {
 			...tutorial,
 			readingMinutes: tutorialReadingMinutes(row.body),
+			rendered: await renderComark(row.body, 'tutorial'),
 			author: { name: authorName || 'Kreator', username: authorUsername, avatarUrl: authorImage },
 			project: projectSlug ? { title: projectTitle, slug: projectSlug, tagline: projectTagline, thumbnailUrl: projectThumbnail } : null
 		}

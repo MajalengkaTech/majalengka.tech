@@ -83,7 +83,27 @@ async function save(kirim: boolean) {
 }
 
 const previewOpen = ref(false)
-const preview = computed(() => previewOpen.value ? renderTutorial(state.body).html : '')
+const previewLoading = ref(false)
+const previewError = ref('')
+const preview = shallowRef<RenderedMarkdown | null>(null)
+
+// Pratinjau dirender server dengan renderer halaman publik, supaya warna kode dan komponen sama dengan hasil terbit.
+watch(previewOpen, async (open) => {
+	if (!open) return
+	previewLoading.value = true
+	previewError.value = ''
+	try {
+		preview.value = await $fetch<RenderedMarkdown>('/api/markdown/preview', {
+			method: 'POST',
+			body: { markdown: state.body.replace(/<div data-type="image-upload"><\/div>\s*/g, ''), mode: 'tutorial' }
+		})
+	} catch (err: unknown) {
+		const error = err as { data?: { statusMessage?: string } }
+		previewError.value = error.data?.statusMessage || 'Pratinjau gagal dimuat. Tutup panel ini, lalu buka lagi.'
+	} finally {
+		previewLoading.value = false
+	}
+})
 
 const submitKirim = ref(false)
 function onSubmit(_event: FormSubmitEvent<TutorialInput>) {
@@ -264,13 +284,33 @@ useEventListener('beforeunload', (event: BeforeUnloadEvent) => {
 			:ui="{ content: 'sm:max-w-3xl' }"
 		>
 			<template #body>
-				<!-- Aman untuk v-html: renderTutorial meng-escape semua HTML mentah dan hanya mengizinkan link http(s)/mailto. -->
-				<!-- eslint-disable vue/no-v-html -->
 				<div
-					class="story-content break-words text-base/7 text-default"
-					v-html="preview"
+					v-if="previewLoading"
+					class="flex flex-col gap-3"
+				>
+					<USkeleton class="h-6 w-2/3" />
+					<USkeleton class="h-4 w-full" />
+					<USkeleton class="h-4 w-5/6" />
+					<USkeleton class="h-32 w-full" />
+				</div>
+				<UAlert
+					v-else-if="previewError"
+					color="error"
+					variant="subtle"
+					icon="i-lucide-circle-alert"
+					title="Pratinjau belum bisa ditampilkan"
+					:description="previewError"
 				/>
-				<!-- eslint-enable vue/no-v-html -->
+				<p
+					v-else-if="!preview?.nodes.length"
+					class="text-muted"
+				>
+					Isi tutorialnya masih kosong. Tulis langkah pertama di editor, lalu buka pratinjau lagi.
+				</p>
+				<MarkdownContent
+					v-else
+					:value="preview"
+				/>
 			</template>
 		</USlideover>
 

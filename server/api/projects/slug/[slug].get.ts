@@ -2,6 +2,7 @@ import { asc, eq } from 'drizzle-orm'
 import { db, schema } from 'hub:db'
 import { defineEventHandler, getRouterParam } from 'nuxt/server'
 import { isAdmin } from '../../../utils/admin'
+import { renderComark } from '../../../utils/comark'
 import { projectListColumns, toProjectItem } from '../../../utils/project-listing'
 import { parseSocialLinks } from '../../../utils/profile'
 
@@ -33,7 +34,7 @@ export default defineEventHandler(async (event) => {
 		})
 	}
 
-	const [images, authorProfile] = await Promise.all([
+	const [images, authorProfile, story] = await Promise.all([
 		db.select({
 			id: schema.projectImages.id,
 			url: schema.projectImages.url,
@@ -53,7 +54,8 @@ export default defineEventHandler(async (event) => {
 		})
 			.from(schema.user)
 			.where(eq(schema.user.id, row.project.userId))
-			.limit(1)
+			.limit(1),
+		renderComark(row.project.description, 'cerita')
 	])
 
 	const item = toProjectItem(row)
@@ -67,6 +69,7 @@ export default defineEventHandler(async (event) => {
 				socialLinks: parseSocialLinks(authorData?.socialLinks)
 			},
 			images,
+			story,
 			isOwner: currentUserId === row.project.userId,
 			// Hanya untuk tampilan tombol; endpoint ubah dan hapus tetap memeriksa sendiri.
 			canManage: currentUserId === row.project.userId || isAdmin(session?.user)

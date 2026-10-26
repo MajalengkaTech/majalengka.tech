@@ -37,7 +37,6 @@ const images = computed(() => {
 
 const tags = computed(() => splitTags(project.value.tags))
 const category = computed(() => categoryLabel(project.value.category))
-const storyHtml = computed(() => renderStory(project.value.description))
 
 const links = computed(() => [
 	project.value.demoUrl && { label: 'Coba Demo', icon: 'i-lucide-external-link', to: project.value.demoUrl, color: 'primary' as const, variant: 'solid' as const },
@@ -320,13 +319,7 @@ const dockHidden = computed(() => actionsVisible.value || commentsVisible.value 
 					>
 						Cerita di balik proyek
 					</h2>
-					<!-- Aman untuk v-html: renderStory meng-escape semua HTML mentah dan hanya mengizinkan link http(s)/mailto. -->
-					<!-- eslint-disable vue/no-v-html -->
-					<div
-						class="story-content max-w-prose break-words text-base/7 text-default"
-						v-html="storyHtml"
-					/>
-					<!-- eslint-enable vue/no-v-html -->
+					<MarkdownContent :value="project.story" />
 				</section>
 
 				<dl

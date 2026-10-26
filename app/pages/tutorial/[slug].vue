@@ -12,6 +12,7 @@ interface TutorialDetail {
 	updatedAt: string | null
 	createdAt: string
 	readingMinutes: number
+	rendered: RenderedMarkdown
 	author: { name: string, username: string | null, avatarUrl: string | null }
 	project: { title: string | null, slug: string, tagline: string | null, thumbnailUrl: string | null } | null
 }
@@ -25,11 +26,10 @@ if (error.value || !data.value) {
 }
 
 const tutorial = computed(() => data.value!.tutorial)
-const rendered = computed(() => renderTutorial(tutorial.value.body))
 const tags = computed(() => splitTags(tutorial.value.tags))
 const isPublished = computed(() => tutorial.value.status === 'terbit')
 const authorUrl = computed(() => tutorial.value.author.username ? `/${tutorial.value.author.username.toLowerCase()}` : undefined)
-const tocLinks = computed(() => rendered.value.headings.map(heading => ({ id: heading.id, text: heading.text, depth: heading.depth })))
+const tocLinks = computed(() => tutorial.value.rendered.meta.toc?.links ?? [])
 
 const seoDescription = computed(() => tutorial.value.summary || storyPlainText(tutorial.value.body))
 const ogImage = tutorial.value.project?.thumbnailUrl || undefined
@@ -130,13 +130,7 @@ useSchemaOrg([
 					class="mb-8"
 				/>
 
-				<!-- Aman untuk v-html: renderTutorial meng-escape semua HTML mentah dan hanya mengizinkan link http(s)/mailto. -->
-				<!-- eslint-disable vue/no-v-html -->
-				<div
-					class="story-content max-w-prose break-words text-base/7 text-default"
-					v-html="rendered.html"
-				/>
-				<!-- eslint-enable vue/no-v-html -->
+				<MarkdownContent :value="tutorial.rendered" />
 
 				<USeparator
 					v-if="tutorial.project"
