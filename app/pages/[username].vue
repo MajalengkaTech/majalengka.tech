@@ -112,13 +112,17 @@ useSeoMeta({
 })
 
 // Google membaca halaman ini sebagai profil seseorang, lengkap dengan akun lain miliknya (sameAs).
+// ProfilePage wajib punya mainEntity yang menunjuk ke Person lewat @id yang sama (Search Console).
+const profilUrl = computed(() => `https://majalengka.tech/${String(creator.value.username).toLowerCase()}`)
+const idKreator = computed(() => `${profilUrl.value}#kreator`)
 useSchemaOrg([
-	defineWebPage({ '@type': 'ProfilePage' }),
+	defineWebPage({ '@type': 'ProfilePage', 'mainEntity': { '@id': idKreator } }),
 	{
 		'@type': 'Person',
+		'@id': idKreator,
 		'name': () => creator.value.name,
 		'alternateName': () => `@${creator.value.username}`,
-		'url': () => `https://majalengka.tech/${String(creator.value.username).toLowerCase()}`,
+		'url': profilUrl,
 		'image': () => creator.value.avatarUrl || undefined,
 		'description': seoDescription,
 		'jobTitle': () => roleLabel.value || undefined,
